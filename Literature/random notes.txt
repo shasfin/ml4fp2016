@@ -1,0 +1,77 @@
+
+John Feser, Swarat Chaudhuri, and Isil Dillig. Synthesizing data structure transformations from input-output examples. ACM Conference on Programming Language Design and Implementation (PLDI), 2015. (pdf)
+
+	*) Main result: tool with deductively guided inductive synthesis
+
+***
+
+Albarghouthi, Gulwani, Kincaid - Recursive Program Synthesis
+
+	Escher
+	Code not found
+	Is interesting. Can synthesize recursive programs.
+	-- if-then-else is implemented using a goal graph, that splits the goals and adds subgoals
+	-- observational equivalence. Programs that evaluate the same on the given examples are not considered (only the first generated)
+	-- otherwise normal: apply a component to the population of generated programs to increase the population
+	-- uses a set of library components
+
+***
+
+Katayama - Efficient Exhaustive Generation of Functional Programs using Monte-Carlo Search with Iterative Deepening
+
+	still to read. complicated
+***
+
+Hofmann, Kitzelmann, Schmid - Applying Inductive Program Synthesis to Induction of Number Series
+
+	Not really relevant, just a statistical analysis of the tool IGOR2 applied to number series completion.
+	Maybe some of the references are interesting.
+
+***
+
+Sumit Gulwani. Example-Based Learning in Computer-Aided STEM Education
+
+	Collective paper about recent work in example-based learning in computer-aided education.
+	Procedural and conceptual learning.
+	Problem generation (generate automatically problems similar to a given one)
+	Solution generation (generate a step-by-step solution)
+	Feedback generation (find the error and give useful feedback, identify the nature of the error)
+	Explains some general concepts common to those papers
+
+	*) How can you apply it?
+	Here the things they are trying to find are some "complex" things, like proofs. Maybe there are some similarities.
+	No idea, sorry
+
+***
+
+Microsoft research page about program synthesis.
+Lots of links to papers and some applications:
+http://research.microsoft.com/en-us/um/people/sumitg/pubs/synthesis.html
+
+***
+
+Dana Angluin (1987). "Learning Regular Sets from Queries and Counter-Examples" (PDF). Information and Control 75: 87–106. doi:10.1016/0890-5401(87)90052-6
+
+	*) Main result:
+
+	Theorem 6: Given any minimally adequate Teacher presenting an unknown regular set U, the Learner L* eventually terminates and outputs an acceptor isomorphic to the minimum dfa accepting U. Moreover, if n is the number of states of the minimum dfa accepting U and m is an upper bound on the length of any counterexample provided bythe Teacher, then the total running time of L* is bounded by a polynomial in m and n.
+	
+	Finding counterexamples using sampling (probabilistic method to verify that a conjecture is correct).
+	It is possible to replace the Teacher's replies to conjectures by statical sampling whenever the problem of testing a conjecture against randomly drawn samples is sufficiently tractable (i.e. not only for regular sets).
+	Approximate learner L*_a.
+	Theorem 7: If n is the number of states in the minimum dfa for the unknown regular set U, then L*_a terminates after O(n+ 1/eps)(n log(1/delta)+n^2)) calls to the EX() oracle. Moreover, the probabilith that the acceptor output by L*_a is an eps-approximation of Y is at leaste 1-delta.
+	
+	Context free grammars as a special case.
+	A Learner L_cf for a class of context-free languages is described. Based on explicit enumeration of all possible productions and pruning based on counterexamples.
+	
+	*) How can you use it:
+	
+	The problem is that the set functional programs isn't regular. Is it context free? Can we restrict the search set to a regular set?
+	
+	The idea of using a "teacher" to guide the search of the program is also very interesting.
+	And testing the conjecture by statical sampling is also an idea.
+	
+	The set of Haskell programs is context-free, but a single problem (which is what we are looking for) is not a context-free grammar.
+	
+	
+***
