@@ -1,0 +1,50 @@
+Hindley-Milner type system
+
+type inference
+
+program enumaration: exhaustive enumeration for context free language (no standard way)
+
+Read at least the first 6-7 references
+
+1-2 weeks
+
+Most related paper: 2015 (the first one)
+
+___________________________________________________
+With or without lambda expressions?
+
+Which programming language? Haskell? ML?
+(I mean, for the programs to synthesize)
+Think of a way to make it scale. If you implement all the, say, Prelude functions, then you need to leave a clear entry point for other programmers to add some other primitives.
+
+Is scala really ok to implement such a program? As far I know, there are no abstract data types. How can you program such an expression tree in an object oriented setting?
+
+Target language: straight-line functional programs from a library of functional components. Purely applicative, without lambda expressions nor nested functions.
+The library components are explicitly typed in the Hindley-Milner type system.
+
+Primary open question: how to discover those components that are relevant to the specific problem instance?
+More concrete problem to start with: how to prune the search space based on the component semantics?
+____________________________________________________
+Goals:
+
+some representation of the target language -> a week (maximum)
+
+program that executes programs of the target language (to verify the input/output pairs) -> same week as previous goal
+
+set up the system (parse the input/output pairs, testing framework and so on)
+
+program that enumerates programs of the target language (up to a certain size) -> two weeks (minimum)
+	direct the search, use type inference, prune not well-typed programs
+
+direct the search using trace information, play with the system -> three months
+	more subgoals
+
+write the report -> 1.5 months, aka 6 weeks
+
+_____________________________________________________
+Topics I should more or less know:
+1. Rudimentary computational learning theory --> keine Ahnung
+2. Syntax-guided synthesis --> keine Ahnung
+3. Type inference for Hindley Milner --> keine Ahnung
+4. Synthesis based on version-scape algebras --> keine Ahnung
+5. Recent advances in program synthesis --> the papers I am reading?ddddxdxxduuuuuuuuuuuuu
