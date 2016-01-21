@@ -43,8 +43,17 @@ write the report -> 1.5 months, aka 6 weeks
 
 _____________________________________________________
 Topics I should more or less know:
-1. Rudimentary computational learning theory --> keine Ahnung
-2. Syntax-guided synthesis --> keine Ahnung
+1. Rudimentary computational learning theory --> keine Ahnung --> there is a book
+2. Syntax-guided synthesis --> keine Ahnung --> try the slides that you have from Vitautas
 3. Type inference for Hindley Milner --> keine Ahnung
-4. Synthesis based on version-scape algebras --> keine Ahnung
+4. Synthesis based on version-space algebras --> keine Ahnung --> there is a paper
 5. Recent advances in program synthesis --> the papers I am reading?ddddxdxxduuuuuuuuuuuuu
+
+_______________________________________________________
+I need a package structure.
+In one Package I will have the abstract class Component (for now with name and eval, in the future also with the type) and the singleton objects extending it and implementing eval.
+In the other package I will have the interpreter (an ADT).
+This aids extensibility: a client can simply add another library component without having to know how my code actually works.
+And it is also good for modularity.
+Then I will maybe have another package for the generator, with all the variants. And the framework.
+And I must implement the story with the types. Unification, type inference and bla-bla-bla.
