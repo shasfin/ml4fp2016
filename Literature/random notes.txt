@@ -19,7 +19,10 @@ Albarghouthi, Gulwani, Kincaid - Recursive Program Synthesis
 
 Katayama - Efficient Exhaustive Generation of Functional Programs using Monte-Carlo Search with Iterative Deepening
 
-	still to read. complicated
+	Filter the generated expressions using a Monte-Carlo method instead of theoretical equivalence.
+	Requires that the arguments to the functions can be generated randomly and that theoretical equivalence can be tested on the result values.
+	Useful to reduce the search space and prune equivalent programs efficiently.
+
 ***
 
 Hofmann, Kitzelmann, Schmid - Applying Inductive Program Synthesis to Induction of Number Series
