@@ -47,6 +47,10 @@ Sumit Gulwani. Example-Based Learning in Computer-Aided STEM Education
 
 ***
 
+Online platform of the Inductive Programming community: www.inductive-programming.org
+
+***
+
 Microsoft research page about program synthesis.
 Lots of links to papers and some applications:
 http://research.microsoft.com/en-us/um/people/sumitg/pubs/synthesis.html
