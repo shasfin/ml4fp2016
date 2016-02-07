@@ -47,6 +47,16 @@ Sumit Gulwani. Example-Based Learning in Computer-Aided STEM Education
 
 ***
 
+Jha, Gulwani, Seshia - Oracle-Guided Component-Based Program Synthesis
+	oracle-guided: I/O oracle instead of a complete specification
+	componen-based: circuit-style, loop-free composition of components drawn from a given component library
+	constraint-based: use two kinds of constraints and SMT solver to reduce the search space
+
+	There are formulas and from the satisfying assignments of those formulas we can construct a candidate program. Generate new inputs needed to disambiguate between two candidate programs, ask for the output, prune the program that does not satisfy the new example.
+
+
+***
+
 Online platform of the Inductive Programming community: www.inductive-programming.org
 
 ***
