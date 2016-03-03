@@ -3,5 +3,5 @@
   */
 sealed abstract class Program
   case class Var(name: String)
-  case class Const()
+  case class Const(value: AnyVal)
   case class Fun(component: Component, args: List[Program])
