@@ -1,0 +1,44 @@
+\chapter{Related Work} \label{relatedwork}
+
+\note{Try to answer the following three question for each paper read:
+\begin{enumerate}
+\item What is new in this approach? Or better, what is the approach.
+\item What is the trick? (Why are they better than others?)
+\item Which examples they can do really well? What kind of examples do they target? What is the most complicated thing they can generate?
+\end{enumerate}
+}
+
+\note{Nadia Polikarpova 2015\\
+here is a talk: \url{http://research.microsoft.com/apps/video/default.aspx?id=255528&l=i} \\
+and here is the code: \url{https://bitbucket.org/nadiapolikarpova/synquid}\\}
+In \cite{DBLP:journals/corr/PolikarpovaS15} \textsc{Synquid} is proposed.
+Refinement types (types decorated with logical predicates) are used to prune the search space. SMT-solvers are used to satisfy the logical predicates. The key is the new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
+Examples that this tool is able to synthesize include several sorting algorithms,
+binary-search tree manipulations, red-black tree rotation as well as other benchmarks also used by other tools (\TODO{read about these benchmarks and write if there is something interesting}).
+The user specifies the desired program by providing a goal refinement type.
+
+\note{Feser 2015\\}
+The tool proposed in \cite{Feser:2015:SDS:2737924.2737977} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion.
+%If the tool does not time out on a set of input-output examples, it generates the least-cost program.
+The user specifies the desired program providing input-output examples.  
+\note{No particular knowledge is required from the user, as was demonstrated using random input-output examples}
+The examples are inductively generalized in a type-aware manner to a set of hypotheses (programs that possibly have free variables).
+The key idea are the hard-coded deduction rules used to prune the search space depending on the semantics of some of the higher-order combinators (map, fold, filter and a few others).
+Deduction is also used to infer new input-output examples in order to generate the programs needed to fill in the holes in the hypotheses.
+This tool is able to synthesize programs manipulating recursive data structures like lists, trees and nested data structures such as lists of lists and trees of lists.
+\note{The examples that require much more time to be synthesized than the others are dedup (remove duplicate elements from a list), droplast (drop the last element in a list), tconcat (insert a tree under each leaf of another tree), cprod (return the Cartesian product of a list of lists), dropmins (drop the smallest number in a list of lists), but all of them are synthesized under 7 minutes.}
+
+\note{Kincaid 2013\\}
+In \cite{Albarghouthi:2013:RPS:2526861.2526942} \textsc{Escher} is presented, an inductive synthesis algorithm that learns a recursive procedure from input-output examples provided by the user. \note{The user must provide a "closed" set of examples, otherwise recursion cannot be handled properly} The target language is untyped, first-order and purely functional.
+The algorithm is parametrized by components that can be instantiated differently to suit different domains.
+The approach combines enumerative search and conditional inference. The key idea is to use a special data structure, a \emph{goal graph}, to infer conditional branches instead of treating \texttt{if-then-else} as a component.
+Observational equivalence is also used to prune the search space. Programs with the same value vectors (output of the program when applied to the inputs of the input-output examples) are considered equivalent and only one of them is synthesized.
+An implementation of the tool was tested on a benchmark consisting of recursive programs \note{(including tail-recursive, divide-and-conquer and mutually recursive programs)} drawn from functional programming assignments and standard list and tree manipulation programs.
+For all examples the same fixed set of components was used.
+The tool is able to synthesize all of them quickly. \note{There is very little information on how many input-output examples were needed to synthesize the benchmarks and how difficult it is for a non-experienced user to come up with a "closed" set of examples.}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End:

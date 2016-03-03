@@ -45,13 +45,13 @@
 %% LaTeX' own graphics handling
 \usepackage{graphicx}
 
-%% We unfortunately need this for the Rules chapter.  Remove it
-%% afterwards; or at least NEVER use its underlining features.
-\usepackage{soul}
-
 %% This allows you to add .pdf files. It is used to add the
 %% declaration of originality.
 \usepackage{pdfpages}
+
+%% For sticking out todo notes and random notes for me
+\newcommand{\TODO}[1]{\textcolor{red!60!black}{\textbf{TODO:}~#1}}
+\newcommand{\note}[1]{\textcolor{blue!60!red}{~#1}}
 
 %% Some more packages that you may want to use.  Have a look at the
 %% file, and consult the package docs for each.
@@ -76,12 +76,12 @@
 %% Document information
 %% ====================
 
-\title{Title of Thesis}
-\author{S. Tudent}
+\title{Inductive Synthesis from Higher-Order Functions}
+\author{Alexandra Maximova}
 \thesistype{Master Thesis}
-\advisors{Advisors: Prof.\ Dr.\ A. D. Visor, Dr.\ P. Ostdoc}
+\advisors{Advisors: Prof.\ Dr.\ Martin Vechev, Dimitar Dimitrov}
 \department{Department of Computer Science}
-\date{January 19, 2038}
+\date{August 15, 2016}
 
 \begin{document}
 
@@ -106,6 +106,7 @@
 
 %% Your real content!
 \input{introduction}
+\input{relatedwork}
 
 \appendix
 
