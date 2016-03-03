@@ -17,8 +17,6 @@ Which programming language? Haskell? ML?
 (I mean, for the programs to synthesize)
 Think of a way to make it scale. If you implement all the, say, Prelude functions, then you need to leave a clear entry point for other programmers to add some other primitives.
 
-Is scala really ok to implement such a program? As far I know, there are no abstract data types. How can you program such an expression tree in an object oriented setting?
-
 Target language: straight-line functional programs from a library of functional components. Purely applicative, without lambda expressions nor nested functions.
 The library components are explicitly typed in the Hindley-Milner type system.
 
@@ -28,6 +26,7 @@ ____________________________________________________
 Goals:
 
 some representation of the target language -> a week (maximum)
+	--> How to represent the arguments?
 
 program that executes programs of the target language (to verify the input/output pairs) -> same week as previous goal
 
