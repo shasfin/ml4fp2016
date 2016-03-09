@@ -1,3 +1,30 @@
+List of benchmarks
+
+- I want to try nested data structures (lists of lists and lists of trees) with Synquid
+- Three sections: easy (the baseline, I want my algorithm to achieve those examples in any case, and just to see if it's working), medium and hard. Not all programs in medium and hard should be synthesizeble with Synquid in reasonable time or the specification should be less trivial.
+- I want to compare against Synquid, Myth and Lambda square. Or better, against papers with code that do program synthesis for functional programs.
+
+- List all programs used in the benchmarks of the papers you read.
+- Try them in Synquid.
+- Take the list from the google docs.
+- Try them in Synquid as well.
+- Prune the list.
+
+____________________________________________________
+What are my six official papers:
+1) Lambda square
+2) Synquid
+3) Myth
+4) Type-theoretic
+5) Type-theoretic, the second paper
+6) ???
+
+What I have in my folder:
+Katayama (Monte-Carlo method to test for equality of programs)
+Gulwani (overview of methods used in education)
+Gulwani (hole-based synthesis from components, for example for bit-manipulation programs and for de-obfuscation of code)
+
+____________________________________________________
 Hindley-Milner type system
 
 type inference
