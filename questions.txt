@@ -1,3 +1,7 @@
+How to treat conditionals in the synthesis process?
+
+___________________________________________________
+
 List of benchmarks
 
 - I want to try nested data structures (lists of lists and lists of trees) with Synquid

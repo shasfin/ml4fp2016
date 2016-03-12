@@ -1,0 +1,147 @@
+\chapter{Benchmarks} \label{benchmarks}
+
+\note{
+Some programs over numbers, some over lists, some over lists of lists and some over trees (What kind of trees?).
+For every program, try to get a sample implementation. \\
+Types needed: \lstinline?Int, [a], Tree a? \\
+Basic components needed:
+arithmetic (\lstinline?+, -, *, /?), 
+relation (\lstinline?<, <=, ==, !=, >=, >?),
+}
+
+\begin{enumerate}
+	\item max of two numbers\\
+	(hopefully) the easiest program \\
+	\begin{lstlisting}
+max :: Int -> Int -> Int
+max 0 0 == 0
+max 1 0 == 1
+max 0 1 == 1
+max x y = if x > y then x else y
+	\end{lstlisting}
+	\note{What to do with conditionals?}
+	\item square a number
+	\begin{lstlisting}
+square :: Int -> Int -> Int
+square 0 == 0
+square 1 == 1
+square 2 == 4
+square 3 == 9
+square x = x * x
+	\end{lstlisting}
+	That is, basic arithmetic operations like \lstinline!+ - * /! should be provided
+	\item tetrahedral numbers \\
+	\begin{lstlisting}
+tetrahedral :: Int -> Int
+tetrahedral 1 == 1
+tetrahedral 2 == 4
+tetrahedral 3 == 10
+	\end{lstlisting}
+	closed form solution
+	\begin{lstlisting}
+tetrahedral n = n * (n+1) * (n+2) / 6
+	\end{lstlisting}
+	iterative solution
+	\begin{lstlisting}
+tetrahedral n = scanl1 (+) (scanl1 (+) [0..]) !! n
+	\end{lstlisting}
+	Another iterative solution (without infinite lists)
+	\begin{lstlisting}
+tetrahedral n = foldl1 (+) (scanl1 (+) (enumFromTo 1 n))
+	\end{lstlisting}
+	Components needed: \lstinline?scanl1, !!? \\
+	Interestingly the iterative version is much faster than the closed form solution
+	\item prime test \\
+	I think this is too difficult
+	\TODO{find an implementation}
+	\item average
+	\begin{lstlisting}
+average :: [Int] -> Int
+average [1] == 1
+average [1,3] == 2
+average [1,2,3,6] == 6
+average xs = (sum xs) `div` (length xs)
+	\end{lstlisting}
+	\item movingAverage (forward)
+	\begin{lstlisting}
+movingAverage :: Int -> [Int] -> [Int]
+movingAverage 1 [1,2,3] == [1,2,3]
+movingAverage 2 [1,2,3] == [2,2,3]
+movingAverage 3 [3,2,4,1,5,2] == [3,2,3,2,3,2]
+movingAverage n xs = map (average . take n) (init $ tails xs)
+	\end{lstlisting}
+	Components needed: \lstinline?tails? from \lstinline?Data.List? and  \lstinline?average? (one of the benchmarks), as well as \lstinline?map, take? and \lstinline?init? from \lstinline?Prelude?.
+	\item movingSum (backward)
+	\item matrix multiplication \\
+	I wouldn't take this example. Matrices as lists of lists are unnatural.
+	\item waterflow problem
+	\item horner schema to evaluate polynomials
+	\item sum-under, sum all integers up to the argument
+	\begin{lstlisting}
+sum_under :: Int -> Int
+sum_under 0 == 0
+sum_under 1 == 1
+sum_under 2 == 3
+sum_under 3 == 6
+sum_under 4 == 10
+sum_under n = sum [1..n]
+	\end{lstlisting}
+	Components needed: \lstinline?sum, enumFromTo?
+	\item factorial \\
+	\begin{lstlisting}
+factorial :: Int -> Int
+factorial 0 == 0
+factorial 1 == 1
+factorial 3 == 6
+factorial 5 == 120
+factorial n = product [1..n]
+	\end{lstlisting}
+	interesting for intermediate states
+	\item maximum of a list\\
+	I don't know (yet) how to specify a "global property" like greater or smaller than all other elements in a list in \textsc{Synquid}. Moreover, it seems a difficult property to extract from input-output examples.
+	\begin{lstlisting}
+maximum :: [Int] -> Int
+maximum [1,3,2] == 3
+maximum [4,2,1] == 4
+maximum [1,3,5] == 5
+maximum xs = foldr max (head xs) xs
+	\end{lstlisting}
+	Or just use the \lstinline?maximum? function from \lstinline?Prelude?, if it is given as a component
+	\item append two lists\\
+	The specification given by Nadia does not synthesize the usual append function. Maybe it's better to let her know...\\
+	Although it's possible to synthesize append in \textsc{Synquid}.
+	\item length of a list \\
+	Can be also interesting for intermediate states
+	\item list reversal
+	\item bagsum: \lstinline![far,bar,gar,bar,bar,far] -> [(bar,3),(far,2),(gar,1)]!\\
+	Seems difficult and maybe intermediate states can be helpful
+	\item map \\
+	Isn't it a higher order function? I thought we synthesize only first order functions.
+	\item zipWith \\
+	it's a higher order function as well
+	\item list drop
+	\item droplast, drop the last element of a list
+	\item dropmax, drop the greatest element of a list\\
+	$\lambda^2$ takes much more time to synthesize droplast than dropmax. Why?
+	\item dedup, remove duplicates from a list \\
+	$\lambda^2$ requires more time
+	\item sort by length (on lists of lists)
+	\item dropmins \\
+	$\lambda^2$ required more time to synthesize it
+	\item lasts, last element of every list \\
+	another program on nested lists
+	\item member of the tree\\
+	Something with trees. Membership seems a difficult thing to learn from input-output examples.
+	\item count leaves it a tree
+	\item nodes at level
+
+\note{Nadia has more complicated examples with Red-Black-Trees, AVL-trees and different sorting algorithms}
+\end{enumerate}
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End:
