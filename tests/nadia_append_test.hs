@@ -30,3 +30,16 @@ movingAverage n xs = map (average . take n) (init $ tails xs)
 
 maximum' :: [Int] -> Int
 maximum' xs = foldr max (head xs) xs
+
+prime n = minimum (1 : (map (mod n) (enumFromTo 2 (subtract 1 n))))
+
+movingSum n xs = tail $ scanl (+) 0 (zipWith (-) xs (replicate n 0 ++ xs))
+
+movingSum' n xs = scanl1 (+) (zipWith (-) xs (replicate n 0 ++ xs))
+
+water h = sum $ 
+      zipWith (-) 
+        (zipWith min (scanl1 max h) (scanr1 max h))
+        h
+
+horner p x = foldl1 ((+) . (x *)) p
