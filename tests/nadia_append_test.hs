@@ -1,9 +1,10 @@
 import Data.List
+import Control.Arrow
 
-append :: [a] -> [a] -> [a]
-append xs [] = xs
-append [] ys = ys
-append (x8:x9) (x4:x5) = x4:(append x9 (x4:x5))
+appendNadia :: [a] -> [a] -> [a]
+appendNadia xs [] = xs
+appendNadia [] ys = ys
+appendNadia (x8:x9) (x4:x5) = x4:(appendNadia x9 (x4:x5))
 
 tails' xs = scanr (:) [] xs
 
@@ -43,3 +44,32 @@ water h = sum $
         h
 
 horner p x = foldl1 ((+) . (x *)) p
+
+append :: [a] -> [a] -> [a]
+append xs ys = foldr (:) ys xs
+
+reverse' :: [a] -> [a]
+reverse' xs = foldl (flip (:)) [] xs
+
+bagsum xs = map (head &&& length) (group (sort xs))
+
+map' :: (a -> b) -> [a] -> [b]
+map' f xs = foldr (\x acc -> f x : acc) [] xs
+
+map'' :: (a -> b) -> [a] -> [b]
+map'' f xs = foldr ((:) . f) [] xs
+
+drop' :: Int -> [a] -> [a]
+drop' n xs = snd (splitAt n xs)
+
+sortByLength :: [[a]] -> [[a]]
+sortByLength xss = sortBy (\xs ys -> compare (length xs) (length ys)) xss
+
+sortByLength' :: [[a]] -> [[a]]
+sortByLength' = sortBy (curry ((uncurry compare) . (length *** length)))
+
+cmp :: Ord a => [a] -> [a] -> Ordering
+cmp = curry ((uncurry compare) . (length *** length))
+
+dropmin :: [[Int]] -> [[Int]]
+dropmin xss = map (\xs -> filter (/= minimum xs) xs) xss
