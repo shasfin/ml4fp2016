@@ -197,6 +197,15 @@ bagsum xs = map (head &&& length) (group (sort xs))
 	\end{lstlisting}
 	Components needed: \lstinline?&&&? from \lstinline?Control.Arrow?. And we also need \lstinline?Tuples? for this one.
 %
+	\item stutter \\
+	Repeat every list element twice.
+	\begin{lstlisting}
+stutter :: [a] -> [a]
+stutter [] == []
+stutter [1,2,3] == [1,1,2,2,3,3]
+stutter xs = concatMap (replicate 2) xs
+	\end{lstlisting}
+%
 	\item map \\
 	Isn't it a higher order function? I thought we synthesize only first order functions.\\
 	How can we provide examples? I mean, we have to write functions as well.\\
