@@ -5,10 +5,123 @@
 it's the description of the syntax of the programs in the search space as well as how to derive programs from programs. 
 }
 
+\note{Rewrite this without mixing syntax with semantics and with the baseline algorithm}
+In the context $\Gamma$ we store the bindings from library components and input variables to their types.
+
+In the context $\Delta$ we store the bindings from active and inactive holes to their types.
+
+Terms are applications of library components or input variables (denoted by $x$ in the grammar), values (denoted by $v$) and holes ($?x$ and $?\underline{v}$).
+
+We distinguish between active holes $?x$, that can be substituted with other programs, from inactive holes $?\underline{v}$, that can only be replaced with values. To determine the exact value, a heuristic using a mix of symbolic execution and brute force is applied later. Every active hole having a value type (denoted by $V$ in the grammar) can be turned into an inactive hole.
+
+Programs without active holes are considered \emph{closed}. Those are the programs in which we plug in the input and execute as far as possible to see whether it agrees with the expected output.
+
+Values are integer constants (denoted by $n$ for brevity), lists of values and tuples of values. \note{Does it make sense to have a special treatment for list values and tuples? Wouldn't it be better to use library components to construct them?}
+
+We use a standard type system featuring functional and universal types, as well as integers, lists and tuples. We distinguish between two kinds of type variables: $?X$ are the type variables that can be instantiated with other types when it comes to unification, $X$ are the type variables that are already fixed by the goal type and have to remain like that. Universal types are assumed to be used like in Haskell only as outer wrapping of the types of library components and the goal type specified by the user.
+
+\TODO{Find a way to format t t as t t and not a tt, same for VV and TT}
+\TODO{Find a way to format it vertically and adding comments to each line. For example, write "inactive hole" on the right of $?\underline{v}$.}
+\note{Maybe it's better to write $\Gamma$ and $\Delta$ as sets and not as grammars, as you are using them as sets. If you leave it like this, $\Delta \setminus \{?x : T\}$ would be undefined.}
+\begin{plstx}
+(library components): \Gamma ::= \emptyset | \Gamma \cup x : T \\
+(holes): \Delta ::= \emptyset | \Delta \cup ?x : T | \Delta \cup ?\underline{v} : T \\
+(terms): t ::= v | ?\underline{v} | ?x | x | t t \\
+(values): v ::= n | v : v | [] | (v,v) \\ 
+(types): T ::= \text{Int} | \text{List } T | \text{Tuple } T T | T \rightarrow T | \forall X. T | X | ?X \\
+(value types): V ::= \text{Int} | \text{List } V | \text{Tuple } V V \\
+\end{plstx}
+
+\note{It may appropriate to move this to the next section}
+We assume that the goal program is normalized in the following sense. If the goal type specified by the user is a universal type, then we substitute each universally quantified type variable with a fresh fixed type variable $X$. If the goal type is a function type, then we abstract the type as much as possible and add input variables to the context $\Gamma$.
+For example, if the user specifies the goal program as
+\begin{lstlisting}[mathescape]
+length :: $\forall X$. List $X$ -> Int
+length [1,2,3] == 3
+length [2,2,2] == 3
+length [] == 0
+length [5] == 1
+\end{lstlisting}
+then we start our search from the partial program $\Gamma \cup \{xs : \texttt{List } X \} \vdash ?x :: \texttt{Int}$ where $\Gamma$ already contains all bindings from library components to their types. Note that it must be possible to instantiate the type variable $X$ with every possible type, therefore we do not have the right to prefer one instantiation over another and must treat $X$ as an uninterpreted type.
+
+\TODO{Add the rules of the typing judgement}
+The typing judgement is standard. To define the search graph we are going to explore in order to find the goal program, we also need the \emph{derive} judgement, which says between which nodes of the graph (programs of the form $\Gamma, \Delta \vdash t :: T$) there is an edge.
+To express the rules in a more compact form, we introduce \emph{evaluation contexts}. An context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
+
+\TODO{Make a figure of all rules}
+We can turn an active hole into an inactive hole if the active hole has a value type.
+\note{do we need a premise? Wouldn't it be enough to write ?x :: V below the line?}
+%D-VarVal, if we can turn an active hole into an inactive hole
+\begin{prooftree}
+\AxiomC{$\Gamma, \Delta \vdash ?x :: V$}
+	\RightLabel{D-VarVal}
+	\UnaryInfC{$\Gamma, \Delta \vdash ?x :: T \Mapsto \Gamma, \Delta \setminus \{?x : T\} \cup \{?\underline{v} : V\} \vdash ?\underline{v} :: V$}
+\end{prooftree}
+
+An active hole $?x$ can be turned into a library component or an input variable $x$ from the context $\Gamma$. The procedure fresh($T$) transforms universally quantified type variables into fresh type variables $?X$ not used in $\Delta$.
+The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigma$ to all types contained in the context $\Delta$.
+%D-VarComp, an active hole can be turned into a library component or an input variable
+\begin{prooftree}
+\AxiomC{$x : T_x \in \Gamma$}
+\AxiomC{$\sigma$ unifies $T$ with fresh($T_x$)}
+	\RightLabel{D-VarLib}
+	\BinaryInfC{$\Gamma, \Delta \vdash ?x :: T \Mapsto \Gamma, \sigma(\Delta \setminus \{?x : T\}) \vdash x :: \sigma(T) $}
+\end{prooftree}
+
+An active hole can also be turned into a function application of two new active holes.
+%D-VarApp, we can turn one hole into two holes :)
+\begin{prooftree}
+\AxiomC{$?X$ is a fresh type variable}
+	\RightLabel{D-VarApp}
+	\UnaryInfC{$\Gamma, \Delta \vdash ?x :: T \Mapsto \Gamma, \Delta \setminus \{?x:T\} \cup \{?x_1 : ?X \rightarrow T, ?x_2 : ?X\} \vdash ?x_1$ $?x_2 ::T$}
+\end{prooftree}
+
+In all other cases we just choose an active hole and expand it according to the three rules above.
+%D-App, for all other cases
+\begin{prooftree}
+\AxiomC{$\Gamma, \Delta \vdash ?x :: T_1 \Mapsto \Gamma, \Delta' \vdash t_1' :: T_1'$}
+	\RightLabel{D-App}
+	\UnaryInfC{$\Gamma, \Delta \vdash t[?x] :: T \Mapsto \Gamma, \Delta' \vdash t[t_1] :: T[T_1/T_1']$}
+\end{prooftree}
+
 \section{Baseline Algorithm}
 \note{
 The breadth (or best) first search of the search graph, nothing fancy. 
 }
+
+The baseline algorithm is a simple best first search implemented using a priority queue. One possibility is to order the enqueued elements according to the number of library components and active holes.
+
+The root node has the form $\Gamma, \{?x:T\} \vdash ?x :: T$ where $T$ is neither functional nor universal type and $\Gamma$ contains the input variables along with the library components.
+The successors of a node are the nodes reachable in one step of the derive judgement. That is, $\Gamma, \Delta' \vdash t' :: T'$ is a successor of $\Gamma, \Delta \vdash t :: T$ if it holds $\Gamma, \Delta \vdash t :: T \Mapsto \Gamma, \Delta' \vdash t' :: T'$.
+
+We don't need to explore nodes that are equivalent up to alpha conversion to already visited nodes.
+
+A term is considered \emph{closed} if it does not contain active holes. Closed terms are tested on the input-output examples. Programs with inactive holes are symbolically executed on the input-output examples and, if possible, the concrete value of the inactive hole is determined. Otherwise we try to solve it by brute force with a small timeout.
+\note{Does it make sense in terms of performance? Usually the values we need are really simple like \lstinline?[], 0, 1?. Wouldn't it be more efficient to try some simple values first?}
+
+The input-output examples are given as a vector of inputs \lstinline?I? and the vector of corresponding expected outputs \lstinline?O?.
+
+\TODO{Typeset in a nicer way, for example with a vertical line instead of all those 'end' and nicer keyword formatting.}
+\begin{lstlisting}[mathescape]
+BFS(root, I, O)
+	queue $\leftarrow$ {root}
+	visited $\leftarrow$ {}
+	while($\text{timeout not reached}$)
+		current $\leftarrow$ queue.dequeue
+		if (current.closed)
+			if (current.test(I) == O)
+				return current
+			end
+		else
+			for (s in current.successors)
+				if (!visited.alphacontains(s))
+					queue $\leftarrow$ queue.push(s)
+				end
+			end
+		end
+	end
+end
+\end{lstlisting}
 
 
 
