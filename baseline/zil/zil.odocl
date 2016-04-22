@@ -1,0 +1,5 @@
+# Generate documentation for
+src/Lambda
+src/Parser
+src/Lexer
+src/Parse

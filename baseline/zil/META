@@ -1,0 +1,8 @@
+version = "0.1"
+description = "A basic program synthesis engine"
+requires = "menhir"
+archive(byte) = "zil.cma"
+archive(byte, plugin) = "zil.cma"
+archive(native) = "zil.cmxa"
+archive(native, plugin) = "zil.cmxs"
+exists_if = "zil.cma"

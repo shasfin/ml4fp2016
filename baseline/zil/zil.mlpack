@@ -1,0 +1,5 @@
+# Pack as submodules of one big module
+src/Lambda
+src/Parser
+src/Lexer
+src/Parse

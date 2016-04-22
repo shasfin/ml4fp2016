@@ -1,3 +1,12 @@
+OCaml:
+https://realworldocaml.org/v1/en/html/index.html
+http://blog.ezyang.com/2010/10/ocaml-for-haskellers/
+
+Paper about superoptimization:
+http://www.eecs.berkeley.edu/~mangpo/www/papers/lens-asplos16.pdf
+
+
+
 How to treat conditionals in the synthesis process?
 
 ___________________________________________________

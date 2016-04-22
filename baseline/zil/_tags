@@ -1,0 +1,9 @@
+# ocamlbuild description
+
+true: use_menhir, explain
+
+<src/*.cmx>: for-pack(Zil)
+
+<zil_top.*>: thread, package(threads), package(utop)
+
+<t/*.{ml,byte}>: package(testsimple)
