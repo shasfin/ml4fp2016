@@ -179,4 +179,80 @@ let name s = function
     | FUN (o, def, env, None) -> FUN (o, def, env, Some (Sym (o, s)))
     | m -> m
 
-let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) m = invalid_arg "not implemented"
+let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) m =
+  let none_term m = (* TODO find a better name. Fill in the optional type information with None *)
+    match m with
+    | Var (_, i) -> Var (None, i)
+    | App (_, m, n) -> App (None, m, n)
+    | Abs (_, a, m) -> Abs (None, a, m)
+    | APP (_, m, a) -> APP (None, m, a)
+    | ABS (_, m) -> ABS (None, m)
+    | Sym (_, i) -> Sym (None, i)
+    | Hol (_, i) -> Hol (None, i)
+    | Fun (_, def, env, alt) -> Fun (None, def, env, alt)
+    | FUN (_, def, env, alt) -> FUN (None, def, env, alt)
+    
+  let load_type env m =
+    match m with
+    | Var (_, i) ->
+      (try
+         List.nth env.term_stack i
+       with
+         Failure _ -> none_term m)
+    | Sym (_, i) ->
+      (match sym_sig.term_info i with
+       | Some a -> Sym (Some a, i) | None -> none_term m)
+    | Hol (_, i) ->
+      (match hol_sig.term_info i with
+       | Some a -> Hol (Some a, i) | None -> none_term m)
+    | _ -> none_term m in
+
+  let load_kind env a = (* TODO think about this function: do you need it, how to modify it *)
+    match a with
+    | Type.Var i ->
+      (try
+         List.nth env.type_stack i
+       with
+         Failure _ -> a) (* does not compile yet, decide what the output should be *)
+    | Type.Hol i ->
+      (match hol_sig.type_info i with (* decide the names of the variables *)
+       | Some a -> a | None -> a)
+    | Type.Sym i ->
+      (match sym_sig.type_info i with
+       | Some a -> a | None -> a)
+    | _ -> a in
+
+  let rec well _aux env alt m = (* TODO does not compile yet, modify completely to fit your needs *)
+    match m with
+    | App (o, m, n) ->
+      let a = well_aux env None m in
+      let b = well_aux env None n in
+      (match a with
+       | Fun (_, def, env, alt) ->
+         let new_env = { env with term_stack = n::env.term_stack } in
+         let new_alt =
+           (match alt with
+            | Some m -> Some (App (o, m, n)) | None -> None) in
+         eval_aux new_env new_alt def
+       | x -> App (o, m, n))
+
+    | APP (o, m, a) ->
+      let m = eval_aux env None m in
+      let a = load_type env a in
+      (match m with
+       | FUN (_, def, env, alt) ->
+         let new_env = { env with type_stack = a::env.type_stack } in
+         let new_alt =
+           (match alt with
+            | Some m -> Some (APP (o, m, a))
+            | None -> None) in
+         eval_aux new_env new_alt def
+       | x -> APP (o, m, a))
+
+    | Abs (o, _, def) -> Fun (o, def, env, alt)
+    | ABS (o, def)    -> FUN (o, def, env, alt)
+    | m -> load_term env m in
+
+  well_aux empty_env None m
+
+        
