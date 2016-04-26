@@ -6,6 +6,8 @@ type idx_sym = string
 
 type idx_hol = int
 
+type idx_free = int
+
 
 (******************************************************************************)
 
@@ -25,6 +27,7 @@ module Type = struct
     | All of t
     | Sym of idx_sym * t list
     | Hol of idx_hol
+    | Free of idx_free
 
   let rec to_string = function
     | Arr (a, b) -> sprintf "%s -> %s" (dom_to_string a) (to_string b)
@@ -37,6 +40,7 @@ module Type = struct
     | Sym (i, []) -> i
     | Var i       -> sprintf "#%d" i
     | Hol i       -> sprintf "^%d" i
+    | Free i      -> sprintf "&%d" i
     | a           -> sprintf "(%s)" (to_string a)
 
 end
@@ -53,6 +57,7 @@ module Term = struct
     | ABS of 'a * 'a t
     | Sym of 'a * idx_sym
     | Hol of 'a * idx_hol
+    | Free of 'a * idx_free
     | Fun of 'a * 'a t * 'a env * 'a t option
     | FUN of 'a * 'a t * 'a env * 'a t option
 
@@ -80,6 +85,7 @@ module Term = struct
     | Sym (_, i)            -> i
     | Var (_, i)            -> sprintf "$%d" i
     | Hol (_, i)            -> sprintf "?%d" i
+    | Free (_, i)           -> sprintf "x%d" i
     | Abs (_, _, _) as m    -> abs_to_string m
     | m                     -> sprintf "(%s)" (to_string m)
   and abs_to_string m =
@@ -190,8 +196,8 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) m =
     | Sym (_, i) -> Sym (None, i)
     | Hol (_, i) -> Hol (None, i)
     | Fun (_, def, env, alt) -> Fun (None, def, env, alt)
-    | FUN (_, def, env, alt) -> FUN (None, def, env, alt)
-    
+    | FUN (_, def, env, alt) -> FUN (None, def, env, alt) in
+
   let load_type env m =
     match m with
     | Var (_, i) ->
@@ -222,7 +228,7 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) m =
        | Some a -> a | None -> a)
     | _ -> a in
 
-  let rec well _aux env alt m = (* TODO does not compile yet, modify completely to fit your needs *)
+  let rec well_aux env alt m = (* TODO does not compile yet, modify completely to fit your needs *)
     match m with
     | App (o, m, n) ->
       let a = well_aux env None m in
@@ -254,5 +260,6 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) m =
     | m -> load_term env m in
 
   well_aux empty_env None m
+
 
         

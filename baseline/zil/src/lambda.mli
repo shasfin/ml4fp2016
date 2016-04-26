@@ -6,6 +6,9 @@ type idx_sym = string
 type idx_hol = int
 (** Type to index holes *)
 
+type idx_free = int
+(** Type to index input variables *)
+
 
 module Kind : sig
   (** Kinds of polymorphic types *)
@@ -34,6 +37,9 @@ module Type : sig
 
     | Hol of idx_hol
     (** Hole to be filled with a type subterm *)
+
+    | Free of idx_free
+    (** Input type variable *)
 
   val to_string : t -> string
   (** Pretty-print a type *)
@@ -67,6 +73,9 @@ module Term : sig
 
     | Hol of 'a * idx_hol
     (** Hole to be filled with a subterm *)
+
+    | Free of 'a * idx_free
+    (** Input variable *)
 
     | Fun of 'a * 'a t * 'a env * 'a t option
     (** Term-argument function. The optional term is used for printing *)
