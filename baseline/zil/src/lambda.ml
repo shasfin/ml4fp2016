@@ -219,25 +219,6 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
     | Fun (_, def, env, alt) -> Fun (None, none_term def, env, alt)
     | FUN (_, def, env, alt) -> FUN (None, none_term def, env, alt) in
 
-  (* Loads a type of a variable, a hole, a symbol or a free variable from the store or the corresponding signature. Raises exceptions if no type is found. *)
-  (* the store is a stack holding the types of the variables *)
-  let load_type store m = 
-      match m with
-    | Var (_, i) ->
-      (try
-         Var (List.nth store i, i)
-       with
-         Failure _ -> raise (Invalid_argument "Unbound Var"))
-    | Sym (_, i) ->
-      (match sym_sig.term_info i with
-       | Some a -> Sym (Some a, i) | None -> raise (Invalid_argument (sprintf "Sym %s not found" i)))
-    | Hol (_, i) ->
-      (match hol_sig.term_info i with
-       | Some a -> Hol (Some a, i) | None -> raise (Invalid_argument (sprintf "Hol %d not found" i)))
-    | Free (_, i) ->
-      (match free_sig.term_info i with
-       | Some a -> Free (Some a, i) | None -> raise (Invalid_argument (sprintf "Free %d not found" i)))
-    | _ -> none_term m in
 
   (* Auxiliary function that actually makes all the work. Maintains a store, that is a stack of the types of the bound variables *)
   let rec well_aux store m =
