@@ -43,7 +43,8 @@ module Type = struct
     | Free i      -> sprintf "&%d" i
     | a           -> sprintf "(%s)" (to_string a)
 
-  let equal a b = raise (Invalid_argument "not implemented")
+  (* TODO think if you want normal equality or something more fancy taking "alpha conversion" into account *)
+  let equal a b = (a = b)
 end
 
 (******************************************************************************)
