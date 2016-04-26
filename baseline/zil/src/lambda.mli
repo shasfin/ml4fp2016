@@ -44,6 +44,9 @@ module Type : sig
   val to_string : t -> string
   (** Pretty-print a type *)
 
+  val equal : t -> t -> boolean
+  (** Compare two types for equality *)
+
 end
 
 module Term : sig
@@ -119,6 +122,7 @@ val eval :
 val well :
   ?sym_sig:(idx_sym, Type.t, Kind.t) lib ->
   ?hol_sig:(idx_hol, Type.t, Kind.t) lib ->
+  ?free_sig:(idx_free, Type.t, Kind.t) lib ->
   'a Term.t ->
   (Type.t option) Term.t
 (** Type-check and type-annotate a term.  *)
