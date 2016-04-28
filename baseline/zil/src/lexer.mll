@@ -28,6 +28,11 @@ rule token = parse
   | ['?'] ['0'-'9']+ as tok
     { TERM_HOL (int_of_string (tail tok)) }
 
+  | ['_'] ['0'-'9']+ as tok
+    { TERM_FREE (int_of_string (tail tok)) }
+  | ['&'] ['0'-'9']+ as tok
+    { TYPE_FREE (int_of_string (tail tok)) }
+
   | "->"  { TYPE_ARR }
   | ['@'] { TYPE_ALL }
   | ['*'] { TERM_ABS }

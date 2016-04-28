@@ -5,7 +5,8 @@ open Zil.Parse;;
 
 plan 10;;
 
-(******************************************************************************)
+(**********************************************************)
+(* Testing type parsing *)
 
 let named_type = parse_type "Foo" in
 is (Type.to_string named_type) "Foo" "parse named type";;
@@ -15,6 +16,9 @@ is (Type.to_string type_variable) "#0" "parse type variable";;
 
 let type_hole = parse_type "^0" in
 is (Type.to_string type_hole) "^0" "parse type hole";;
+
+let type_free = parse_type "&0" in
+is (Type.to_string type_free) "&0" "parse type free";;
 
 let arrow_type = parse_type "#1 -> #0" in
 is (Type.to_string arrow_type) "#1 -> #0" "parse arrow type";;
@@ -40,4 +44,9 @@ is (Type.to_string mixed_type) "@ @ (#1 -> (^0 -> #10) -> Foo) -> List #1 -> Lis
 
 (* TODO test that parsing fails on bad inputs *)
 
-(* TODO test term parsing *)
+(**********************************************************)
+(* Testing term parsing *)
+(* TODO add more tests *)
+
+let term_free = parse_term "_0" in
+is (Term.to_string term_free) "_0" "parse term free";;

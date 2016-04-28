@@ -97,7 +97,7 @@ module Term = struct
     | Sym (_, i)            -> i
     | Var (_, i)            -> sprintf "$%d" i
     | Hol (_, i)            -> sprintf "?%d" i
-    | Free (_, i)           -> sprintf "x%d" i
+    | Free (_, i)           -> sprintf "_%d" i
     | Abs (_, _, _) as m    -> abs_to_string m
     | m                     -> sprintf "(%s)" (to_string m)
   and abs_to_string m =

@@ -10,6 +10,8 @@ open Lambda
 %token <int>    TERM_VAR
 %token <int>    TYPE_HOL
 %token <int>    TERM_HOL
+%token <int>    TYPE_FREE
+%token <int>    TERM_FREE
 %token          TYPE_ARR
 %token          TYPE_ALL
 %token          TERM_ABS
@@ -43,6 +45,9 @@ type_:
   | i = TYPE_HOL
   { Type.Hol i }
 
+  | i = TYPE_FREE
+  { Type.Free i}
+
   | a = type_ TYPE_ARR b = type_
   { Type.Arr (a, b) }
 
@@ -61,6 +66,9 @@ type_arg:
 
   | i = TYPE_HOL
   { Type.Hol i }
+
+  | i = TYPE_FREE
+  { Type.Free i }
 
   | LPAREN a = type_ RPAREN
   { a }
@@ -96,6 +104,9 @@ term_arg:
 
   | i = TERM_HOL
   { Term.Hol ((), i) }
+
+  | i = TERM_FREE
+  { Term.Free ((), i) }
 
   | LBRACE l = term_par+ PARSEP m = term RBRACE 
   { List.fold_right (fun a m -> Term.Abs ((), a, m)) l m }
