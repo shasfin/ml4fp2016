@@ -47,12 +47,12 @@ module Type = struct
   let equal a b = (a = b)
   
   (* Substitute type subtree b instead of Var j in type a *)
-  let subst b j a =
+  let rec subst b j a =
     match a with
 	| Var i -> (if i = j then b else a)
-	| Arr (a1, a2) -> Arr (subst a1 j b) (subst a2 j b)
-	| All (a) -> All (subst a j b)
-	| Sym (i, l) -> Sym (i, map (subst b j) l)
+	| Arr (a1, a2) -> Arr ((subst b j a1), (subst b j a2))
+	| All (a) -> All (subst b (j+1) a)
+	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
 	| _ -> a
 	
 end
@@ -107,6 +107,19 @@ module Term = struct
     let l, m = get_sig [] m in
     sprintf "{ %s : %s }" (String.concat " " (List.map par_to_string l)) (to_string m)
   and par_to_string a = sprintf "[%s]" (Type.to_string a)
+
+  let extract_label m =
+    match m with
+    | Var (a, _) -> a
+    | App (a, _, _) -> a
+    | Abs (a, _, _) -> a
+    | APP (a, _, _) -> a
+    | ABS (a, _) -> a
+    | Sym (a, _) -> a
+    | Hol (a, _) -> a
+    | Free (a, _) -> a
+    | Fun (a, _, _, _) -> a
+    | FUN (a, _, _, _) -> a
 
 end
 
@@ -202,18 +215,10 @@ let name s = function
 let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(free_sig=empty_lib) m =
   (* Reads the type of the term. Raises an exception if there is no type. *)
   let type_of m =
-    match m with
-    | Var (Some a, _) -> a
-    | App (Some a, _, _) -> a
-    | Abs (Some a, _, _) -> a
-    | APP (Some a, _, _) -> a
-    | ABS (Some a, _) -> a
-    | Sym (Some a, _) -> a
-    | Hol (Some a, _) -> a
-    | Free (Some a, _) -> a
-    | Fun (Some a, _, _, _) -> a
-    | FUN (Some a, _, _, _) -> a
-    | _ -> raise (Invalid_argument "Type not found") in
+    let a = extract_label m in
+    match a with
+    | Some a -> a
+    | None -> raise (Invalid_argument "Type not found") in
 
 
   (* Fills in the optional type information with None *)
@@ -256,10 +261,12 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
             (Type.to_string an)
           )))
       | _ -> raise (Invalid_argument
-         (sprintf "Cannot apply %s to %s as %s is not an arrow type"
+         (sprintf "Cannot apply type_of m = %s to type_of n = %s as %s is not an arrow type. m = %s and n = %s"
             (Type.to_string am)
             (Type.to_string an)
             (Type.to_string am)
+            (to_string m)
+            (to_string n)
          )))
     | Abs (_, a, m) ->
       let m = well_aux (a::store) m in
@@ -269,7 +276,7 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
       let m = well_aux store m in
       let am = type_of m in
       (match am with
-      | Type.All b -> APP (Some (subst a 0 b), m, a) (* TODO test if this is what you think it is *)
+      | Type.All b -> APP (Some (Type.subst a 0 b), m, a) (* TODO test if this is what you think it is *)
       | _ -> raise (Invalid_argument 
         (sprintf "Cannot apply %s to %s as %s is not a universal type"
           (Type.to_string a)

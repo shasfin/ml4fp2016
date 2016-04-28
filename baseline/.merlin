@@ -1,0 +1,9 @@
+S zil
+S zil/src
+S zil/t
+
+B zil/_build
+B zil/_build/src
+B zil/_build/t
+
+PKG testsimple

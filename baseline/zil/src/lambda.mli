@@ -44,8 +44,11 @@ module Type : sig
   val to_string : t -> string
   (** Pretty-print a type *)
 
-  val equal : t -> t -> boolean
+  val equal : t -> t -> bool
   (** Compare two types for equality *)
+
+  val subst : t -> int -> t -> t
+  (** Subtitute type subtree for a variable in a type *)
 
 end
 
@@ -97,6 +100,9 @@ module Term : sig
 
   val to_string : 'a t -> string
   (** Pretty-print a term ignoring its annotations *)
+
+  val extract_label : 'a t -> 'a
+  (** Extract annotation of a term *)
 
 end
 
