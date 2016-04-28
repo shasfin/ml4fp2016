@@ -45,6 +45,16 @@ module Type = struct
 
   (* TODO think if you want normal equality or something more fancy taking "alpha conversion" into account *)
   let equal a b = (a = b)
+  
+  (* Substitute type subtree b instead of Var j in type a *)
+  let subst b j a =
+    match a with
+	| Var i -> (if i = j then b else a)
+	| Arr (a1, a2) -> Arr (subst a1 j b) (subst a2 j b)
+	| All (a) -> All (subst a j b)
+	| Sym (i, l) -> Sym (i, map (subst b j) l)
+	| _ -> a
+	
 end
 
 (******************************************************************************)
@@ -259,7 +269,7 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
       let m = well_aux store m in
       let am = type_of m in
       (match am with
-      | Type.All b -> raise (Invalid_argument "not implemented") (* TODO think about how to "substitute" a for #i in b *)
+      | Type.All b -> APP (Some (subst a 0 b), m, a) (* TODO test if this is what you think it is *)
       | _ -> raise (Invalid_argument 
         (sprintf "Cannot apply %s to %s as %s is not a universal type"
           (Type.to_string a)
