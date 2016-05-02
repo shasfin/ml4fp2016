@@ -47,15 +47,52 @@ module Type = struct
   let equal a b = (a = b)
   
   (* Substitute type subtree b instead of Var j in type a *)
+  (* TODO take care of variable shifting. What if b itself contains some Vars that are bound in the outer context? *)
   let rec subst b j a =
-    match a with
+    let rec shift c d a =
+      match a with
+      | Var i -> if i < c then Var i else Var (i+d)
+      | Arr (a, b) -> Arr (shift c d a, shift c d b)
+      | All a -> All (shift (c+1) d a)
+      | Sym (i, l) -> Sym (i, List.map (shift c d) l)
+      | _ -> a
+    in
+  match a with
 	| Var i -> (if i = j then b else a)
 	| Arr (a1, a2) -> Arr ((subst b j a1), (subst b j a2))
-	| All (a) -> All (subst b (j+1) a)
+	| All (a) -> All (subst (shift 0 1 b) (j+1) a)
 	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
 	| _ -> a
 	
 end
+
+(******************************************************************************)
+(* Unification of types *)
+open Type
+
+type substitution = (idx_hol, t) Hashtbl.t 
+
+let initial_guess = 10
+let empty_subst = Hashtbl.create initial_guess
+
+let rec apply_subst subst a =
+    match a with
+    | Hol i -> if Hashtbl.mem subst i then Hashtbl.find subst i else Hol i
+    | Arr (a, b) -> Arr (apply_subst subst a, apply_subst subst b)
+    | All a -> All (apply_subst subst a)
+    | Sym (i, l) -> Sym (i, List.map (apply_subst subst) l)
+    | _ -> a
+
+(* TODO implement unification *)
+(* Unify ax with ay *)
+let unify_one a b =
+    let rec unify_aux subst a b = match (a, b) with
+    | (Hol i, b) -> subst
+    | _ -> subst
+
+    in unify_aux empty_subst a b
+
+
 
 (******************************************************************************)
 
