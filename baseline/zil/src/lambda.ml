@@ -70,7 +70,8 @@ end
 (* Unification of types *)
 open Type
 
-type substitution = (idx_hol, t) Hashtbl.t 
+type substitution = (idx_hol, t) Hashtbl.t
+type constraint_set = (idx_hol * t) list
 
 let initial_guess = 10
 let empty_subst = Hashtbl.create initial_guess
@@ -83,15 +84,57 @@ let rec apply_subst subst a =
     | Sym (i, l) -> Sym (i, List.map (apply_subst subst) l)
     | _ -> a
 
+
+(* Copy implementation of unification from Pierce *)
+(* check if Hol j occurs in type a *)
+let occursin j a =
+    let rec occursin_aux a =
+        match a with
+        | Hol i -> (i=j)
+        | Arr (a,b) -> occursin_aux a || occursin_aux b
+        | All a -> occursin_aux a
+        | Sym (i, l) -> List.fold_left (||) true (List.map occursin_aux l)
+        | _ -> false
+    in occursin_aux a
+
+let substinconstr j a constr =
+    List.map (fun (b1, b2) -> (subst a j b1, subst a j b2)) constr
+
 (* TODO implement unification *)
-(* Unify ax with ay *)
-let unify_one a b =
-    let rec unify_aux subst a b = match (a, b) with
-    | (Hol i, b) -> subst
-    | _ -> subst
-
-    in unify_aux empty_subst a b
-
+(* Unify a set of constraints *)
+let rec unify constr =
+    match constr with
+    | [] -> empty_subst
+    | (a, Hol i) :: constr ->
+        if a = Hol i then unify constr
+        else if occursin i a then
+            raise (Invalid_argument (sprintf "Circular constraints, %s occurs in %s"
+                (to_string (Hol i))
+                (to_string a)))
+        else
+            let subst = unify (substinconstr i a constr) in
+            let _ = Hashtbl.add subst i a
+            in subst
+    | (Hol i, a) :: constr ->
+        if a = Hol i then unify constr
+        else if occursin i a then
+            raise (Invalid_argument (sprintf "Circular constraints, %s occurs in %s"
+                (to_string (Hol i))
+                (to_string a)))
+        else
+            let subst = unify (substinconstr i a constr) in
+            let _ = Hashtbl.add subst i a
+            in subst
+    | (Arr (a1, b1), Arr (a2, b2)) :: constr -> unify ((a1, a2) :: (b1, b2) :: constr)
+    | (All b1, All b2) :: constr -> unify ((b1, b2) :: constr) (* TODO reimplement this case *)
+    | (Sym (i1, l1), Sym (i2, l2)) :: constr ->
+        if i1 = i2 then
+            unify (List.append (List.combine l1 l2) constr)
+        else raise (Invalid_argument (sprintf "Names do not agree, cannot unify %s with %s"
+            (to_string (Sym (i1, l1)))
+            (to_string (Sym (i2, l2)))))
+    (* TODO what to do with Vars? *)
+    
 
 
 (******************************************************************************)
