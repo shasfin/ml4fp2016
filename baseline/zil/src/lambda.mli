@@ -52,6 +52,15 @@ module Type : sig
 
 end
 
+type substitution = (idx_hol, Type.t) Hashtbl.t
+(** Type of type substitutions *)
+
+type constraint_set = (Type.t * Type.t) list
+(** Type of constraint lists *)
+
+val unify : constraint_set -> substitution
+(** Unify a set of constraints *)
+
 module Term : sig
   (** λ-terms *)
 

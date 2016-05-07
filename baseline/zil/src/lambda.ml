@@ -71,7 +71,7 @@ end
 open Type
 
 type substitution = (idx_hol, t) Hashtbl.t
-type constraint_set = (idx_hol * t) list
+type constraint_set = (t * t) list
 
 let initial_guess = 10
 let empty_subst = Hashtbl.create initial_guess
@@ -97,11 +97,12 @@ let occursin j a =
         | _ -> false
     in occursin_aux a
 
+(* Substitute type a instead of Hol j in all types present in the list of constraints *)
 let substinconstr j a constr =
     List.map (fun (b1, b2) -> (subst a j b1, subst a j b2)) constr
 
-(* TODO implement unification *)
-(* Unify a set of constraints *)
+
+(* Unify a set of constraints. Unification of universal types is not implemented, transform universal types into types with holes before using this function. *)
 let rec unify constr =
     match constr with
     | [] -> empty_subst
@@ -126,16 +127,15 @@ let rec unify constr =
             let _ = Hashtbl.add subst i a
             in subst
     | (Arr (a1, b1), Arr (a2, b2)) :: constr -> unify ((a1, a2) :: (b1, b2) :: constr)
-    | (All b1, All b2) :: constr -> unify ((b1, b2) :: constr) (* TODO reimplement this case *)
     | (Sym (i1, l1), Sym (i2, l2)) :: constr ->
         if i1 = i2 then
             unify (List.append (List.combine l1 l2) constr)
         else raise (Invalid_argument (sprintf "Names do not agree, cannot unify %s with %s"
             (to_string (Sym (i1, l1)))
             (to_string (Sym (i2, l2)))))
-    (* TODO what to do with Vars? *)
-    
-
+    | (a, b) :: constr -> raise (Invalid_argument (sprintf "Unsolvable constraints, cannot unify %s with %s"
+			(to_string a)
+			(to_string b))) (* Cannot unify input variables, bound variables and universal types, among other cases *)
 
 (******************************************************************************)
 
