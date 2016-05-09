@@ -190,17 +190,40 @@ module Term = struct
 
   let extract_label m =
     match m with
-    | Var (a, _) -> a
-    | App (a, _, _) -> a
-    | Abs (a, _, _) -> a
-    | APP (a, _, _) -> a
-    | ABS (a, _) -> a
-    | Sym (a, _) -> a
-    | Hol (a, _) -> a
-    | Free (a, _) -> a
-    | Fun (a, _, _, _) -> a
-    | FUN (a, _, _, _) -> a
+    | Var  (o, _)       -> o
+    | App  (o, _, _)    -> o
+    | Abs  (o, _, _)    -> o
+    | APP  (o, _, _)    -> o
+    | ABS  (o, _)       -> o
+    | Sym  (o, _)       -> o
+    | Hol  (o, _)       -> o
+    | Free (o, _)       -> o
+    | Fun  (o, _, _, _) -> o
+    | FUN  (o, _, _, _) -> o
 
+
+  let rec map_label f m =
+    let map_env env = {
+      type_stack = env.type_stack;
+      term_stack = List.map (map_label f) env.term_stack;
+    } in
+
+    let map_alt alt =
+      match alt with
+      | Some m -> Some (map_label f m)
+      | None -> None in
+         
+    match m with
+    | Var  (o, i)             -> Var  (f o, i)
+    | App  (o, m, n)          -> App  (f o, map_label f m, map_label f n)
+    | Abs  (o, a, m)          -> Abs  (f o, a, map_label f m)
+    | APP  (o, m, a)          -> APP  (f o, map_label f m, a)
+    | ABS  (o, m)             -> ABS  (f o, map_label f m)
+    | Sym  (o, i)             -> Sym  (f o, i)
+    | Hol  (o, i)             -> Hol  (f o, i)
+    | Free (o, i)             -> Free (f o, i)
+    | Fun  (o, def, env, alt) -> Fun  (f o, map_label f def, map_env env, map_alt alt)
+    | FUN  (o, def, env, alt) -> FUN  (f o, map_label f def, map_env env, map_alt alt)
 end
 
 (******************************************************************************)
@@ -299,22 +322,6 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
     match a with
     | Some a -> a
     | None -> raise (Invalid_argument "Type not found") in
-
-
-  (* Fills in the optional type information with None *)
-  let rec none_term m = 
-      match m with
-    | Var (_, i) -> Var (None, i)
-    | App (_, m, n) -> App (None, none_term m, none_term n)
-    | Abs (_, a, m) -> Abs (None, a, none_term m)
-    | APP (_, m, a) -> APP (None, m, a)
-    | ABS (_, m) -> ABS (None, none_term m)
-    | Sym (_, i) -> Sym (None, i)
-    | Hol (_, i) -> Hol (None, i)
-    | Free (_, i) -> Free (None, i)
-    | Fun (_, def, env, alt) -> Fun (None, none_term def, env, alt)
-    | FUN (_, def, env, alt) -> FUN (None, none_term def, env, alt) in
-
 
   (* Auxiliary function that actually makes all the work. Maintains a store, that is a stack of the types of the bound variables *)
   let rec well_aux store m =

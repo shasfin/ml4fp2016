@@ -58,6 +58,8 @@ type substitution = (idx_hol, Type.t) Hashtbl.t
 type constraint_set = (Type.t * Type.t) list
 (** Type of constraint lists *)
 
+val apply_subst : substitution -> Type.t -> Type.t
+
 val unify : constraint_set -> substitution
 (** Unify a set of constraints *)
 
@@ -112,6 +114,9 @@ module Term : sig
 
   val extract_label : 'a t -> 'a
   (** Extract annotation of a term *)
+
+  val map_label : ('a -> 'b) -> 'a t -> 'b t
+  (** Apply a function to all labels of a term *)
 
 end
 

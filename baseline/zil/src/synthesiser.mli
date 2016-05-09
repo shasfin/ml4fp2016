@@ -15,6 +15,8 @@ module Program : sig
 
   val is_closed : t -> bool
 
+  val current_type : t -> Type.t
+
 end
 
 val successor : Program.t -> Program.t list
