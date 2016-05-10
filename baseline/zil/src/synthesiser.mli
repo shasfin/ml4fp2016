@@ -1,6 +1,10 @@
 (** Basic program enumerator *)
+open Lambda
 
-module IntMap = Map.Make(struct type t = int let compare = compare end)
+
+module IntMap : sig
+  type 'a t
+end
 
 module Program : sig
   (** Type of generated partial programs *)
