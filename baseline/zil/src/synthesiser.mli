@@ -19,4 +19,18 @@ module Program : sig
 
 end
 
-val successor : Program.t -> Program.t list
+val successor :
+  Program.t ->
+  sym_sig:(idx_sym, Type.t) Hashtbl.t ->
+  free_sig:(idx_free, Type.t) Hashtbl.t ->
+  Program.t list
+(** Expand current term hole of a program *)
+
+val enumerate :
+  Program.t Queue.t ->
+  sym_sig:(idx_sym, Type.t) Hashtbl.t ->
+  free_sig:(idx_free, Type.t) Hashtbl.t ->
+  int ->
+  Program.t list
+(** Enumerate first closed programs found by BFS from the queue *)
+  

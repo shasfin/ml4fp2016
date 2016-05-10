@@ -1,6 +1,5 @@
 open Printf
 open Lambda
-open Parse
 
 (******************************************************************************)
 module IntMap = Map.Make(struct type t = int let compare = compare end)
@@ -34,7 +33,7 @@ open Program
 (* Expand only one of the holes, the open hole with the smallest number. Returns a list of contexts *)
 (* ctxt is of type Program.t *)
 (* sym_sig and free_sig are hashtbls and already prepared for unification, their type holes are already included in ctxt.max_type_hol *)
-let successor ctxt sym_sig free_sig =
+let successor ctxt ~sym_sig:sym_sig ~free_sig:free_sig =
     let succ_app =
         let current_type = Program.current_type ctxt in
         let a = (Type.Arr (Type.Hol ctxt.max_type_hol, current_type)) in
@@ -83,7 +82,23 @@ let successor ctxt sym_sig free_sig =
     then []
     else succ_app @ succ_free @ succ_sym
 
- 
+(* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
+let enumerate queue ~sym_sig:sym_sig ~free_sig:free_sig n =
+    (* Queue is not a functional queue, that's why it is not an argument to find_first_closed *)
+    let find_first_closed =
+        while not (Program.is_closed (Queue.top queue)) do
+            let s = successor (Queue.pop queue) ~sym_sig:sym_sig ~free_sig:free_sig in
+            List.iter (fun x -> Queue.push x queue) s
+        done;
+        Queue.pop queue in
+
+    let rec enumerate_aux i =
+        (match i with
+        | 0 -> []
+        | _ -> find_first_closed :: (enumerate_aux (i-1)))
+
+    in enumerate_aux n
+
 
 (******************************************************************************)
 
