@@ -85,7 +85,7 @@ let rec apply_subst subst a =
     | _ -> a
 
 
-(* Copy implementation of unification from Pierce *)
+(* Based on implementation from the book by Pierce *)
 (* check if Hol j occurs in type a *)
 let occursin j a =
     let rec occursin_aux a =
@@ -248,7 +248,7 @@ let empty_lib = {
 let empty_store = []
 (* store is a stack of the types corresponding to the variables *)
 
-let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) m =
+let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(free_def=empty_lib) m =
 
   let load_term env m =
     match m with
@@ -259,6 +259,9 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) m =
          Failure _ -> m)
     | Sym (_, i) ->
       (match sym_def.term_info i with
+       | Some m -> m | None -> m)
+    | Free (_, i) ->
+      (match free_def.term_info i with
        | Some m -> m | None -> m)
     | Hol (_, i) ->
       (match hol_def.term_info i with

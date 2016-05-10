@@ -131,6 +131,7 @@ type ('i, 'm, 't) lib = {
 val eval :
   ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
   ?hol_def:(idx_hol, 'a Term.t, Type.t) lib ->
+  ?free_def:(idx_free, 'a Term.t, Type.t) lib ->
   'a Term.t ->
   'a Term.t
 (** Evaluate a term ignoring its annotations
