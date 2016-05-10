@@ -3,3 +3,5 @@ src/Lambda
 src/Parser
 src/Lexer
 src/Parse
+src/Synthesiser
+src/Library
