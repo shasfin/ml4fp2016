@@ -1,41 +1,41 @@
 open Lambda
 
-module Library = struct
-    type 'i t = {
-    (* TODO Maybe we should hide the actual type *)
-    (* TODO Maybe we want to make it polymorphic *)
-    termtbl : 'i  (Type.t Term.t * Type.t) Hashtbl.t;
-    typetbl : 'i  (Type.t * Kind.t) Hashtbl.t;
-  }
+type ('i, 'a) t = {
+  termtbl : ('i, 'a Term.t * Type.t) Hashtbl.t;
+  typetbl : ('i,  Type.t * Kind.t) Hashtbl.t;
+}
 
-  let add_term i m a lib = Hashtbl.replace lib.termtbl i (m, a)
+let add_term i m a lib = Hashtbl.replace lib.termtbl i (m, a)
 
-  let add_type i a k lib = Hashtbl.replace lib.typetbl i (a, k)
+let add_type i a k lib = Hashtbl.replace lib.typetbl i (a, k)
 
-  let get_fun
+let get_map_fun f tbl =
+    (fun x -> if Hashtbl.mem tbl x then Some (f (Hashtbl.find tbl x)) else None)
 
-  let get_lib_def lib = {
-      term_info = get_fun termtbl;
-  type_info = get_fun typetbl;
-    }
-      : Library.t -> (idx, Term.t, Type.t) lib
-  (** Convert library to the lib type defined in Lambda and used for evaluation *)
+let get_lib_def lib = {
+    term_info = get_map_fun fst lib.termtbl;
+    type_info = get_map_fun fst lib.typetbl;
+}
 
-  val get_lib_sig: Library.t -> (idx, Type.t, Kind.t) lib
-  (** Convert library to the lib type defined in Lambda and used for evaluation *)
+let get_lib_sig lib = {
+  term_info = get_map_fun snd lib.termtbl;
+  type_info = get_map_fun snd lib.typetbl;
+}
 
-  val lookup_term_def : Library.t -> idx -> Term.t
-  (** Lookup the definition of a term library component *)
+let lookup_term_def lib i = fst (Hashtbl.find lib.termtbl i)
 
-  val lookup_term_sig : Library.t -> idx -> Type.t
-  (** Lookup the signature of a term library component *)
+let lookup_term_sig lib i = snd (Hashtbl.find lib.termtbl i)
 
-  val lookup_type_def : Library.t -> idx -> Type.t
-  (** Lookup the definition of a type library component *)
+let lookup_type_def lib i = fst (Hashtbl.find lib.typetbl i)
 
-  val lookup_type_sig : Library.t -> idx -> Kind.t
-  (** Lookup the signature of a type library component *)
+let lookup_type_sig lib i = snd (Hashtbl.find lib.typetbl i)
 
+let unifiable_term_sigs lib a =
+  Hashtbl.fold
+    (fun key (_, value) l ->
+      try (key, value, unify [(a, value)]) :: l
+      with Invalid_argument _ -> l)
+    lib.termtbl
+    [] 
 
-end
-      
+    
