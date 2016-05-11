@@ -79,29 +79,6 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
         [expand_current_hol m new_ctxt]
     in
 
-    (*let succ_unify lib_sig =
-        let apply_subst_to_pair subst p = match p with
-        | (Some m, a) -> (Some (Term.map_label (apply_subst subst) m), apply_subst subst a)
-        | (None, a) -> (None, apply_subst subst a) in
-        let apply_subst_to_prog subst p = IntMap.map (apply_subst_to_pair subst) p in
-        let current_type = Program.current_type ctxt in
-        let unifiable_lib = Hashtbl.fold
-            (fun key value l ->
-                try (key, value, unify [(current_type, value)]) :: l
-                with Invalid_argument _ -> l)
-            lib_sig
-            [] in
-        List.map
-            (fun (key, value, subst) ->
-                let new_pair = apply_subst_to_pair subst (Some (Term.Free (value, key)), value) in
-                let new_prog = apply_subst_to_prog subst ctxt.prog in
-                let new_prog = IntMap.add ctxt.current_term_hol new_pair new_prog in
-                {max_term_hol = ctxt.max_term_hol;
-                 max_type_hol = ctxt.max_type_hol;
-                 current_term_hol = ctxt.current_term_hol + 1;
-                 prog = new_prog})
-            unifiable_lib in *)
-
     let succ_free =
       List.map
         (fun (i, a, subst) ->
