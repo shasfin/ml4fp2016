@@ -63,6 +63,15 @@ module Type = struct
 	| All (a) -> All (subst (shift 0 1 b) (j+1) a)
 	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
 	| _ -> a
+
+  (* Substitute a variable iv instead of hole ih in type a *)
+  let rec subst_var_in_hol iv ih a =
+    match a with
+    | All b -> All (subst_var_in_hol (iv+1) ih b)
+    | Arr (a, b) -> Arr (subst_var_in_hol iv ih a, subst_var_in_hol iv ih b)
+    | Sym (i, l) -> Sym (i, List.map (subst_var_in_hol iv ih) l)
+    | Hol i -> if i = ih then Var iv else Hol i
+    | _ -> a
 	
 end
 

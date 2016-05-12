@@ -50,6 +50,8 @@ module Type : sig
   val subst : t -> int -> t -> t
   (** Subtitute type subtree for a variable in a type *)
 
+  val subst_var_in_hol : int -> idx_hol -> t -> t
+
 end
 
 type substitution = (idx_hol, Type.t) Hashtbl.t

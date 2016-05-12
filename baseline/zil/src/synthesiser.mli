@@ -17,6 +17,8 @@ module Program : sig
     (** A program is a mapping from holes to the corresponding terms, if present, and to their types. The starting point is ?0 *)
   }
 
+  val create : unit -> t
+
   val is_closed : t -> bool
   (** True if there are no holes to expand *)
 

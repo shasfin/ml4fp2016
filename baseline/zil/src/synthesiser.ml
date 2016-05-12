@@ -14,6 +14,14 @@ module Program = struct
         prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
     }
 
+    (* The first program is considered closed because it has no holes to expand yet *)
+    let create () = {
+        max_term_hol = 0;
+        max_type_hol = 0;
+        current_term_hol = 0;
+        prog = IntMap.empty;
+    }
+
     let is_closed ctxt = ctxt.current_term_hol >= ctxt.max_term_hol
     (* if the hole to expand is a fresh hole, then the program is closed *)
 
@@ -56,16 +64,55 @@ module Program = struct
     (* TODO think which functions should be defined in this module,
      * for example eval or first program given a goal type or something like that *)
 end
-        
-(******************************************************************************)
-
-(* Prepare library for unification *)
-
-(* Synthesise first program *)
-
-(******************************************************************************)
 
 open Program
+
+(******************************************************************************)
+(* Prepare library for unification *)
+
+(* TODO find a good name *)
+(* args has the reversed order, i.e. for map A B we will get [B,A] *)
+let rec deuniversalise a ctxt args = match a with
+  | Type.All a ->
+    let (a0, new_ctxt) = get_fresh_type_hol ctxt in
+    let b = Type.subst a0 0 a in
+    deuniversalise b new_ctxt (a0 :: args)
+  | _ -> (a, args, ctxt)
+
+(* TODO think about the label of m *)
+(* args has the reversed order, i.e. for map A B we will have [B,A] *)
+let rec apply_args m a args = match args with
+  | [] -> m
+  | (a0 :: args) ->
+    (match a0 with
+    | Type.Hol i -> 
+      let new_type = Type.All (Type.subst_var_in_hol 0 i a) in
+      let new_term = apply_args m new_type args in
+      Term.APP (a, new_term, a0)
+    | _ -> raise (Invalid_argument
+      (sprintf
+        "Cannot reconstruct universal type, as the argument %s is not a type hole"
+        (Type.to_string a0))))
+
+let rec universalise a args = match args with
+  | [] -> a
+  | (a0 :: args) ->
+    (match a0 with
+      | Type.Hol i ->
+        let b = Type.All (Type.subst_var_in_hol 0 i a) in
+        universalise b args
+      | _ -> raise (Invalid_argument
+        (sprintf
+          "Cannot reconstruct universal type, as the argument %s is not a type hole"
+          (Type.to_string a0))))
+
+(******************************************************************************)
+(* Generate first program *)
+
+
+(******************************************************************************)
+(* Standard enumeration *)
+
 (* Expand only one of the holes, the open hole with the smallest number. Returns a list of contexts *)
 (* ctxt is of type Program.t *)
 (* sym_sig and free_sig are hashtbls and already prepared for unification, their type holes are already included in ctxt.max_type_hol *)
@@ -81,16 +128,19 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
     let succ_free =
       List.map
-        (fun (i, a, subst) ->
+        (fun (i, a, subst, _) ->
           let new_ctxt = expand_current_hol (Term.Free (a, i)) ctxt in
           apply_subst subst new_ctxt
         )
         (unifiable_term_sigs free_lib (current_type ctxt)) in
               
     let succ_sym =
+      (* TODO Apply arguments to Term.Sym (a, i) *)
       List.map
-        (fun (i, a, subst) ->
-          let new_ctxt = expand_current_hol (Term.Sym (a, i)) ctxt in
+        (fun (i, a, subst, args) ->
+          let new_type = universalise a args in
+          let new_term = Term.Sym(new_type, i) in
+          let new_ctxt = expand_current_hol (apply_args new_term new_type args) ctxt in
           apply_subst subst new_ctxt
         )
         (unifiable_term_sigs sym_lib (current_type ctxt)) in
@@ -116,8 +166,6 @@ let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
 
     in enumerate_aux n
 
-
-(******************************************************************************)
 
 
 (******************************************************************************)
