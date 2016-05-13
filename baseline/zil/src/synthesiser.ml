@@ -27,7 +27,6 @@ let rec universalise a args = match args with
           "Cannot reconstruct universal type, as the argument %s is not a type hole"
           (Type.to_string a0))))
 
-(* val prepare_lib : ('i, 'a) Library.t -> Program.t -> (('i,'a) Library.t * Program.t) *)
 let prepare_lib lib ctxt =
   let new_lib = Library.create () in
   let () =

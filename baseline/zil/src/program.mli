@@ -37,3 +37,6 @@ end
 
   val apply_subst : substitution -> t -> t
   (** Apply substitution to all types of the program *)
+
+  val to_string : t -> string
+  (** Type a program as a term *)

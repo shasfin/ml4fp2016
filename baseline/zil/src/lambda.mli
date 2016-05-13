@@ -51,6 +51,7 @@ module Type : sig
   (** Subtitute type subtree for a variable in a type *)
 
   val subst_var_in_hol : int -> idx_hol -> t -> t
+  (** Substitute given variable for a hole in a type *)
 
 end
 

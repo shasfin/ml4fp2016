@@ -64,7 +64,31 @@ let apply_subst subst prog =
      current_term_hol = prog.current_term_hol;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
+(* TODO think about the types of to_term: it takes sometimes indices and sometimes terms *)
+let to_string prog =
+  let rec to_term_i i =
+      if i < prog.max_term_hol then
+        (match (IntMap.find i prog.prog) with
+        | (Some (Term.App (o, m1, m2)), _) -> Term.App (o, to_term m1, to_term m2)
+        | (Some (Term.Abs (o, a, m)), _) -> Term.Abs (o, a, to_term m)
+        | (Some (Term.APP (o, m, a)), _) -> Term.APP (o, to_term m, a)
+        | (Some (Term.ABS (o, m)), _) -> Term.ABS (o, to_term m)
+        | (Some (Term.Hol (o, j)), _) -> to_term_i j
+        | (Some m, _) -> m
+        | (None, a) -> Term.Hol (a, i))
+      else
+        raise (Invalid_argument (sprintf "Hol %d is not bound in the program" i))
+  and to_term m =
+    match m with
+        | Term.App (o, m1, m2) -> Term.App (o, to_term m1, to_term m2)
+        | Term.Abs (o, a, m) -> Term.Abs (o, a, to_term m)
+        | Term.APP (o, m, a) -> Term.APP (o, to_term m, a)
+        | Term.ABS (o, m) -> Term.ABS (o, to_term m)
+        | Term.Hol (o, j) -> to_term_i j
+        | _ -> m in
 
+  Term.to_string (to_term_i 0)
+    
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 
