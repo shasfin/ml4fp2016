@@ -46,10 +46,6 @@ let prepare_lib lib ctxt =
   (new_lib, new_ctxt)
 
 (******************************************************************************)
-(* Generate first program *)
-
-
-(******************************************************************************)
 (* Standard enumeration *)
 
 (* Expand only one of the holes, the open hole with the smallest number. Returns a list of contexts *)
@@ -120,6 +116,3 @@ let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
 
     in enumerate_aux n
 
-
-
-(******************************************************************************)

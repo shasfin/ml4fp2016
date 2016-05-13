@@ -10,12 +10,12 @@ type t = {
     prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
 }
 
-(* The first program is considered closed because it has no holes to expand yet *)
-let create () = {
-    max_term_hol = 0;
+(* Create the first program consisting of a hole of the goal type *)
+let create a = {
+    max_term_hol = 1;
     max_type_hol = 0;
     current_term_hol = 0;
-    prog = IntMap.empty;
+    prog = IntMap.add 0 (None, a) IntMap.empty;
 }
 
 let is_closed ctxt = ctxt.current_term_hol >= ctxt.max_term_hol
