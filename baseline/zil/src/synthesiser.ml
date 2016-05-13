@@ -1,99 +1,20 @@
 open Printf
 open Lambda
-open Library
-
-(******************************************************************************)
-module IntMap = Map.Make(struct type t = int let compare = compare end)
-
-module Program = struct
-
-    type t = {
-        max_term_hol: idx_hol; (* first fresh hole index *)
-        max_type_hol: idx_hol; (* firse fresh type hole index *)
-        current_term_hol: idx_hol; (* smallest expandable hole *)
-        prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
-    }
-
-    (* The first program is considered closed because it has no holes to expand yet *)
-    let create () = {
-        max_term_hol = 0;
-        max_type_hol = 0;
-        current_term_hol = 0;
-        prog = IntMap.empty;
-    }
-
-    let is_closed ctxt = ctxt.current_term_hol >= ctxt.max_term_hol
-    (* if the hole to expand is a fresh hole, then the program is closed *)
-
-    let current_type ctxt = snd (IntMap.find ctxt.current_term_hol ctxt.prog)
-
-    let get_fresh_term_hol a prog =
-        (Term.Hol (a, prog.max_term_hol),
-        {max_term_hol = prog.max_term_hol + 1;
-         max_type_hol = prog.max_type_hol;
-         current_term_hol = prog.current_term_hol;
-         prog = IntMap.add prog.max_term_hol (None, a) prog.prog}
-        )
-
-    let get_fresh_type_hol prog =
-        (Type.Hol prog.max_type_hol,
-        {max_term_hol = prog.max_term_hol;
-         max_type_hol = prog.max_type_hol + 1;
-         current_term_hol = prog.current_term_hol;
-         prog = prog.prog}
-        )
-
-    let expand_current_hol m prog =
-        {max_term_hol = prog.max_term_hol;
-         max_type_hol = prog.max_type_hol;
-         current_term_hol = prog.current_term_hol + 1;
-         prog = IntMap.add prog.current_term_hol (Some m, Term.extract_label m) prog.prog}
-
-    (* TODO find a better name to avoid conflict with Lambda.apply_subst *)
-    let apply_subst subst prog =
-        let apply_subst_to_pair subst p = match p with
-        | (Some m, a) -> (Some (Term.map_label (apply_subst subst) m), apply_subst subst a)
-        | (None, a) -> (None, apply_subst subst a) in
-
-        {max_term_hol = prog.max_term_hol;
-         max_type_hol = prog.max_type_hol;
-         current_term_hol = prog.current_term_hol;
-         prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
-
-
-    (* TODO think which functions should be defined in this module,
-     * for example eval or first program given a goal type or something like that *)
-end
-
 open Program
 
 (******************************************************************************)
 (* Prepare library for unification *)
 
-(* TODO find a good name *)
 (* args has the reversed order, i.e. for map A B we will get [B,A] *)
-let rec deuniversalise a ctxt args = match a with
+let rec deuniversalise a args ctxt = match a with
   | Type.All a ->
-    let (a0, new_ctxt) = get_fresh_type_hol ctxt in
+    let (a0, ctxt) = get_fresh_type_hol ctxt in
     let b = Type.subst a0 0 a in
-    deuniversalise b new_ctxt (a0 :: args)
+    deuniversalise b (a0 :: args) ctxt
   | _ -> (a, args, ctxt)
 
-(* TODO think about the label of m *)
-(* args has the reversed order, i.e. for map A B we will have [B,A] *)
-let rec apply_args m a args = match args with
-  | [] -> m
-  | (a0 :: args) ->
-    (match a0 with
-    | Type.Hol i -> 
-      let new_type = Type.All (Type.subst_var_in_hol 0 i a) in
-      let new_term = apply_args m new_type args in
-      Term.APP (a, new_term, a0)
-    | _ -> raise (Invalid_argument
-      (sprintf
-        "Cannot reconstruct universal type, as the argument %s is not a type hole"
-        (Type.to_string a0))))
 
+(* args has the reversed order, i.e. for map A B we will have [B, A] in args *)
 let rec universalise a args = match args with
   | [] -> a
   | (a0 :: args) ->
@@ -106,6 +27,19 @@ let rec universalise a args = match args with
           "Cannot reconstruct universal type, as the argument %s is not a type hole"
           (Type.to_string a0))))
 
+(* val prepare_lib : ('i, 'a) Library.t -> Program.t -> (('i,'a) Library.t * Program.t) *)
+let prepare_lib lib ctxt =
+  let new_lib = Library.create () in
+  let new_ctxt =
+    Library.fold_terms
+      (fun i m a args ctxt ->
+        let (a, args, ctxt) = deuniversalise a args ctxt in
+        let () = Library.add_term i m a ~typ_args:args new_lib in
+        ctxt)
+      ctxt
+      lib in
+  (new_lib, new_ctxt)
+
 (******************************************************************************)
 (* Generate first program *)
 
@@ -117,6 +51,22 @@ let rec universalise a args = match args with
 (* ctxt is of type Program.t *)
 (* sym_sig and free_sig are hashtbls and already prepared for unification, their type holes are already included in ctxt.max_type_hol *)
 let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
+
+    (* args has the reversed order, i.e. for map A B we will have [B,A] *)
+  let rec apply_args m a args = match args with
+    | [] -> m
+    | (a0 :: args) ->
+      (match a0 with
+      | Type.Hol i -> 
+        let new_type = Type.All (Type.subst_var_in_hol 0 i a) in
+        let new_term = apply_args m new_type args in
+        Term.APP (a, new_term, a0)
+      | _ -> raise (Invalid_argument
+        (sprintf
+          "Cannot reconstruct universal type, as the argument %s is not a type hole"
+          (Type.to_string a0))))
+  in
+    
     let succ_app =
         let current_type = current_type ctxt in
         let (a0, new_ctxt) = get_fresh_type_hol ctxt in
@@ -132,18 +82,17 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
           let new_ctxt = expand_current_hol (Term.Free (a, i)) ctxt in
           apply_subst subst new_ctxt
         )
-        (unifiable_term_sigs free_lib (current_type ctxt)) in
+        (Library.unifiable_term_sigs free_lib (current_type ctxt)) in
               
     let succ_sym =
-      (* TODO Apply arguments to Term.Sym (a, i) *)
       List.map
         (fun (i, a, subst, args) ->
           let new_type = universalise a args in
           let new_term = Term.Sym(new_type, i) in
-          let new_ctxt = expand_current_hol (apply_args new_term new_type args) ctxt in
+          let new_ctxt = expand_current_hol (apply_args new_term a args) ctxt in
           apply_subst subst new_ctxt
         )
-        (unifiable_term_sigs sym_lib (current_type ctxt)) in
+        (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in
 
     if Program.is_closed ctxt
     then []

@@ -72,7 +72,7 @@ module Type = struct
     | Sym (i, l) -> Sym (i, List.map (subst_var_in_hol iv ih) l)
     | Hol i -> if i = ih then Var iv else Hol i
     | _ -> a
-	
+
 end
 
 (******************************************************************************)

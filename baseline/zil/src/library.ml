@@ -47,4 +47,6 @@ let unifiable_term_sigs lib a =
     lib.termtbl
     [] 
 
-    
+let fold_terms f lib init = Hashtbl.fold (fun i (m, a, args) -> f i m a args) lib.termtbl init
+
+let fold_types f lib init = Hashtbl.fold (fun i (a, k) -> f i a k) lib.typetbl init

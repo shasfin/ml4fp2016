@@ -5,3 +5,4 @@ src/Lexer
 src/Parse
 src/Synthesiser
 src/Library
+src/Program

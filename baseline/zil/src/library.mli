@@ -31,3 +31,9 @@ val lookup_type_sig : ('i, 'a) t -> 'i -> Kind.t
 
 val unifiable_term_sigs : ('i, 'a) t -> Type.t -> ('i * Type.t * substitution * (Type.t list)) list
 (** Returns the list of components that unify with the given type *)
+
+val fold_terms : ('i -> 'a Term.t -> Type.t -> Type.t list -> 'c -> 'c) -> ('i, 'a) t -> 'c -> 'c
+(** Fold term definitions and signatures *)
+
+val fold_types : ('i -> Type.t -> Kind.t -> 'c -> 'c) -> ('i, 'a) t -> 'c -> 'c
+(** Folt type definitions and signatures *)
