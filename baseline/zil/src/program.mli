@@ -18,6 +18,8 @@ end
 
   val create : unit -> t
 
+  val reset : t -> Type.t -> t
+
   val is_closed : t -> bool
   (** True if there are no holes to expand *)
 

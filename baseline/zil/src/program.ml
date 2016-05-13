@@ -10,10 +10,18 @@ type t = {
     prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
 }
 
-(* Create the first program consisting of a hole of the goal type *)
-let create a = {
-    max_term_hol = 1;
+(* Create the empty program. Note that it is considered closed *)
+let create () = {
+    max_term_hol = 0;
     max_type_hol = 0;
+    current_term_hol = 0;
+    prog = IntMap.empty;
+}
+
+(* Generate the first program consisting of a hole of a given type from an existing program. Only the information about used type holes is preserved *)
+let reset prog a = {
+    max_term_hol = 1;
+    max_type_hol = prog.max_type_hol;
     current_term_hol = 0;
     prog = IntMap.add 0 (None, a) IntMap.empty;
 }
