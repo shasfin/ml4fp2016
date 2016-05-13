@@ -30,14 +30,19 @@ let rec universalise a args = match args with
 (* val prepare_lib : ('i, 'a) Library.t -> Program.t -> (('i,'a) Library.t * Program.t) *)
 let prepare_lib lib ctxt =
   let new_lib = Library.create () in
+  let () =
+    Library.fold_types
+      (fun i a k acc -> Library.add_type i a k new_lib)
+      lib
+      () in
   let new_ctxt =
     Library.fold_terms
       (fun i m a args ctxt ->
         let (a, args, ctxt) = deuniversalise a args ctxt in
         let () = Library.add_term i m a ~typ_args:args new_lib in
         ctxt)
-      ctxt
-      lib in
+      lib
+      ctxt in
   (new_lib, new_ctxt)
 
 (******************************************************************************)
