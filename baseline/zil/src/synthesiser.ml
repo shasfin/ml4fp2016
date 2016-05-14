@@ -100,18 +100,17 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
 let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
-    (* Queue is not a functional queue, that's why it is not an argument to find_first_closed *)
-    let find_first_closed =
+    let find_first_closed queue =
         while not (Program.is_closed (Queue.top queue)) do
             let s = successor (Queue.pop queue) ~sym_lib:sym_lib ~free_lib:free_lib in
             List.iter (fun x -> Queue.push x queue) s
         done;
-        Queue.pop queue in
+        Queue.pop queue in 
 
     let rec enumerate_aux i =
         (match i with
         | 0 -> []
-        | _ -> find_first_closed :: (enumerate_aux (i-1)))
+        | _ -> (find_first_closed queue) :: (enumerate_aux (i-1)))
 
     in enumerate_aux n
 

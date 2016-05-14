@@ -292,7 +292,7 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
   let rec eval_aux env alt m =
     match m with
     | App (o, m, n) ->
-      let m = eval_aux env None m in
+      let m = eval_aux env None m in 
       let n = eval_aux env None n in
       (match m with
        | Fun (_, def, env, alt) ->

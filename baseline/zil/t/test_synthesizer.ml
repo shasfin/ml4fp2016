@@ -82,7 +82,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
 
   let prog = Program.reset first_prog (transform_type goal_type) in
 
-  let nof_programs = 10 in
+  let nof_programs = 2 in
 
   let queue = Queue.create () in
   let () = Queue.add prog queue in
