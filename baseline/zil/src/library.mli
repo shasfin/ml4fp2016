@@ -36,4 +36,4 @@ val fold_terms : ('i -> 'a Term.t -> Type.t -> Type.t list -> 'c -> 'c) -> ('i, 
 (** Fold term definitions and signatures *)
 
 val fold_types : ('i -> Type.t -> Kind.t -> 'c -> 'c) -> ('i, 'a) t -> 'c -> 'c
-(** Folt type definitions and signatures *)
+(** Fold type definitions and signatures *)

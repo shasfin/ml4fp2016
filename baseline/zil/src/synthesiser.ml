@@ -96,7 +96,8 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
     if Program.is_closed ctxt
     then []
-    else succ_app @ succ_free @ succ_sym
+    else (*(* TODO debugging *) let () = List.iter (fun x -> print_string (Program.to_string x)) (succ_free @ succ_sym @ succ_app) in (* end *)*)
+        succ_free @ succ_sym @ succ_app
 
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
 let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
