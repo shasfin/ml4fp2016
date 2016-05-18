@@ -64,6 +64,16 @@ module Type = struct
 	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
 	| _ -> a
 
+
+  (* Substitute type substree b in Hol j in type a *)
+  let rec subst_hol b j a =
+    match a with
+    | Hol i -> if (i=j) then b else Hol i
+    | Arr (a1, a2) -> Arr (subst_hol b j a1, subst_hol b j a2)
+    | All a -> All (subst_hol b j a)
+    | Sym (i, l) -> Sym (i, List.map (subst_hol b j) l)
+    | _ -> a
+
   (* Substitute a variable iv instead of hole ih in type a *)
   let rec subst_var_in_hol iv ih a =
     match a with
@@ -108,7 +118,7 @@ let occursin j a =
 
 (* Substitute type a instead of Hol j in all types present in the list of constraints *)
 let substinconstr j a constr =
-    List.map (fun (b1, b2) -> (subst a j b1, subst a j b2)) constr
+    List.map (fun (b1, b2) -> (subst_hol a j b1, subst_hol a j b2)) constr
 
 
 (* Unify a set of constraints. Unification of universal types is not implemented, transform universal types into types with holes before using this function. *)
@@ -122,8 +132,11 @@ let rec unify constr =
                 (to_string (Hol i))
                 (to_string a)))
         else
+            (* TODO debugging *) let () = print_string (sprintf "...unifying %s with %s\n" (to_string a) (to_string (Hol i))) in
+            let () = List.iter (fun (a1, a2) -> print_string (sprintf "    (%s, %s), " (to_string a1) (to_string a2))) (substinconstr i a constr) in 
+            let () = print_string "...\n" in(* end *)
             let subst = unify (substinconstr i a constr) in
-            let _ = Hashtbl.add subst i a
+            let () = Hashtbl.add subst i a
             in subst
     | (Hol i, a) :: constr ->
         if a = Hol i then unify constr
@@ -133,7 +146,7 @@ let rec unify constr =
                 (to_string a)))
         else
             let subst = unify (substinconstr i a constr) in
-            let _ = Hashtbl.add subst i a
+            let () = Hashtbl.add subst i a
             in subst
     | (Arr (a1, b1), Arr (a2, b2)) :: constr -> unify ((a1, a2) :: (b1, b2) :: constr)
     | (Sym (i1, l1), Sym (i2, l2)) :: constr ->
