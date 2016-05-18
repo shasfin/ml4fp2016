@@ -115,13 +115,17 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
 
   let prog = Program.reset first_prog (transform_type goal_type) in
 
-  let nof_programs = 1 in
+  let nof_programs = 2 in
 
   let queue = Queue.create () in
   let () = Queue.add prog queue in
 
-(* TODO debugging *) let () = print_string "Printing free_lib..." in
-   let () = print_free_lib free_lib in (* end *)
+(* TODO debugging *) let () = print_string "Printing free_lib...\n" in
+   let () = print_free_lib free_lib in
+   let () = print_string "________________\n" in
+   let () = print_string "Printing sym_lib_uni...\n" in
+   let () = print_sym_lib sym_lib_uni in
+   let () = print_string "________________\n\n" in (* end *)
 
   Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs
 

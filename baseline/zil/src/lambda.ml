@@ -102,7 +102,7 @@ let occursin j a =
         | Hol i -> (i=j)
         | Arr (a,b) -> occursin_aux a || occursin_aux b
         | All a -> occursin_aux a
-        | Sym (i, l) -> List.fold_left (||) true (List.map occursin_aux l)
+        | Sym (i, l) -> List.fold_left (||) false (List.map occursin_aux l)
         | _ -> false
     in occursin_aux a
 

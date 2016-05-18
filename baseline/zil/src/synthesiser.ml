@@ -83,6 +83,9 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
           apply_subst subst new_ctxt
         )
         (Library.unifiable_term_sigs free_lib (current_type ctxt)) in
+    (* TODO debugging *) 
+    let () = print_string (sprintf "Free terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
+    let () = List.iter (fun (i, a, subst, _) -> print_string (("  " ^ Term.to_string (Term.Free ((), i))) ^ "\n")) (Library.unifiable_term_sigs free_lib (current_type ctxt)) in (* end *)
               
     let succ_sym =
       List.map
@@ -93,10 +96,14 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
           apply_subst subst new_ctxt
         )
         (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in
+    (* TODO debugging *) 
+    let () = print_string (sprintf "Sym terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
+    let () = List.iter (fun (i, a, subst, _) -> print_string (("  " ^ Term.to_string (Term.Sym ((), i))) ^ "\n")) (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in (* end *)
+
 
     if Program.is_closed ctxt
     then []
-    else (*(* TODO debugging *) let () = List.iter (fun x -> print_string (Program.to_string x)) (succ_free @ succ_sym @ succ_app) in (* end *)*)
+    else (* TODO debugging *) let () = List.iter (fun x -> print_string ((Program.to_string x) ^ "\n\n")) (succ_free @ succ_sym @ succ_app) in (* end *)
         succ_free @ succ_sym @ succ_app
 
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)

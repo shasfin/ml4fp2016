@@ -44,7 +44,7 @@ let unifiable_term_sigs lib a =
   Hashtbl.fold
     (fun key (_, value, args) l ->
       try (key, value, unify [(a, value)], args) :: l
-      with Invalid_argument _ -> l)
+      (* TODO debugging *) with Invalid_argument str -> print_string ("   " ^str ^ "\n") ; l) (* with Invalid_argument _ -> l)*)
     lib.termtbl
     [] 
 
