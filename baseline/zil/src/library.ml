@@ -50,5 +50,12 @@ let unifiable_term_sigs lib a =
 
 let fold_terms f lib init = Hashtbl.fold (fun i (m, a, args) -> f i m a args) lib.termtbl init
 
-let fold_types f lib init = Hashtbl.fold (fun i (a, k) -> f i a k) lib.typetbl init
+let fold_types g lib init = Hashtbl.fold (fun i (a, k) -> g i a k) lib.typetbl init
 
+let fold f g lib init = fold_types g lib (fold_terms f lib init)
+
+let iter_terms f lib = Hashtbl.iter (fun i (m, a, args) -> f i m a args) lib.termtbl
+
+let iter_types g lib = Hashtbl.iter (fun i (a, k) -> g i a k) lib.typetbl
+
+let iter f g lib = iter_terms f lib ; iter_types g lib

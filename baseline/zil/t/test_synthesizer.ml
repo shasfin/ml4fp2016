@@ -53,63 +53,37 @@ let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 (* Generate some simple programs (only type-based, without i/o *)
 
 (* Print functions for debugging *)
+let print_lib f g lib =
+  Library.iter
+    (fun i m a args -> print_string
+      (sprintf "%s = %s : %s \n"
+        (Term.to_string (f i))
+        (Term.to_string m)
+        (Type.to_string a)))
+    (fun i a k -> print_string
+      (sprintf "%s == %s :: %d \n"
+        (Type.to_string (g i))
+        (Type.to_string a)
+        k))
+    lib
+
 let print_free_lib lib =
-    let () = Library.fold_terms
-      (fun i m a args () -> print_string
-        (sprintf "%s = %s : %s \n"
-          (Term.to_string (Term.Free((), i)))
-          (Term.to_string m)
-          (Type.to_string a)))
-      lib
-      () in
-    let () = Library.fold_types
-      (fun i a k () -> print_string
-        (sprintf "%s == %s :: %d \n"
-          (Type.to_string (Type.Free i))
-          (Type.to_string a)
-          k))
-      lib
-      () in
-    ()
+  print_lib
+    (fun i -> Term.Free((), i))
+    (fun i -> Type.Free i)
+    lib
 
 let print_sym_lib lib =
-    let () = Library.fold_terms
-      (fun i m a args () -> print_string
-        (sprintf "%s = %s : %s \n"
-          (Term.to_string (Term.Sym((), i)))
-          (Term.to_string m)
-          (Type.to_string a)))
-      lib
-      () in
-    let () = Library.fold_types
-      (fun i a k () -> print_string
-        (sprintf "%s == %s :: %d \n"
-          (Type.to_string (Type.Sym (i,[])))
-          (Type.to_string a)
-          k))
-      lib
-      () in
-    ()
+  print_lib
+    (fun i -> Term.Sym((), i))
+    (fun i -> Type.Sym(i, []))
+    lib
 
 let print_hol_lib lib =
-    let () = Library.fold_terms
-      (fun i m a args () -> print_string
-        (sprintf "%s = %s : %s \n"
-          (Term.to_string (Term.Hol((), i)))
-          (Term.to_string m)
-          (Type.to_string a)))
-      lib
-      () in
-    let () = Library.fold_types
-      (fun i a k () -> print_string
-        (sprintf "%s == %s :: %d \n"
-          (Type.to_string (Type.Hol i))
-          (Type.to_string a)
-          k))
-      lib
-      () in
-    ()
-
+  print_lib
+    (fun i -> Term.Hol((), i))
+    (fun i -> Type.Hol i)
+    lib
 
 (* general structure:
  * goal type
@@ -141,7 +115,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
 
   let prog = Program.reset first_prog (transform_type goal_type) in
 
-  let nof_programs = 2 in
+  let nof_programs = 1 in
 
   let queue = Queue.create () in
   let () = Queue.add prog queue in
@@ -150,7 +124,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
    let () = print_free_lib free_lib in (* end *)
 
   Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs
-;;
+
 
 
 (* easy test: try to generate map itself *)

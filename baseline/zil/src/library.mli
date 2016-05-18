@@ -37,3 +37,31 @@ val fold_terms : ('i -> 'a Term.t -> Type.t -> Type.t list -> 'c -> 'c) -> ('i, 
 
 val fold_types : ('i -> Type.t -> Kind.t -> 'c -> 'c) -> ('i, 'a) t -> 'c -> 'c
 (** Fold type definitions and signatures *)
+
+val fold :
+  ('i -> 'a Term.t -> Type.t -> Type.t list -> 'c -> 'c) ->
+  ('i -> Type.t -> Kind.t -> 'c -> 'c) ->
+  ('i, 'a) t ->
+  'c ->
+  'c
+(** Fold over terms and types: fold f g lib init folds the terms using the function f and the initial value init and then folds the types using the function g and the result of the fold of the terms as initial value *)
+
+val iter_terms :
+  ('i -> 'a Term.t -> Type.t -> Type.t list -> unit) ->
+  ('i, 'a) t ->
+  unit
+(** Iterate over term definitions and signatures *)
+
+val iter_types :
+  ('i -> Type.t -> Kind.t -> unit) ->
+  ('i, 'a) t ->
+  unit
+(** Iterate over type definitions and signatures *)
+
+val iter :
+  ('i -> 'a Term.t -> Type.t -> Type.t list -> unit) ->
+  ('i -> Type.t -> Kind.t -> unit) ->
+  ('i, 'a) t ->
+  unit
+(** Iterate the first function over terms and the second over types *)
+
