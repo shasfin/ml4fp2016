@@ -64,7 +64,6 @@ let apply_subst subst prog =
      current_term_hol = prog.current_term_hol;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
-(* TODO think about the types of to_term: it takes sometimes indices and sometimes terms *)
 let to_string prog =
   let rec to_term_i i =
       if i < prog.max_term_hol then
@@ -88,7 +87,12 @@ let to_string prog =
         | _ -> m in
 
   Term.to_string (to_term_i 0)
-    
+
+let to_string_typed prog =
+  IntMap.fold
+    (fun i (_, a) acc -> sprintf "%s : %s, %s" (Term.to_string (Term.Hol ((), i))) (Type.to_string a) acc)
+    prog.prog
+    ""
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 

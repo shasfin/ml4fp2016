@@ -39,4 +39,7 @@ end
   (** Apply substitution to all types of the program *)
 
   val to_string : t -> string
-  (** Type a program as a term *)
+  (** Print a program as a term *)
+
+  val to_string_typed : t -> string
+  (** Print a program as a table of hole to type bindings *)
