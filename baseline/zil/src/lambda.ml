@@ -83,25 +83,19 @@ module Type = struct
     | Hol i -> if i = ih then Var iv else Hol i
     | _ -> a
 
-end
+   (* Substitutions *)
+  type substitution = (idx_hol, t) Hashtbl.t
 
-(******************************************************************************)
-(* Unification of types *)
-open Type
+  let subst_to_string subst =
+    Hashtbl.fold
+      (fun i a acc -> sprintf " ^%d |-> %s, %s" i (to_string a) acc)
+      subst
+      ""
 
-type substitution = (idx_hol, t) Hashtbl.t
-type constraint_set = (t * t) list
+  let initial_guess = 10
+  let empty_subst () = Hashtbl.create initial_guess
 
-let subst_to_string subst =
-  Hashtbl.fold
-    (fun i a acc -> sprintf " ^%d |-> %s, %s" i (Type.to_string a) acc)
-    subst
-    ""
-
-let initial_guess = 10
-let empty_subst () = Hashtbl.create initial_guess
-
-let rec apply_subst subst a =
+  let rec apply_subst subst a =
     match a with
     | Hol i -> if Hashtbl.mem subst i then Hashtbl.find subst i else Hol i
     | Arr (a, b) -> Arr (apply_subst subst a, apply_subst subst b)
@@ -109,8 +103,15 @@ let rec apply_subst subst a =
     | Sym (i, l) -> Sym (i, List.map (apply_subst subst) l)
     | _ -> a
 
+end
+
+(******************************************************************************)
+(* Unification of types *)
+open Type
 
 (* Based on implementation from the book by Pierce *)
+type constraint_set = (t * t) list
+
 (* check if Hol j occurs in type a *)
 let occursin j a =
     let rec occursin_aux a =
@@ -252,6 +253,29 @@ module Term = struct
     | Free (o, i)             -> Free (f o, i)
     | Fun  (o, def, env, alt) -> Fun  (f o, map_label f def, map_env env, map_alt alt)
     | FUN  (o, def, env, alt) -> FUN  (f o, map_label f def, map_env env, map_alt alt)
+
+  let apply_subst subst m =
+    let rec apply_subst_aux m =
+      let apply_subst_env env = {
+        type_stack = List.map (Type.apply_subst subst) env.type_stack;
+        term_stack = List.map apply_subst_aux env.term_stack;
+      } in
+
+      let apply_subst_alt alt =
+        match alt with
+        | Some m -> Some (apply_subst_aux m)
+        | None -> None in
+
+      match m with
+      | App (o, m, n) -> App (o, apply_subst_aux m, apply_subst_aux n)
+      | Abs (o, a, m) -> Abs (o, Type.apply_subst subst a, apply_subst_aux m)
+      | APP (o, m, a) -> APP (o, apply_subst_aux m, Type.apply_subst subst a)
+      | ABS (o, m) -> ABS (o, apply_subst_aux m)
+      | Fun (o, def, env, alt) -> Fun (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
+      | FUN (o, def, env, alt) -> FUN (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
+      | _ -> m in
+
+    apply_subst_aux m
 end
 
 (******************************************************************************)

@@ -29,7 +29,7 @@ val lookup_type_def : ('i, 'a) t -> 'i -> Type.t
 val lookup_type_sig : ('i, 'a) t -> 'i -> Kind.t
 (** Lookup the signature of a type library component. Raises Not Found exception *)
 
-val unifiable_term_sigs : ('i, 'a) t -> Type.t -> ('i * Type.t * substitution * (Type.t list)) list
+val unifiable_term_sigs : ('i, 'a) t -> Type.t -> ('i * Type.t * Type.substitution * (Type.t list)) list
 (** Returns the list of components that unify with the given type *)
 
 val fold_terms : ('i -> 'a Term.t -> Type.t -> Type.t list -> 'c -> 'c) -> ('i, 'a) t -> 'c -> 'c

@@ -56,8 +56,8 @@ let expand_current_hol m prog =
 (* TODO find a better name to avoid conflict with Lambda.apply_subst *)
 let apply_subst subst prog =
     let apply_subst_to_pair subst p = match p with
-    | (Some m, a) -> (Some (Term.map_label (apply_subst subst) m), apply_subst subst a)
-    | (None, a) -> (None, apply_subst subst a) in
+    | (Some m, a) -> (Some (Term.map_label (Type.apply_subst subst) (Term.apply_subst subst m)), Type.apply_subst subst a)
+    | (None, a) -> (None, Type.apply_subst subst a) in
 
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;

@@ -35,7 +35,7 @@ end
   val expand_current_hol : Type.t Term.t -> t -> t
   (** Expand current hole with a term *)
 
-  val apply_subst : substitution -> t -> t
+  val apply_subst : Type.substitution -> t -> t
   (** Apply substitution to all types of the program *)
 
   val to_string : t -> string

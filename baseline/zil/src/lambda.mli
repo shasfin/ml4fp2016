@@ -53,21 +53,21 @@ module Type : sig
   val subst_var_in_hol : int -> idx_hol -> t -> t
   (** Substitute given variable for a hole in a type *)
 
-end
+  type substitution = (idx_hol, t) Hashtbl.t
+  (** Type of type substitutions *)
 
-type substitution = (idx_hol, Type.t) Hashtbl.t
-(** Type of type substitutions *)
+  val subst_to_string : substitution -> string
+  (** Pretty-print a substitution *)
+
+  val apply_subst : substitution -> t -> t
+  (** Apply a substitution to a type *)
+
+end
 
 type constraint_set = (Type.t * Type.t) list
 (** Type of constraint lists *)
 
-val subst_to_string : substitution -> string
-(** Pretty-print a substitution *)
-
-val apply_subst : substitution -> Type.t -> Type.t
-(** Apply a substitution to a type *)
-
-val unify : constraint_set -> substitution
+val unify : constraint_set -> Type.substitution
 (** Unify a set of constraints *)
 
 module Term : sig
@@ -125,6 +125,8 @@ module Term : sig
   val map_label : ('a -> 'b) -> 'a t -> 'b t
   (** Apply a function to all labels of a term *)
 
+  val apply_subst : Type.substitution -> 'a t -> 'a t
+  (** Apply a type substitution to a term (concerns APP and ABS) *)
 end
 
 
