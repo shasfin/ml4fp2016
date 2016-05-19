@@ -97,7 +97,7 @@ module Type = struct
 
   let rec apply_subst subst a =
     match a with
-    | Hol i -> if Hashtbl.mem subst i then Hashtbl.find subst i else Hol i
+    | Hol i -> if Hashtbl.mem subst i then apply_subst subst (Hashtbl.find subst i) else Hol i
     | Arr (a, b) -> Arr (apply_subst subst a, apply_subst subst b)
     | All a -> All (apply_subst subst a)
     | Sym (i, l) -> Sym (i, List.map (apply_subst subst) l)
@@ -126,7 +126,6 @@ let occursin j a =
 (* Substitute type a instead of Hol j in all types present in the list of constraints *)
 let substinconstr j a constr =
     List.map (fun (b1, b2) -> (subst_hol a j b1, subst_hol a j b2)) constr
-
 
 (* Unify a set of constraints. Unification of universal types is not implemented, transform universal types into types with holes before using this function. *)
 let rec unify constr =
@@ -162,6 +161,11 @@ let rec unify constr =
         else raise (Invalid_argument (sprintf "Names do not agree, cannot unify %s with %s"
             (to_string (Sym (i1, l1)))
             (to_string (Sym (i2, l2)))))
+    | (Free i1, Free i2) :: constr ->
+        if i1 = i2 then unify constr
+        else raise (Invalid_argument (sprintf "Unsolvable constraints, cannot unify %s with %s"
+            (to_string (Free i1))
+            (to_string (Free i2))))
     | (a, b) :: constr -> raise (Invalid_argument (sprintf "Unsolvable constraints, cannot unify %s with %s"
 			(to_string a)
 			(to_string b))) (* Cannot unify input variables, bound variables and universal types, among other cases *)

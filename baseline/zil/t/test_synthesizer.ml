@@ -92,7 +92,7 @@ let print_hol_lib lib =
  * enumerate programs *)
 (* test_enumeration : ?msg:string -> Type.t -> (idx_free, unit) Library.t -> Program.t list *)
 (* side effect: changes free_lib *)
-let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
+let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib nof_programs =
   let transform_type a =
     (* side effect: free_lib is built *)
     let rec deuniversalise a ity =
@@ -114,9 +114,6 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
     dearrowise (deuniversalise goal_type 0) 0 in
 
   let prog = Program.reset first_prog (transform_type goal_type) in
-
-  let nof_programs = 4 in
-
   let queue = Queue.create () in
   let () = Queue.add prog queue in
 
@@ -131,8 +128,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib =
 
 
 
-(* easy test: try to generate map itself *)
+(* easy test: try to generate map itself. Only two programs, because we cannot generate more from the components that we have *)
 let free_lib = Library.create ();;
-let map_test = test_enumeration ~msg:"Try to generate map" list_map_sig free_lib;;
+let map_test = test_enumeration ~msg:"Try to generate map" list_map_sig free_lib 2;;
 let () =  print_string (String.concat "\n" (List.map Program.to_string map_test));;
 
