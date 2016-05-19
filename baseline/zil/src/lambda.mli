@@ -61,7 +61,11 @@ type substitution = (idx_hol, Type.t) Hashtbl.t
 type constraint_set = (Type.t * Type.t) list
 (** Type of constraint lists *)
 
+val subst_to_string : substitution -> string
+(** Pretty-print a substitution *)
+
 val apply_subst : substitution -> Type.t -> Type.t
+(** Apply a substitution to a type *)
 
 val unify : constraint_set -> substitution
 (** Unify a set of constraints *)

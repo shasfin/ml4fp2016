@@ -92,8 +92,14 @@ open Type
 type substitution = (idx_hol, t) Hashtbl.t
 type constraint_set = (t * t) list
 
+let subst_to_string subst =
+  Hashtbl.fold
+    (fun i a acc -> sprintf " ^%d |-> %s, %s" i (Type.to_string a) acc)
+    subst
+    ""
+
 let initial_guess = 10
-let empty_subst = Hashtbl.create initial_guess
+let empty_subst () = Hashtbl.create initial_guess
 
 let rec apply_subst subst a =
     match a with
@@ -124,7 +130,7 @@ let substinconstr j a constr =
 (* Unify a set of constraints. Unification of universal types is not implemented, transform universal types into types with holes before using this function. *)
 let rec unify constr =
     match constr with
-    | [] -> empty_subst
+    | [] -> empty_subst ()
     | (a, Hol i) :: constr ->
         if a = Hol i then unify constr
         else if occursin i a then
@@ -136,7 +142,7 @@ let rec unify constr =
             let () = List.iter (fun (a1, a2) -> print_string (sprintf "    (%s, %s), " (to_string a1) (to_string a2))) (substinconstr i a constr) in 
             let () = print_string "...\n" in(* end *)
             let subst = unify (substinconstr i a constr) in
-            let () = Hashtbl.add subst i a
+            let () = Hashtbl.replace subst i a
             in subst
     | (Hol i, a) :: constr ->
         if a = Hol i then unify constr
@@ -146,7 +152,7 @@ let rec unify constr =
                 (to_string a)))
         else
             let subst = unify (substinconstr i a constr) in
-            let () = Hashtbl.add subst i a
+            let () = Hashtbl.replace subst i a
             in subst
     | (Arr (a1, b1), Arr (a2, b2)) :: constr -> unify ((a1, a2) :: (b1, b2) :: constr)
     | (Sym (i1, l1), Sym (i2, l2)) :: constr ->

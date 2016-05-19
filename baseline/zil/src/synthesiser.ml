@@ -85,7 +85,7 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
         (Library.unifiable_term_sigs free_lib (current_type ctxt)) in
     (* TODO debugging *) 
     let () = print_string (sprintf "Free terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
-    let () = List.iter (fun (i, a, subst, _) -> print_string (("  " ^ Term.to_string (Term.Free ((), i))) ^ "\n")) (Library.unifiable_term_sigs free_lib (current_type ctxt)) in (* end *)
+    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Free ((), i))) (Type.to_string a) (subst_to_string subst))) (Library.unifiable_term_sigs free_lib (current_type ctxt)) in (* end *)
               
     let succ_sym =
       List.map
@@ -98,13 +98,13 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
         (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in
     (* TODO debugging *) 
     let () = print_string (sprintf "Sym terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
-    let () = List.iter (fun (i, a, subst, _) -> print_string (("  " ^ Term.to_string (Term.Sym ((), i))) ^ "\n")) (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in (* end *)
+    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Sym ((), i))) (Type.to_string a) (subst_to_string subst))) (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in (* end *)
 
 
     if Program.is_closed ctxt
     then []
     else (* TODO debugging *) 
-        let () = List.iter (fun x -> print_string (sprintf "%s |-> %s \n %s\n\n" (Program.to_string ctxt) (Program.to_string x) (Program.to_string_typed x))) (succ_free @ succ_sym @ succ_app) in (* end *)
+        let () = List.iter (fun x -> print_string (sprintf "%s |-> %s \n %s\n|-> %s\n\n" (Program.to_string ctxt) (Program.to_string x) (Program.to_string_typed ctxt) (Program.to_string_typed x))) (succ_free @ succ_sym @ succ_app) in (* end *)
         succ_free @ succ_sym @ succ_app
 
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
