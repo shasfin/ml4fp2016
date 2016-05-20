@@ -93,6 +93,9 @@ let to_string_typed prog =
     (fun i (_, a) acc -> sprintf "%s : %s, %s" (Term.to_string (Term.Hol ((), i))) (Type.to_string a) acc)
     prog.prog
     ""
+
+(* TODO implement function agrees_with that takes an io-example and a program and says whether they agree. An io-example could be a pair of type (free_idx, 'a) Library.t * 'a Term.t. We should evaluate the program (to_term and then eval or write a new eval function?) and compare the result with the output (don't forget to evaluate the output, too) *)
+
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 
