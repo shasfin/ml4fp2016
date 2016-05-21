@@ -5,6 +5,7 @@ open Zil.Lambda;;
 open Zil.Parse;;
 open Zil;;
 
+plan 5;;
 (******************************************************************************)
 (* Define library *)
 
@@ -16,10 +17,16 @@ let sym_lib = Library.create ();;
 
 (* Types *)
 (* Recursive lists *)
-let list_sig = 1
+let list_sig = 1;;
 let list_def = parse_type "@ #0 -> (#1 -> List #1 -> #0) -> #0";;
 
 let () = Library.add_type "List" list_def list_sig sym_lib;;
+
+(* Natural numbers *)
+let nat_sig = 0;;
+let nat_def = parse_type "@ #0 -> (Nat -> #0) -> #0";;
+
+let () = Library.add_type "Nat" nat_def nat_sig sym_lib;;
 
 (* Terms *)
 (* list constructors *)
@@ -35,6 +42,19 @@ let list_con_fun = name "con" (eval list_con_def);;
 
 let () = Library.add_term "con" list_con_fun list_con_sig sym_lib;;
 
+(* nat constructors *)
+let nat_zero_sig = parse_type "Nat";;
+let nat_zero_def = parse_term "* { [#0] [Nat -> #0] : $1 }";;
+let nat_zero_fun = name "zero" (eval nat_zero_def);;
+
+let () = Library.add_term "zero" nat_zero_fun nat_zero_sig sym_lib;;
+
+let nat_succ_sig = parse_type "Nat -> Nat";;
+let nat_succ_def = parse_term "{ [Nat] : * { [#0] [Nat -> #0] : $0 ($2 #0 $1 $0) } }";;
+let nat_succ_fun = name "succ" (eval nat_succ_def);;
+
+let () = Library.add_term "succ" nat_succ_fun nat_succ_sig sym_lib;;
+
 (* functions *)
 let list_map_sig = parse_type "@ @ (#1 -> #0) -> List #1 -> List #0";;
 let list_map_def = parse_term "* * { [#1 -> #0] [List #1] : $0 #0 (nil #0) { [#1] [List #1] : con #0 ($3 $1) (map #1 #0 $3 $0) } }";;
@@ -42,7 +62,30 @@ let list_map_fun = name "map" (eval list_map_def);;
 
 let () = Library.add_term "map" list_map_fun list_map_sig sym_lib;;
 
+let nat_add_sig = parse_type "Nat -> Nat -> Nat";;
+let nat_add_def = parse_term "{ [Nat] [Nat] : * { [#0] [Nat -> #0] : $3 #0 ($2 #0 $1 $0) $0 } }";;
+(*let nat_add_def = parse_term "{ [Nat] [Nat] : $1 Nat ($0 Nat zero succ) succ }";;*)
+let nat_add_fun = name "add" (eval nat_add_def);;
 
+let () = Library.add_term "add" nat_add_fun nat_add_sig sym_lib;;
+
+
+(******************************************************************************)
+(* Test some of the library functions *)
+
+let test_add n m msg =
+  let rec number_to_nat n = match n with
+    | 0 -> "zero"
+    | 1 -> "succ zero"
+    | n -> sprintf "succ (%s)" (number_to_nat (n-1)) in
+  let got = eval ~sym_def:(Library.get_lib_def sym_lib) (parse_term (sprintf "add (%s) (%s)" (number_to_nat n) (number_to_nat m))) in
+  is (Term.to_string got) (number_to_nat (n+m)) msg
+
+let test0_0 = test_add 0 0 "0+0";;
+let test1_0 = test_add 1 0 "1+0";;
+let test0_1 = test_add 0 1 "0+1";;
+let test3_5 = test_add 1 1 "1+1";;
+let test2_3 = test_add 2 3 "2+3";;
 
 (******************************************************************************)
 (* Prepare library for unification *)
@@ -128,8 +171,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib nof_progr
 
 
 
-(* easy test: try to generate map itself. Only two programs, because we cannot generate more from the components that we have *)
+(* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
 let free_lib = Library.create ();;
-let map_test = test_enumeration ~msg:"Try to generate map" list_map_sig free_lib 2;;
+let map_test = test_enumeration ~msg:"Try to generate map" list_map_sig free_lib 3;;
 let () =  print_string (String.concat "\n" (List.map Program.to_string map_test));;
 
