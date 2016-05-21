@@ -50,7 +50,7 @@ let nat_zero_fun = name "zero" (eval nat_zero_def);;
 let () = Library.add_term "zero" nat_zero_fun nat_zero_sig sym_lib;;
 
 let nat_succ_sig = parse_type "Nat -> Nat";;
-let nat_succ_def = parse_term "{ [Nat] : * { [#0] [Nat -> #0] : $0 ($2 #0 $1 $0) } }";;
+let nat_succ_def = parse_term "{ [Nat] : * { [#0] [Nat -> #0] : $0 $2 } }";;
 let nat_succ_fun = name "succ" (eval nat_succ_def);;
 
 let () = Library.add_term "succ" nat_succ_fun nat_succ_sig sym_lib;;
@@ -135,7 +135,7 @@ let print_hol_lib lib =
  * enumerate programs *)
 (* test_enumeration : ?msg:string -> Type.t -> (idx_free, unit) Library.t -> Program.t list *)
 (* side effect: changes free_lib *)
-let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib nof_programs =
+let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples:(examples=[]) nof_programs =
   let transform_type a =
     (* side effect: free_lib is built *)
     let rec deuniversalise a ity =
@@ -167,12 +167,34 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib nof_progr
    let () = print_sym_lib sym_lib_uni in
    let () = print_string "________________\n\n" in (* end *)
 
-  Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs
+  Synthesiser.filter_satisfying (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) examples ~sym_def:(Library.get_lib_def sym_lib)
 
 
 
 (* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
+(*let () = print_string "\n\n\nGenerating map &1 &0 _1 _0\n\n"
 let free_lib = Library.create ();;
 let map_test = test_enumeration ~msg:"Try to generate map" list_map_sig free_lib 3;;
-let () =  print_string (String.concat "\n" (List.map Program.to_string map_test));;
+let () =  print_string (String.concat "\n" (List.map Program.to_string map_test));;*)
+
+(* first test with I/O-examples. [zero] |-> [succ zero] *)
+let () = print_string "\n\n\nGenerating map Nat Nat succ _0...\n\n"
+let free_lib = Library.create ();;
+let input = {
+  term_info = (fun x ->
+    match x with
+    | 0 -> Some (parse_term "con Nat zero (nil Nat)")
+    | n -> None);
+  type_info = (fun _ -> None)
+};;
+let output = parse_term "con Nat (succ zero) (nil Nat)";;
+let map_test_2 =
+  test_enumeration
+    ~msg:"Try to generate map Nat Nat succ _0"
+    (parse_type "List Nat -> List Nat")
+    free_lib
+    4
+    ~examples:[(input,output)];;
+let () = print_string (String.concat "\n" (List.map Program.to_string map_test_2));;
+
 

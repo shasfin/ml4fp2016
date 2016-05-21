@@ -18,4 +18,10 @@ val enumerate :
   int ->
   Program.t list
 (** Enumerate first closed programs found by BFS from the queue *)
-  
+
+val filter_satisfying :
+  Program.t list ->
+  ((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
+  ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
+  Program.t list
+(** Given a list of programs, return the list of programs that satisfy all the I/O-examples *)
