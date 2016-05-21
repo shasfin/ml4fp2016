@@ -38,8 +38,20 @@ end
   val apply_subst : Type.substitution -> t -> t
   (** Apply substitution to all types of the program *)
 
+  val to_term : t -> Type.t Term.t
+  (** Convert a program to a typed term *)
+  
   val to_string : t -> string
   (** Print a program as a term *)
 
   val to_string_typed : t -> string
   (** Print a program as a table of hole to type bindings *)
+  
+  val eval :
+    ~sym_lib:(idx_sym, 'a) Library.t ->
+	~hol_lib:(idx_hol, 'a) Library.t ->
+	~free_lib:(idx_free, 'a) Library.t ->
+	t ->
+	Term.t
+  (** Evaluate the program to a term *)
+	

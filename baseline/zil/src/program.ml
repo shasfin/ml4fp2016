@@ -64,7 +64,7 @@ let apply_subst subst prog =
      current_term_hol = prog.current_term_hol;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
-let to_string prog =
+let to_term prog =
   let rec to_term_i i =
       if i < prog.max_term_hol then
         (match (IntMap.find i prog.prog) with
@@ -77,16 +77,18 @@ let to_string prog =
         | (None, a) -> Term.Hol (a, i))
       else
         raise (Invalid_argument (sprintf "Hol %d is not bound in the program" i))
-  and to_term m =
+  and to_term_m m =
     match m with
-        | Term.App (o, m1, m2) -> Term.App (o, to_term m1, to_term m2)
-        | Term.Abs (o, a, m) -> Term.Abs (o, a, to_term m)
-        | Term.APP (o, m, a) -> Term.APP (o, to_term m, a)
-        | Term.ABS (o, m) -> Term.ABS (o, to_term m)
+        | Term.App (o, m1, m2) -> Term.App (o, to_term_m m1, to_term_m m2)
+        | Term.Abs (o, a, m) -> Term.Abs (o, a, to_term_m m)
+        | Term.APP (o, m, a) -> Term.APP (o, to_term_m m, a)
+        | Term.ABS (o, m) -> Term.ABS (o, to_term_m m)
         | Term.Hol (o, j) -> to_term_i j
         | _ -> m in
-
-  Term.to_string (to_term_i 0)
+		
+  to_term_i 0
+	 
+let to_string prog = Term.to_string (to_term prog)
 
 let to_string_typed prog =
   IntMap.fold
@@ -94,8 +96,13 @@ let to_string_typed prog =
     prog.prog
     ""
 
-(* TODO implement function agrees_with that takes an io-example and a program and says whether they agree. An io-example could be a pair of type (free_idx, 'a) Library.t * 'a Term.t. We should evaluate the program (to_term and then eval or write a new eval function?) and compare the result with the output (don't forget to evaluate the output, too) *)
-
+let eval ~sym_lib ~hol_lib ~free_lib prog =
+  eval
+    ~sym_def:(Library.get_lib_def sym_lib)
+	~hol_def:(Library.get_lib_def hol_lib)
+	~free_def:(Library.get_lib_def free_lib)
+	(to_term prog)
+		
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 
