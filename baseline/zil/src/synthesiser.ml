@@ -123,5 +123,18 @@ let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
 
     in enumerate_aux n
 
-
+(* Given a list of programs and a list of I/O-examples, output the list of the programs that satisfy all of the examples *)
+(* I/O-examples are given as a pair of a free_def and a term *)
+let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
+  let satisfies_one m (free_def, output) =
+    let output = Lambda.eval ~sym_def:sym_def ~free_def:free_def output in
+    (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output in
+  let satisfies_all prog examples =
+    List.for_all
+      (fun (free_def, output) ->
+        satisfies_one
+         (Program.eval ~sym_def:sym_def ~free_def:free_def prog)
+         (free_def, output))
+      examples in
+  List.filter (fun prog -> satisfies_all prog examples) progs
 

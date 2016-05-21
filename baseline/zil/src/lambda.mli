@@ -136,6 +136,8 @@ type ('i, 'm, 't) lib = {
 }
 (** Library of term and type information *)
 
+val empty_lib : ('i, 'm, 't) lib
+(** Empty library *)
   
 val eval :
   ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->

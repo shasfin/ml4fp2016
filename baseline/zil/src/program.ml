@@ -57,7 +57,7 @@ let expand_current_hol m prog =
 let apply_subst subst prog =
     let apply_subst_to_pair subst p = match p with
     | (Some m, a) -> (Some (Term.map_label (Type.apply_subst subst) (Term.apply_subst subst m)), Type.apply_subst subst a)
-    | (None, a) -> (None, Type.apply_subst subst a) in
+    | (None, a) -> (None, Type.apply_subst subst a) in 
 
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
@@ -68,10 +68,10 @@ let to_term prog =
   let rec to_term_i i =
       if i < prog.max_term_hol then
         (match (IntMap.find i prog.prog) with
-        | (Some (Term.App (o, m1, m2)), _) -> Term.App (o, to_term m1, to_term m2)
-        | (Some (Term.Abs (o, a, m)), _) -> Term.Abs (o, a, to_term m)
-        | (Some (Term.APP (o, m, a)), _) -> Term.APP (o, to_term m, a)
-        | (Some (Term.ABS (o, m)), _) -> Term.ABS (o, to_term m)
+        | (Some (Term.App (o, m1, m2)), _) -> Term.App (o, to_term_m m1, to_term_m m2)
+        | (Some (Term.Abs (o, a, m)), _) -> Term.Abs (o, a, to_term_m m)
+        | (Some (Term.APP (o, m, a)), _) -> Term.APP (o, to_term_m m, a)
+        | (Some (Term.ABS (o, m)), _) -> Term.ABS (o, to_term_m m)
         | (Some (Term.Hol (o, j)), _) -> to_term_i j
         | (Some m, _) -> m
         | (None, a) -> Term.Hol (a, i))
@@ -96,12 +96,12 @@ let to_string_typed prog =
     prog.prog
     ""
 
-let eval ~sym_lib ~hol_lib ~free_lib prog =
+let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(free_def=empty_lib) prog =
   eval
-    ~sym_def:(Library.get_lib_def sym_lib)
-	~hol_def:(Library.get_lib_def hol_lib)
-	~free_def:(Library.get_lib_def free_lib)
-	(to_term prog)
+    ~sym_def
+	  ~hol_def
+	  ~free_def
+    (Term.map_label (fun _ -> ()) (to_term prog))
 		
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)

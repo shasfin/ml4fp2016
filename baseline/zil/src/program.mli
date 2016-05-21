@@ -48,10 +48,10 @@ end
   (** Print a program as a table of hole to type bindings *)
   
   val eval :
-    ~sym_lib:(idx_sym, 'a) Library.t ->
-	~hol_lib:(idx_hol, 'a) Library.t ->
-	~free_lib:(idx_free, 'a) Library.t ->
-	t ->
-	Term.t
+    ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
+    ?hol_def:(idx_hol, unit Term.t, Type.t) lib ->
+    ?free_def:(idx_free, unit Term.t, Type.t) lib ->
+    t ->
+    unit Term.t
   (** Evaluate the program to a term *)
 	
