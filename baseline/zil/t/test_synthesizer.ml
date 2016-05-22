@@ -63,8 +63,7 @@ let list_map_fun = name "map" (eval list_map_def);;
 let () = Library.add_term "map" list_map_fun list_map_sig sym_lib;;
 
 let nat_add_sig = parse_type "Nat -> Nat -> Nat";;
-let nat_add_def = parse_term "{ [Nat] [Nat] : * { [#0] [Nat -> #0] : $3 #0 ($2 #0 $1 $0) $0 } }";;
-(*let nat_add_def = parse_term "{ [Nat] [Nat] : $1 Nat ($0 Nat zero succ) succ }";;*)
+let nat_add_def = parse_term "{ [Nat] [Nat] : $1 Nat $0 { [Nat] : succ (add $0 $1) } }";;
 let nat_add_fun = name "add" (eval nat_add_def);;
 
 let () = Library.add_term "add" nat_add_fun nat_add_sig sym_lib;;
