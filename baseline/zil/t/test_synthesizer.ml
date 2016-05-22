@@ -60,6 +60,11 @@ let list_sum_def = parse_term "{ [List Nat] : $0 Nat zero { [Nat] [List Nat] : a
 let list_sum_fun = name "sum" (eval list_sum_def);;
 let () = Library.add_term "sum" list_sum_fun list_sum_sig sym_lib;;
 
+let list_foldr_sig = parse_type "@ @ (#1 -> #0 -> #0) -> #0 -> List #1 -> #0";;
+let list_foldr_def = parse_term "* * { [#1 -> #0 -> #0] [#0] [List #1] : $0 #0 $1 { [#1] [List #1] : $4 $1 (foldr #1 #0 $4 $3 $0) } }";;
+let list_foldr_fun = name "foldr" (eval list_foldr_def);;
+let () = Library.add_term "foldr" list_foldr_fun list_foldr_sig sym_lib;;
+
 let nat_add_sig = parse_type "Nat -> Nat -> Nat";;
 let nat_add_def = parse_term "{ [Nat] [Nat] : $1 Nat $0 { [Nat] : succ (add $0 $1) } }";;
 let nat_add_fun = name "add" (eval nat_add_def);;
