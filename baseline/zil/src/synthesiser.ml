@@ -83,9 +83,9 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
           apply_subst subst new_ctxt
         )
         (Library.unifiable_term_sigs free_lib (current_type ctxt)) in
-    (* TODO debugging *) 
+    (*(* TODO debugging *) 
     let () = print_string (sprintf "Free terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
-    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Free ((), i))) (Type.to_string a) (Type.subst_to_string subst))) (Library.unifiable_term_sigs free_lib (current_type ctxt)) in (* end *)
+    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Free ((), i))) (Type.to_string a) (Type.subst_to_string subst))) (Library.unifiable_term_sigs free_lib (current_type ctxt)) in (* end *)*)
               
     let succ_sym =
       List.map
@@ -96,9 +96,9 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
           apply_subst subst new_ctxt
         )
         (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in
-    (* TODO debugging *) 
+    (*(* TODO debugging *) 
     let () = print_string (sprintf "Sym terms unifying with %s:\n" (Type.to_string (current_type ctxt))) in
-    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Sym ((), i))) (Type.to_string a) (Type.subst_to_string subst))) (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in (* end *)
+    let () = List.iter (fun (i, a, subst, _) -> print_string (sprintf "  %s :: %s\n     %s\n" (Term.to_string (Term.Sym ((), i))) (Type.to_string a) (Type.subst_to_string subst))) (Library.unifiable_term_sigs sym_lib (current_type ctxt)) in (* end *)*)
 
 
     if Program.is_closed ctxt

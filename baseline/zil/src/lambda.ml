@@ -138,9 +138,9 @@ let rec unify constr =
                 (to_string (Hol i))
                 (to_string a)))
         else
-            (* TODO debugging *) let () = print_string (sprintf "...unifying %s with %s\n" (to_string a) (to_string (Hol i))) in
+            (*(* TODO debugging *) let () = print_string (sprintf "...unifying %s with %s\n" (to_string a) (to_string (Hol i))) in
             let () = List.iter (fun (a1, a2) -> print_string (sprintf "    (%s, %s), " (to_string a1) (to_string a2))) (substinconstr i a constr) in 
-            let () = print_string "...\n" in(* end *)
+            let () = print_string "...\n" in(* end *)*)
             let subst = unify (substinconstr i a constr) in
             let () = Hashtbl.replace subst i a
             in subst
