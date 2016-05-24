@@ -334,6 +334,9 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
     | Type.Hol i ->
       (match hol_def.type_info i with
        | Some a -> a | None -> a)
+    | Type.Free i ->
+      (match free_def.type_info i with
+      | Some a -> a | None -> a)
     | _ -> a in
 
   let rec eval_aux env alt m =
