@@ -11,6 +11,9 @@ val add_term : 'i -> 'a Term.t -> Type.t -> ?typ_args : Type.t list -> ('i, 'a) 
 val add_type : 'i -> Type.t -> Kind.t -> ('i, 'a) t -> unit
 (** Add a type component to the library *)
 
+val read_from_file : string -> (idx_sym, unit) t
+(** Read a sym_lib from file *)
+
 val get_lib_def : ('i, 'a) t -> ('i, 'a Term.t, Type.t) lib
 (** Convert library to the lib type defined in Lambda and used for evaluation *)
 
@@ -64,4 +67,11 @@ val iter :
   ('i, 'a) t ->
   unit
 (** Iterate the first function over terms and the second over types *)
+
+val to_string :
+  ('i -> 'a Term.t) ->
+  ('i -> Type.t) ->
+  ('i, 'a) t ->
+  string
+(** Pretty print a library *)
 

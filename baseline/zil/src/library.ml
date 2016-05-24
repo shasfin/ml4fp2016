@@ -19,6 +19,44 @@ let add_term i m a ?typ_args:(typ_args=[]) lib = Hashtbl.replace lib.termtbl i (
 
 let add_type i a k lib = Hashtbl.replace lib.typetbl i (a, k)
 
+let read_from_file filename =
+  (* TODO debugging *) let () = print_endline filename in (* end *)
+  let lib = create () in
+  let term_regexp = Str.regexp "^\\([a-z].*\\) | \\(.*\\) | \\(.*\\)$" in
+  let type_regexp = Str.regexp "^\\([A-Z].*\\) | \\(.*\\) | \\(.*\\)$" in
+  let comment_regexp = Str.regexp "^--.*$" in
+  let error_regexp = Str.regexp "^[^-A-Za-z].*$" in
+  let sep = Str.regexp_string " | " in
+
+  let read_lines name : string list =
+    let ic = open_in name in
+    let try_read () =
+      try Some (input_line ic) with End_of_file -> None in
+    let rec loop acc = match try_read () with
+      | Some s -> if (String.trim s = "")
+                  then loop acc (* ignore empty lines *)
+                  else loop (s::acc)
+      | None -> close_in ic; acc in
+    loop [] in
+
+  let parse_and_add line =
+    if Str.string_match term_regexp line 0
+    then let [i; m; a] = Str.split sep line in
+      add_term i (name i (eval (Parse.parse_term m))) (Parse.parse_type a) lib
+    else if Str.string_match type_regexp line 0
+    then let [i; a; k] = Str.split sep line in
+      add_type i (Parse.parse_type a) (int_of_string k) lib
+    else if Str.string_match comment_regexp line 0
+    then ()
+    else if Str.string_match error_regexp line 0
+    then invalid_arg (sprintf "Syntax error. \"%s\" is an invalid line" line)
+    else invalid_arg (sprintf "Unknown error on line \"%s\"" line) in
+
+  let lines = read_lines filename in
+  let () = List.iter parse_and_add lines in
+  lib
+
+
 let get_map_fun f tbl =
     (fun x -> if Hashtbl.mem tbl x then Some (f (Hashtbl.find tbl x)) else None)
 
@@ -59,3 +97,24 @@ let iter_terms f lib = Hashtbl.iter (fun i (m, a, args) -> f i m a args) lib.ter
 let iter_types g lib = Hashtbl.iter (fun i (a, k) -> g i a k) lib.typetbl
 
 let iter f g lib = iter_terms f lib ; iter_types g lib
+
+let to_string f g lib =
+  String.concat "\n"
+    (fold
+      (fun i m a args acc ->
+        (sprintf
+          "%s = %s : %s"
+          (Term.to_string (f i))
+          (Term.to_string m)
+          (Type.to_string a))::acc
+      )
+      (fun i a k acc ->
+        (sprintf
+          "%s == %s :: %s"
+          (Type.to_string (g i))
+          (Type.to_string a)
+          (string_of_int k))::acc
+      )
+      lib
+      []
+    )
