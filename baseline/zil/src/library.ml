@@ -103,14 +103,14 @@ let to_string f g lib =
     (fold
       (fun i m a args acc ->
         (sprintf
-          "%s = %s : %s"
+          "%s | %s | %s"
           (Term.to_string (f i))
           (Term.to_string m)
           (Type.to_string a))::acc
       )
       (fun i a k acc ->
         (sprintf
-          "%s == %s :: %s"
+          "%s | %s | %s"
           (Type.to_string (g i))
           (Type.to_string a)
           (string_of_int k))::acc
