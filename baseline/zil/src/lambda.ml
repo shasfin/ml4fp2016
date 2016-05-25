@@ -352,16 +352,22 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
   let rec eval_aux env alt m =
  
-    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (APP (o, m, a)))) else () in
+    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
 
     match m with
     | App (o, m, n) ->
-      let m = eval_aux env None m in 
+
+      let () = depth := !depth + 1 in
+
+      let m = eval_aux env None m in
+
+      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+
       let n = eval_aux env None n in
 
-    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
-    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true n)) else () in
-      let () = if debug then (depth := !depth - 1; printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (App (o, m, n)))) else () in
+      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true n)) else () in
+
+      let () = depth := !depth - 1 in
 
       (match m with
        | Fun (_, def, env, alt) ->
@@ -369,17 +375,29 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
          let new_alt =
            (match alt with
             | Some m -> Some (App (o, m, n)) | None -> None) in
-         eval_aux new_env new_alt def
+
+         let () = depth := !depth + 1 in
+
+         let r = eval_aux new_env new_alt def in
+
+         let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
+         let () = depth := !depth - 1 in
+
+         r
+
        | x -> App (o, m, n))
 
     | APP (o, m, a) ->
+
+      let () = depth := !depth + 1 in
+
       let m = eval_aux env None m in
       let a = load_type env a in
 
-    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
-    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (Type.to_string a)) else () in
-      let () = if debug then (depth := !depth - 1; printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (APP (o, m, a)))) else () in
+      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
       
+      let () = depth := !depth - 1 in
+
       (match m with
        | FUN (_, def, env, alt) ->
          let new_env = { env with type_stack = a::env.type_stack } in
@@ -387,7 +405,17 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
            (match alt with
             | Some m -> Some (APP (o, m, a))
             | None -> None) in
-         eval_aux new_env new_alt def
+
+         let () = depth := !depth + 1 in
+
+         let r = eval_aux new_env new_alt def in
+
+         let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
+
+         let () = depth := !depth - 1 in
+
+         r
+
        | x -> APP (o, m, a))
 
     | Abs (o, _, def) -> Fun (o, def, env, alt)
