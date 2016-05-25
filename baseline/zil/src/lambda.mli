@@ -116,7 +116,7 @@ module Term : sig
   }
   (** Evaluation environment *)
 
-  val to_string : 'a t -> string
+  val to_string : ?debug:bool -> 'a t -> string
   (** Pretty-print a term ignoring its annotations *)
 
   val extract_label : 'a t -> 'a
@@ -140,6 +140,7 @@ val empty_lib : ('i, 'm, 't) lib
 (** Empty library *)
   
 val eval :
+  ?debug:bool ->
   ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
   ?hol_def:(idx_hol, 'a Term.t, Type.t) lib ->
   ?free_def:(idx_free, 'a Term.t, Type.t) lib ->

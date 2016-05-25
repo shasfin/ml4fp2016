@@ -191,9 +191,9 @@ module Term = struct
     term_stack: 'a t list;
   }
 
-  let rec to_string = function
-    | Fun (_, _, _, Some m) -> to_string m
-    | FUN (_, _, _, Some m) -> to_string m
+  let rec to_string ?debug:(debug=false) = function
+    | Fun (_, _, _, Some m) -> if debug then sprintf "<<Fun %s>>" (to_string m) else to_string m
+    | FUN (_, _, _, Some m) -> if debug then sprintf "<<FUN %s>>" (to_string m) else to_string m
     | ABS (_, m)            -> sprintf "* %s" (to_string m)
     | m                     -> cal_to_string m
   and cal_to_string = function
@@ -304,7 +304,18 @@ let empty_lib = {
 let empty_store = []
 (* store is a stack of the types corresponding to the variables *)
 
-let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(free_def=empty_lib) m =
+let replicate list n =
+    let rec prepend n acc x =
+      if n = 0 then acc else prepend (n-1) (x :: acc) x in
+    let rec aux acc = function
+      | [] -> acc
+      | h :: t -> aux (prepend n acc h) t  in
+    (* This could also be written as:
+       List.fold_left (prepend n) [] (List.rev list) *)
+    aux [] (List.rev list);;
+
+let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(free_def=empty_lib) m =
+  let depth = ref 0 in
 
   let load_term env m =
     match m with
@@ -340,10 +351,18 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
     | _ -> a in
 
   let rec eval_aux env alt m =
+ 
+    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (APP (o, m, a)))) else () in
+
     match m with
     | App (o, m, n) ->
       let m = eval_aux env None m in 
       let n = eval_aux env None n in
+
+    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true n)) else () in
+      let () = if debug then (depth := !depth - 1; printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (App (o, m, n)))) else () in
+
       (match m with
        | Fun (_, def, env, alt) ->
          let new_env = { env with term_stack = n::env.term_stack } in
@@ -356,6 +375,11 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
     | APP (o, m, a) ->
       let m = eval_aux env None m in
       let a = load_type env a in
+
+    let () = if debug then (depth := !depth + 1; printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (Type.to_string a)) else () in
+      let () = if debug then (depth := !depth - 1; printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true (APP (o, m, a)))) else () in
+      
       (match m with
        | FUN (_, def, env, alt) ->
          let new_env = { env with type_stack = a::env.type_stack } in

@@ -20,7 +20,6 @@ let add_term i m a ?typ_args:(typ_args=[]) lib = Hashtbl.replace lib.termtbl i (
 let add_type i a k lib = Hashtbl.replace lib.typetbl i (a, k)
 
 let read_from_file filename =
-  (* TODO debugging *) let () = print_endline filename in (* end *)
   let lib = create () in
   let term_regexp = Str.regexp "^\\([a-z].*\\) | \\(.*\\) | \\(.*\\)$" in
   let type_regexp = Str.regexp "^\\([A-Z].*\\) | \\(.*\\) | \\(.*\\)$" in

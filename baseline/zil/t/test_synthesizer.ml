@@ -5,7 +5,6 @@ open Zil.Lambda;;
 open Zil.Parse;;
 open Zil;;
 
-plan 11;;
 
 (******************************************************************************)
 (* Define library *)
@@ -67,51 +66,6 @@ let print_hol_lib lib =
       (fun i -> Type.Hol i)
       lib)
 
-
-(******************************************************************************)
-(* Test some of the library functions *)
-
-
-(* test addition *)
-let test_add n m msg =
-  let got = eval ~sym_def:sym_def (parse_term (sprintf "add (%s) (%s)" (number_to_nat n) (number_to_nat m))) in
-  is (Term.to_string got) (number_to_nat (n+m)) msg
-
-let test_add_0_0 = test_add 0 0 "0+0";;
-let test_add_1_0 = test_add 1 0 "1+0";;
-let test_add_0_1 = test_add 0 1 "0+1";;
-let test_add_3_5 = test_add 1 1 "1+1";;
-let test_add_2_3 = test_add 2 3 "2+3";;
-
-(* test sum *)
-let test_sum xs msg =
-  let got = eval ~sym_def:sym_def (parse_term (sprintf "sum (%s)" (list_to_list "Nat" number_to_nat xs))) in
-  is (Term.to_string got) (number_to_nat (List.fold_left (+) 0 xs)) msg
-  
-let test_sum1 = test_sum [] "sum []";;
-let test_sum2 = test_sum [2] "sum [2]";;
-let test_sum3 = test_sum [1;2;3] "sum [1;2;3]";;
-let test_sum4 = test_sum [2;3;5;1] "sum [2;3;5;1]";;
-
-(* test foldr *)
-(* to_term f :: Nat -> Nat -> Nat *)
-let test_foldr_nat f init xs output msg =
-  let got = eval ~sym_def:sym_def (parse_term (sprintf "foldr Nat Nat (%s) (%s) (%s)" f (number_to_nat init) (list_to_list "Nat" number_to_nat xs))) in
-  is (Term.to_string got) (number_to_nat output) msg
-
-let test_foldr_add =
-    let init = 5 in
-    let xs = [2;3;4] in
-    test_foldr_nat "add" init xs (List.fold_right (+) xs init) "foldr add 5 [2,3,4]"
-
-let test_foldr_list f init xs output msg =
-  let got = eval ~sym_def:sym_def (parse_term (sprintf "foldr Nat (List Nat) (%s) (%s) (%s)" f (list_to_list "Nat" number_to_nat init) (list_to_list "Nat" number_to_nat xs))) in
-  is (Term.to_string got) (list_to_list "Nat" number_to_nat output) msg
-
-let test_foldr_con =
-  let init = [1] in
-  let xs = [2;3;4] in
-  test_foldr_list "con Nat" init xs (List.fold_right (fun x xs -> x :: xs) xs init) "foldr (con Nat) [1] [2,3,4]"
 
 
 (******************************************************************************)
@@ -176,7 +130,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
    print_string (sprintf "\n***Satisfying***\n________________\n%s\n" (String.concat "\n" (List.map Program.to_string satisfying)))
 
 
-
+(*
 (* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
 let free_lib = Library.create ();;
 let map_test =
@@ -210,7 +164,7 @@ let const_test =
     ~msg:"Generate const 1"
     (parse_type "@ #0 -> Nat")
     free_lib
-    10
+    20
     ~examples:(List.map example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
@@ -239,7 +193,7 @@ let length_test =
     ~msg:"Generate length"
     (parse_type "@ List #0 -> Nat")
     free_lib
-    100
+    10
     ~examples:(List.map example
                [("Nat", list_to_natlist [], List.length []);
                 ("Nat", list_to_natlist [1], List.length [1]);
@@ -254,10 +208,25 @@ let append_test =
     ~msg:"Generate append"
     (parse_type "@ List #0 -> List #0 -> List #0")
     free_lib
-    100
+    60
     ~examples:(List.map example
                  [([1;2;3],[]);
                   ([],[3;3;1]);
                   ([1],[2;3]);
-                  ([1;2],[4;5])]);;
+                  ([1;2],[4;5])]);;*)
 
+(* Try to generate reverse *)
+let free_lib = Library.create ();;
+let reverse_test =
+  let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.rev xs)) in
+  test_enumeration
+    ~msg:"Generate reverse"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    4
+    ~examples:(List.map example
+               [[1;2;3];
+                [2;5;1];
+                [1;1];
+                [5];
+                [3;1]]);;
