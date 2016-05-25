@@ -422,7 +422,9 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
     | ABS (o, def)    -> FUN (o, def, env, alt)
     | m -> load_term env m in
 
-  eval_aux empty_env None m
+  let r = eval_aux empty_env None m in
+  let () = if debug then (printf "<- %s\n" (to_string ~debug:true r)) else () in
+  r
 
 let name s = function
     | Fun (o, def, env, None) -> Fun (o, def, env, Some (Sym (o, s)))

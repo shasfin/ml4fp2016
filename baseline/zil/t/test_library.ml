@@ -1,0 +1,128 @@
+open TestSimple;;
+open Printf;;
+
+open Zil.Lambda;;
+open Zil.Parse;;
+open Zil;;
+
+plan 14;;
+
+(******************************************************************************)
+(* Define library *)
+
+let sym_lib = Library.read_from_file "src/library.tm";;
+let sym_def = Library.get_lib_def sym_lib;;
+
+(******************************************************************************)
+(* Syntax sugar *)
+
+(* Convert i to (succ^i zero) *)
+let rec number_to_nat n = match n with
+  | 0 -> "zero"
+  | 1 -> "succ zero"
+  | n -> sprintf "succ (%s)" (number_to_nat (n-1))
+	
+(* Convert [a;b;c] to con A (f a) (con A (f b) (con A (f c) (nil A))) *)
+let rec list_to_list a f xs = match xs with
+  | [] -> sprintf "nil %s" a
+  | x::xs -> sprintf "con %s (%s) (%s)" a (f x) (list_to_list a f xs)
+
+(* Convert [1;2;3] to a list of nat *)
+let list_to_natlist = list_to_list "Nat" number_to_nat
+
+
+(* Generate a free_def from a list of term strings and a list of type strings *)
+let instantiate_free (mm, aa) = {
+  term_info = (fun i ->
+    if i < List.length mm
+    then Some (eval ~sym_def:sym_def (parse_term (List.nth mm i)))
+    else None);
+  type_info = (fun i ->
+    if i < List.length aa
+    then Some (parse_type (List.nth aa i))
+    else None)
+};;
+
+(******************************************************************************)
+(* Print functions for debugging *)
+
+let print_free_lib lib =
+  print_string
+    (Library.to_string
+      (fun i -> Term.Free((), i))
+      (fun i -> Type.Free i)
+      lib)
+
+let print_sym_lib lib =
+  print_string
+    (Library.to_string
+      (fun i -> Term.Sym((), i))
+      (fun i -> Type.Sym(i, []))
+      lib)
+
+let print_hol_lib lib =
+  print_string
+    (Library.to_string
+      (fun i -> Term.Hol((), i))
+      (fun i -> Type.Hol i)
+      lib)
+
+
+(******************************************************************************)
+(* Test some of the library functions *)
+
+(*
+(* test addition *)
+let test_add n m msg =
+  let got = eval ~sym_def:sym_def (parse_term (sprintf "add (%s) (%s)" (number_to_nat n) (number_to_nat m))) in
+  is (Term.to_string got) (number_to_nat (n+m)) msg
+
+let test_add_0_0 = test_add 0 0 "0+0";;
+let test_add_1_0 = test_add 1 0 "1+0";;
+let test_add_0_1 = test_add 0 1 "0+1";;
+let test_add_3_5 = test_add 1 1 "1+1";;
+let test_add_2_3 = test_add 2 3 "2+3";;
+
+(* test sum *)
+let test_sum xs msg =
+  let got = eval ~sym_def:sym_def (parse_term (sprintf "sum (%s)" (list_to_list "Nat" number_to_nat xs))) in
+  is (Term.to_string got) (number_to_nat (List.fold_left (+) 0 xs)) msg
+  
+let test_sum1 = test_sum [] "sum []";;
+let test_sum2 = test_sum [2] "sum [2]";;
+let test_sum3 = test_sum [1;2;3] "sum [1;2;3]";;
+let test_sum4 = test_sum [2;3;5;1] "sum [2;3;5;1]";;
+
+(* test foldr *)
+(* to_term f :: Nat -> Nat -> Nat *)
+let test_foldr_nat f init xs output msg =
+  let got = eval ~sym_def:sym_def (parse_term (sprintf "foldr Nat Nat (%s) (%s) (%s)" f (number_to_nat init) (list_to_list "Nat" number_to_nat xs))) in
+  is (Term.to_string got) (number_to_nat output) msg
+
+let test_foldr_add =
+    let init = 5 in
+    let xs = [2;3;4] in
+    test_foldr_nat "add" init xs (List.fold_right (+) xs init) "foldr add 5 [2,3,4]"
+
+let test_foldr_list f init xs output msg =
+  let got = eval ~sym_def:sym_def (parse_term (sprintf "foldr Nat (List Nat) (%s) (%s) (%s)" f (list_to_list "Nat" number_to_nat init) (list_to_list "Nat" number_to_nat xs))) in
+  is (Term.to_string got) (list_to_list "Nat" number_to_nat output) msg
+
+let test_foldr_con =
+  let init = [1] in
+  let xs = [2;3;4] in
+  test_foldr_list "con Nat" init xs (List.fold_right (fun x xs -> x :: xs) xs init) "foldr (con Nat) [1] [2,3,4]"*)
+
+let test_foldl_flip xs msg =
+  let got = eval ~debug:true ~sym_def:sym_def (parse_term (sprintf
+    "foldl (List Nat) Nat (flip Nat (List Nat) (List Nat) (con Nat)) (nil Nat) (%s)"
+    (list_to_natlist xs))) in
+  is (Term.to_string got) (list_to_natlist (List.rev xs)) msg
+
+let test_rev1 = test_foldl_flip [] "rev []";;
+(*let test_rev2 = test_foldl_flip [0;1;1] "rev [0,1,1]";;
+let test_rev3 = test_foldl_flip [4;2] "rev [4,2]";;
+
+let test2 =
+  print_string (Term.to_string (eval ~sym_def:sym_def (parse_term "foldl")))
+*)
