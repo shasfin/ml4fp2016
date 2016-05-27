@@ -139,6 +139,14 @@ type ('i, 'm, 't) lib = {
 val empty_lib : ('i, 'm, 't) lib
 (** Empty library *)
   
+val expand :
+  idx_sym ->
+  Type.t list ->
+  ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
+  ?sym_sig:(idx_sym, Type.t, Kind.t) lib ->
+  Type.t
+(** Expand a symbol type with its definition *)
+
 val eval :
   ?debug:bool ->
   ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
@@ -153,6 +161,7 @@ val eval :
 
 
 val well :
+  ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
   ?sym_sig:(idx_sym, Type.t, Kind.t) lib ->
   ?hol_sig:(idx_hol, Type.t, Kind.t) lib ->
   ?free_sig:(idx_free, Type.t, Kind.t) lib ->

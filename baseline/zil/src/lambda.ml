@@ -102,7 +102,7 @@ module Type = struct
     | All a -> All (apply_subst subst a)
     | Sym (i, l) -> Sym (i, List.map (apply_subst subst) l)
     | _ -> a
-
+  
 end
 
 (******************************************************************************)
@@ -234,7 +234,6 @@ module Term = struct
     | Fun  (o, _, _, _) -> o
     | FUN  (o, _, _, _) -> o
 
-
   let rec map_label f m =
     let map_env env = {
       type_stack = env.type_stack;
@@ -303,6 +302,31 @@ let empty_lib = {
 
 let empty_store = []
 (* store is a stack of the types corresponding to the variables *)
+
+(* Expand a symbol type with its definition *)
+let expand i l ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) =
+  let rec expand_aux a p l =
+    (match l with
+    | [] -> a
+    | b::l -> expand_aux (subst b p a) (p-1) l) in
+ 
+  let a = (match sym_def.type_info i with
+    | Some a -> a
+    | None -> invalid_arg (sprintf
+      "Definition of type %s not found"
+      i)) in
+  let k = (match sym_sig.type_info i with
+    | Some k -> k
+    | None -> invalid_arg (sprintf
+      "Signature of type %s not found"
+      i)) in
+  if List.length l > k
+  then invalid_arg (sprintf
+    "Too many arguments provided for type %s"
+    i)
+  else let r = expand_aux a (k-1) l in
+       let () = printf "Expanding %s we got %s" (Type.to_string (Type.Sym (i, l))) (Type.to_string r) in
+       r
 
 let replicate list n =
     let rec prepend n acc x =
@@ -431,13 +455,16 @@ let name s = function
     | FUN (o, def, env, None) -> FUN (o, def, env, Some (Sym (o, s)))
     | m -> m
 
-let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(free_sig=empty_lib) m =
+let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(free_sig=empty_lib) m =
+
   (* Reads the type of the term. Raises an exception if there is no type. *)
   let type_of m =
     let a = extract_label m in
-    match a with
+    (match a with
     | Some a -> a
-    | None -> raise (Invalid_argument "Type not found") in
+    | None -> invalid_arg (sprintf
+      "Could not typecheck %s"
+      (to_string m))) in
 
   (* Auxiliary function that actually makes all the work. Maintains a store, that is a stack of the types of the bound variables *)
   let rec well_aux store m =
@@ -446,46 +473,74 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
       (try
         Var (Some (List.nth store i), i)
       with
-        Failure _ -> raise (Invalid_argument "Unbound Var"))
+        Failure _ -> invalid_arg "Unbound Var")
+
     | App (_, m, n) ->
       let m = well_aux store m in
       let n = well_aux store n in
       let am = type_of m in
       let an = type_of n in
-      (match am with
-      | Type.Arr (a, b) ->
+      let typecheck_arr m n a b an =
         (if Type.equal a an
         then App (Some b, m, n)
-        else raise (Invalid_argument
-          (sprintf "Cannot apply %s to %s as %s does not match %s"
-            (Type.to_string am)
-            (Type.to_string an)
-            (Type.to_string a)
-            (Type.to_string an)
-          )))
-      | _ -> raise (Invalid_argument
-         (sprintf "Cannot apply type_of m = %s to type_of n = %s as %s is not an arrow type. m = %s and n = %s"
-            (Type.to_string am)
-            (Type.to_string an)
-            (Type.to_string am)
-            (to_string m)
-            (to_string n)
-         )))
+        else invalid_arg (sprintf
+          "Cannot apply %s to %s as %s does not match %s"
+          (Type.to_string am)
+          (Type.to_string an)
+          (Type.to_string a)
+          (Type.to_string an))) in
+
+      (match am with
+      | Type.Arr (a, b) -> typecheck_arr m n a b an
+      (*| Type.Sym (i, l) ->
+        let am = expand i l ~sym_def:sym_def ~sym_sig:sym_sig in
+         (match am with
+         | Type.Arr (a, b) -> typecheck_arr m n a b an
+         | _ -> invalid_arg (sprintf
+           "Cannot apply type_of m = %s to type_of n = %s as %s is not an arrow type. m = %s and n = %s"
+           (Type.to_string am)
+           (Type.to_string an)
+           (Type.to_string am)
+           (to_string m)
+           (to_string n)))*)
+      | _ -> invalid_arg (sprintf 
+        "Cannot apply type_of m = %s to type_of n = %s as %s is not an arrow type. m = %s and n = %s"
+       (Type.to_string am)
+       (Type.to_string an)
+       (Type.to_string am)
+       (to_string m)
+       (to_string n)))
+
     | Abs (_, a, m) ->
       let m = well_aux (a::store) m in
       let am = type_of m in
       Abs (Some (Type.Arr (a, am)), a, m)
+
     | APP (_, m, a) ->
       let m = well_aux store m in
       let am = type_of m in
       (match am with
-      | Type.All b -> APP (Some (Type.subst a 0 b), m, a) (* TODO test if this is what you think it is *)
-      | _ -> raise (Invalid_argument 
-        (sprintf "Cannot apply %s to %s as %s is not a universal type"
+      | Type.All b -> APP (Some (Type.subst a 0 b), m, a)
+      | Type.Sym (i, l) ->
+        let am = expand i l ~sym_sig:sym_sig ~sym_def:sym_def in
+        (match am with
+        | Type.All b ->
+          let () = printf "Applying %s to %s we got %s"
+            (Type.to_string am)
+            (Type.to_string a)
+            (Type.to_string (Type.subst a 0 b)) in
+          APP (Some (Type.subst a 0 b), m, a) 
+        | _ -> invalid_arg (sprintf
+          "Cannot apply %s to %s as %s is not a universal type"
           (Type.to_string a)
           (Type.to_string am)
-          (Type.to_string am)
-        )))
+          (Type.to_string am)))
+      | _ -> invalid_arg (sprintf
+        "Cannot apply %s to %s as %s is not a universal type"
+        (Type.to_string a)
+        (Type.to_string am)
+        (Type.to_string am)))
+
     | ABS (_, m) ->
       let m = well_aux store m in
       let am = type_of m in
@@ -493,19 +548,17 @@ let well ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(fr
     | Sym (_, i) ->
       (match sym_sig.term_info i with
       | Some a -> Sym (Some a, i)
-      | None -> raise (Invalid_argument (sprintf "Sym %s not found" i)))
+      | None -> invalid_arg (sprintf "Sym %s not found" i))
     | Hol (_, i) ->
       (match hol_sig.term_info i with
       | Some a -> Hol (Some a, i)
-      | None -> raise (Invalid_argument (sprintf "Hol %d not found" i)))
+      | None -> invalid_arg (sprintf "Hol %d not found" i))
     | Free (_, i) ->
       (match free_sig.term_info i with
       | Some a -> Free (Some a, i)
-      | None -> raise (Invalid_argument (sprintf "Free %d not found" i)))
-    | Fun (_, def, env, alt) ->
-      raise (Invalid_argument "not implemented") (* TODO think from where you can get T1 so that you can write the type as T1 -> type_of def *)
-    | FUN (_, def, env, alt) ->
-      raise (Invalid_argument "not implemented") (* TODO think about what arrow type should this be *)
+      | None -> invalid_arg (sprintf "Free %d not found" i))
+    | Fun (_, def, env, alt) -> invalid_arg "not implemented"
+    | FUN (_, def, env, alt) -> invalid_arg "not implemented"
   in
   well_aux empty_store m
 
