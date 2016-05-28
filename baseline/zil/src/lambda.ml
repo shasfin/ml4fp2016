@@ -48,21 +48,21 @@ module Type = struct
   
   (* Substitute type subtree b instead of Var j in type a *)
   (* TODO take care of variable shifting. What if b itself contains some Vars that are bound in the outer context? *)
+  let rec shift c d a =
+    match a with
+    | Var i -> if i < c then Var i else Var (i+d)
+    | Arr (a, b) -> Arr (shift c d a, shift c d b)
+    | All a -> All (shift (c+1) d a)
+    | Sym (i, l) -> Sym (i, List.map (shift c d) l)
+    | _ -> a
+
   let rec subst b j a =
-    let rec shift c d a =
-      match a with
-      | Var i -> if i < c then Var i else Var (i+d)
-      | Arr (a, b) -> Arr (shift c d a, shift c d b)
-      | All a -> All (shift (c+1) d a)
-      | Sym (i, l) -> Sym (i, List.map (shift c d) l)
-      | _ -> a
-    in
-  match a with
-	| Var i -> (if i = j then b else a)
-	| Arr (a1, a2) -> Arr ((subst b j a1), (subst b j a2))
-	| All (a) -> All (subst (shift 0 1 b) (j+1) a)
-	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
-	| _ -> a
+    match a with
+  	| Var i -> (if i = j then b else a)
+  	| Arr (a1, a2) -> Arr ((subst b j a1), (subst b j a2))
+  	| All (a) -> All (subst (shift 0 1 b) (j+1) a)
+  	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
+  	| _ -> a
 
 
   (* Substitute type substree b in Hol j in type a *)
@@ -492,7 +492,7 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
 
       (match am with
       | Type.Arr (a, b) -> typecheck_arr m n a b an
-      (*| Type.Sym (i, l) ->
+      | Type.Sym (i, l) ->
         let am = expand i l ~sym_def:sym_def ~sym_sig:sym_sig in
          (match am with
          | Type.Arr (a, b) -> typecheck_arr m n a b an
@@ -502,7 +502,7 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
            (Type.to_string an)
            (Type.to_string am)
            (to_string m)
-           (to_string n)))*)
+           (to_string n)))
       | _ -> invalid_arg (sprintf 
         "Cannot apply type_of m = %s to type_of n = %s as %s is not an arrow type. m = %s and n = %s"
        (Type.to_string am)
@@ -519,17 +519,25 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
     | APP (_, m, a) ->
       let m = well_aux store m in
       let am = type_of m in
+      let typecheck_all am =
+        (match (Type.shift 1 (-1) (Type.subst a (-1) am)) with
+        | Type.All b -> APP (Some b, m, a)
+        | _ -> invalid_arg (sprintf
+          "Cannot apply %s to %s as %s is not a universal type"
+          (Type.to_string a)
+          (Type.to_string am)
+          (Type.to_string am))) in
       (match am with
-      | Type.All b -> APP (Some (Type.subst a 0 b), m, a)
+      | Type.All b -> typecheck_all am
       | Type.Sym (i, l) ->
         let am = expand i l ~sym_sig:sym_sig ~sym_def:sym_def in
         (match am with
         | Type.All b ->
           let () = printf "Applying %s to %s we got %s"
-            (Type.to_string am)
             (Type.to_string a)
-            (Type.to_string (Type.subst a 0 b)) in
-          APP (Some (Type.subst a 0 b), m, a) 
+            (Type.to_string am)
+            (Type.to_string (Type.shift 0 (-1) (Type.subst a (-1) am)) ) in
+          typecheck_all am
         | _ -> invalid_arg (sprintf
           "Cannot apply %s to %s as %s is not a universal type"
           (Type.to_string a)
