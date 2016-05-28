@@ -43,26 +43,30 @@ module Type = struct
     | Free i      -> sprintf "&%d" i
     | a           -> sprintf "(%s)" (to_string a)
 
-  (* TODO think if you want normal equality or something more fancy taking "alpha conversion" into account *)
+  (* Simple type equality. A more fancy version is Lambda.type_equal *)
   let equal a b = (a = b)
-  
+
   (* Substitute type subtree b instead of Var j in type a *)
   (* TODO take care of variable shifting. What if b itself contains some Vars that are bound in the outer context? *)
-  let rec shift c d a =
-    match a with
-    | Var i -> if i < c then Var i else Var (i+d)
-    | Arr (a, b) -> Arr (shift c d a, shift c d b)
-    | All a -> All (shift (c+1) d a)
-    | Sym (i, l) -> Sym (i, List.map (shift c d) l)
-    | _ -> a
+  let shift d a =
+    let rec shift_aux c a =
+      match a with
+      | Var i -> if i < c then Var i else Var (i+d)
+      | Arr (a, b) -> Arr (shift_aux c a, shift_aux c b)
+      | All a -> All (shift_aux (c+1) a)
+      | Sym (i, l) -> Sym (i, List.map (shift_aux c) l)
+      | _ -> a
+    in shift_aux 0 a
 
-  let rec subst b j a =
-    match a with
-  	| Var i -> (if i = j then b else a)
-  	| Arr (a1, a2) -> Arr ((subst b j a1), (subst b j a2))
-  	| All (a) -> All (subst (shift 0 1 b) (j+1) a)
-  	| Sym (i, l) -> Sym (i, List.map (subst b j) l)
-  	| _ -> a
+  let subst b j a =
+    let rec subst_aux c a =
+      match a with
+    	| Var i -> (if i = j+c then (shift c b) else a)
+    	| Arr (a1, a2) -> Arr ((subst_aux c a1), (subst_aux c a2))
+    	| All a -> All (subst_aux (c+1) a)
+    	| Sym (i, l) -> Sym (i, List.map (subst_aux c) l)
+    	| _ -> a
+    in subst_aux 0 a
 
 
   (* Substitute type substree b in Hol j in type a *)
@@ -328,6 +332,25 @@ let expand i l ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) =
        let () = printf "Expanding %s we got %s" (Type.to_string (Type.Sym (i, l))) (Type.to_string r) in
        r
 
+let type_equal a b ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib)  =
+  let rec equal a b =
+    if (Type.to_string a = Type.to_string b) then true else
+      (match a with
+      | Type.Arr (a1, a2) ->
+        (match b with
+        | Type.Arr (b1, b2) -> (equal a1 b1) && (equal a2 b2)
+        | Type.Sym (i, l) -> equal a (expand i l ~sym_def:sym_def ~sym_sig:sym_sig)
+        | _ -> false)
+      | Type.All a ->
+        (match b with
+        | Type.All b -> equal a b
+        | Type.Sym (i, l) -> equal a (expand i l ~sym_def:sym_def ~sym_sig:sym_sig)
+        | _ -> false)
+      | Type.Sym (i, l) -> equal (expand i l ~sym_def:sym_def ~sym_sig:sym_sig) b
+      | _ -> false) in
+  equal a b
+
+
 let replicate list n =
     let rec prepend n acc x =
       if n = 0 then acc else prepend (n-1) (x :: acc) x in
@@ -457,6 +480,8 @@ let name s = function
 
 let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol_sig=empty_lib) ?free_sig:(free_sig=empty_lib) m =
 
+  let subst_top b a = shift (-1) (subst (shift 1 b) 0 a) in
+
   (* Reads the type of the term. Raises an exception if there is no type. *)
   let type_of m =
     let a = extract_label m in
@@ -519,16 +544,8 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
     | APP (_, m, a) ->
       let m = well_aux store m in
       let am = type_of m in
-      let typecheck_all am =
-        (match (Type.shift 1 (-1) (Type.subst a (-1) am)) with
-        | Type.All b -> APP (Some b, m, a)
-        | _ -> invalid_arg (sprintf
-          "Cannot apply %s to %s as %s is not a universal type"
-          (Type.to_string a)
-          (Type.to_string am)
-          (Type.to_string am))) in
       (match am with
-      | Type.All b -> typecheck_all am
+      | Type.All b -> APP (Some (subst_top a b), m, a)
       | Type.Sym (i, l) ->
         let am = expand i l ~sym_sig:sym_sig ~sym_def:sym_def in
         (match am with
@@ -536,8 +553,8 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
           let () = printf "Applying %s to %s we got %s"
             (Type.to_string a)
             (Type.to_string am)
-            (Type.to_string (Type.shift 0 (-1) (Type.subst a (-1) am)) ) in
-          typecheck_all am
+            (Type.to_string (subst_top a b)) in
+          APP (Some (subst_top a b), m, a)
         | _ -> invalid_arg (sprintf
           "Cannot apply %s to %s as %s is not a universal type"
           (Type.to_string a)
