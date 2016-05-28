@@ -147,6 +147,14 @@ val expand :
   Type.t
 (** Expand a symbol type with its definition *)
 
+val type_equal :
+  Type.t ->
+  Type.t ->
+  ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
+  ?sym_sig:(idx_sym, Type.t, Kind.t) lib ->
+  bool
+(** Equality for types taking into account library information *)
+
 val eval :
   ?debug:bool ->
   ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->

@@ -84,14 +84,7 @@ let to_string f g lib =
 
 
 let read_from_file filename =
-  let equal a b sym_def sym_sig =
-    if Type.to_string a = Type.to_string b then true
-    else (match a with
-      | Type.Sym (i, l) -> Type.to_string (expand i l ~sym_def:sym_def ~sym_sig:sym_sig) = Type.to_string b
-      | _ -> (match b with
-        | Type.Sym (i, l) -> Type.to_string a = Type.to_string (expand i l ~sym_def:sym_def ~sym_sig:sym_sig)
-        | _ -> false)) in
-
+ 
   let well_typed i m a sym_def sym_sig =
     let m = match m with
     | Term.Fun (_, def, env, alt) -> def
@@ -103,7 +96,7 @@ let read_from_file filename =
     let got_type = match (Term.extract_label annotated) with
       | Some b -> b
       | None -> invalid_arg (sprintf "Could not typecheck %s" i) in
-    if (equal got_type a sym_def sym_sig)
+    if (type_equal got_type a ~sym_def:sym_def ~sym_sig:sym_sig)
     then true
     else invalid_arg (sprintf
       "Problem by typechecking %s. Reconstructed type %s does not agree with expected type %s"

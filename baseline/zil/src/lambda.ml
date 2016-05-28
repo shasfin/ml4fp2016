@@ -341,9 +341,9 @@ let type_equal a b ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib)  =
         | Type.Arr (b1, b2) -> (equal a1 b1) && (equal a2 b2)
         | Type.Sym (i, l) -> equal a (expand i l ~sym_def:sym_def ~sym_sig:sym_sig)
         | _ -> false)
-      | Type.All a ->
+      | Type.All a1 ->
         (match b with
-        | Type.All b -> equal a b
+        | Type.All b1 -> equal a1 b1
         | Type.Sym (i, l) -> equal a (expand i l ~sym_def:sym_def ~sym_sig:sym_sig)
         | _ -> false)
       | Type.Sym (i, l) -> equal (expand i l ~sym_def:sym_def ~sym_sig:sym_sig) b
