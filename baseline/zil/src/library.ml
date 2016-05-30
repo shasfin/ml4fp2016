@@ -137,7 +137,7 @@ let read_from_file filename =
 
   let lines = read_lines filename in
   let () = List.iter parse_and_add lines in
-  let () = print_string (to_string (fun x -> Term.Sym ((), x)) (fun x -> Type.Sym (x,[])) lib) in
+  (*let () = print_string (to_string (fun x -> Term.Sym ((), x)) (fun x -> Type.Sym (x,[])) lib) in*)
   let sym_def = get_lib_def lib in
   let sym_sig = get_lib_sig lib in
   let () = Hashtbl.filter_map_inplace

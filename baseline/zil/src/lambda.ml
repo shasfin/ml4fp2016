@@ -328,9 +328,7 @@ let expand i l ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) =
   then invalid_arg (sprintf
     "Too many arguments provided for type %s"
     i)
-  else let r = expand_aux a (k-1) l in
-       let () = printf "Expanding %s we got %s" (Type.to_string (Type.Sym (i, l))) (Type.to_string r) in
-       r
+  else expand_aux a (k-1) l
 
 let type_equal a b ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib)  =
   let rec equal a b =
@@ -550,10 +548,6 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
         let am = expand i l ~sym_sig:sym_sig ~sym_def:sym_def in
         (match am with
         | Type.All b ->
-          let () = printf "Applying %s to %s we got %s"
-            (Type.to_string a)
-            (Type.to_string am)
-            (Type.to_string (subst_top a b)) in
           APP (Some (subst_top a b), m, a)
         | _ -> invalid_arg (sprintf
           "Cannot apply %s to %s as %s is not a universal type"
@@ -567,7 +561,7 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
         (Type.to_string am)))
 
     | ABS (_, m) ->
-      let m = well_aux store m in
+      let m = well_aux (List.map (shift 1) store) m in
       let am = type_of m in
       ABS (Some (Type.All am), m)
     | Sym (_, i) ->

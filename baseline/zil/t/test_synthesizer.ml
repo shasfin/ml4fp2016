@@ -223,7 +223,7 @@ let reverse_test =
     ~msg:"Generate reverse"
     (parse_type "@ List #0 -> List #0")
     free_lib
-    4
+    10 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
     ~examples:(List.map example
                [[1;2;3];
                 [2;5;1];
