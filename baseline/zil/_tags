@@ -4,6 +4,8 @@ true: use_menhir, explain
 
 <src/*.cmx>: for-pack(Zil)
 
+<src/*.ml>: thread, package(threads), package(str), package(core)
+
 <zil_top.*>: thread, package(threads), package(utop), package(str)
 
 <t/*.{ml,byte}>: package(testsimple)

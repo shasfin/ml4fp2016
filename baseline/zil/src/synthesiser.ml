@@ -1,4 +1,5 @@
 open Printf
+open Core.Std
 open Lambda
 open Program
 
@@ -8,7 +9,7 @@ open Program
 (* args has the reversed order, i.e. for map A B we will get [B,A] *)
 let rec deuniversalise a args ctxt = match a with
   | Type.All a ->
-    let (a0, ctxt) = get_fresh_type_hol ctxt in
+    let (a0, ctxt) = get_fresh_type_hol ctxt in 
     let b = Type.subst a0 0 a in
     deuniversalise b (a0 :: args) ctxt
   | _ -> (a, args, ctxt)
@@ -78,7 +79,7 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
     let succ_free =
       List.map
-        (fun (i, a, subst, _) ->
+        ~f:(fun (i, a, subst, _) ->
           let new_ctxt = expand_current_hol (Term.Free (a, i)) ctxt in
           apply_subst subst new_ctxt
         )
@@ -89,7 +90,7 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
               
     let succ_sym =
       List.map
-        (fun (i, a, subst, args) ->
+        ~f:(fun (i, a, subst, args) ->
           let new_type = universalise a args in
           let new_term = Term.Sym(new_type, i) in
           let new_ctxt = expand_current_hol (apply_args new_term a args) ctxt in
@@ -110,11 +111,11 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
 let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
     let find_first_closed queue =
-        while not (Program.is_closed (Queue.top queue)) do
-            let s = successor (Queue.pop queue) ~sym_lib:sym_lib ~free_lib:free_lib in
-            List.iter (fun x -> Queue.push x queue) s
+        while not (Program.is_closed (Heap.top_exn queue)) do
+            let s = successor (Heap.pop_exn queue) ~sym_lib:sym_lib ~free_lib:free_lib in
+            List.iter ~f:(fun x -> Heap.add queue x) s
         done;
-        Queue.pop queue in 
+        Heap.pop_exn queue in 
 
     let rec enumerate_aux i =
         (match i with
@@ -131,10 +132,10 @@ let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
     (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output in
   let satisfies_all prog examples =
     List.for_all
-      (fun (free_def, output) ->
+      ~f:(fun (free_def, output) ->
         satisfies_one
          (Program.eval ~sym_def:sym_def ~free_def:free_def prog)
          (free_def, output))
       examples in
-  List.filter (fun prog -> satisfies_all prog examples) progs
+  List.filter ~f:(fun prog -> satisfies_all prog examples) progs
 

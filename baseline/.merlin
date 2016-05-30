@@ -7,3 +7,4 @@ B zil/_build/src
 B zil/_build/t
 
 PKG testsimple
+PKG core
