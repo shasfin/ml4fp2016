@@ -139,7 +139,7 @@ let map_test =
     ~msg:"Generating map itself only based on type information"
     (parse_type "@ @ (#1 -> #0) -> List #1 -> List #0")
     free_lib
-    3;;
+    20;;
 
 
 (*(* first test with I/O-examples. [zero] |-> [succ zero] *)
