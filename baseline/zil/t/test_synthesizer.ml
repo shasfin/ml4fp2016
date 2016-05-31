@@ -142,7 +142,7 @@ let map_test =
     3;;
 
 
-(* first test with I/O-examples. [zero] |-> [succ zero] *)
+(*(* first test with I/O-examples. [zero] |-> [succ zero] *)
 let free_lib = Library.create ();;
 let map_test_2 =
   let example (input, output) =
@@ -230,4 +230,4 @@ let reverse_test =
                 [2;5;1];
                 [1;1];
                 [5];
-                [3;1]]);;
+                [3;1]]);;*)
