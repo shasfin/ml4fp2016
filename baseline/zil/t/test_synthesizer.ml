@@ -1,5 +1,6 @@
 open TestSimple;;
 open Printf;;
+open Core.Std;;
 
 open Zil.Lambda;;
 open Zil.Parse;;
@@ -34,11 +35,11 @@ let list_to_natlist = list_to_list "Nat" number_to_nat
 let instantiate_free (mm, aa) = {
   term_info = (fun i ->
     if i < List.length mm
-    then Some (eval ~sym_def:sym_def (parse_term (List.nth mm i)))
+    then Some (eval ~sym_def:sym_def (parse_term (List.nth_exn mm i)))
     else None);
   type_info = (fun i ->
     if i < List.length aa
-    then Some (parse_type (List.nth aa i))
+    then Some (parse_type (List.nth_exn aa i))
     else None)
 };;
 
@@ -110,8 +111,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
     dearrowise (deuniversalise goal_type 0) 0 in
 
   let prog = Program.reset first_prog (transform_type goal_type) in
-  let queue = Queue.create () in
-  let () = Queue.add prog queue in
+  let queue = Heap.create ~min_size:100 ~cmp:Program.compare () in
+  let () = Heap.add queue prog in
 
 (*(* TODO debugging *) let () = print_string "Printing free_lib...\n" in
    let () = print_free_lib free_lib in
@@ -122,15 +123,15 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
 
    let examples =
      List.map
-       (fun (input, output) -> (instantiate_free input, parse_term output))
+       ~f:(fun (input, output) -> (instantiate_free input, parse_term output))
        examples in
    let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
-   let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat "\n" (List.map Program.to_string closed))) in
-   print_string (sprintf "\n***Satisfying***\n________________\n%s\n" (String.concat "\n" (List.map Program.to_string satisfying)))
+   let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in
+   print_string (sprintf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)))
 
 
-(*
+
 (* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
 let free_lib = Library.create ();;
 let map_test =
@@ -151,7 +152,7 @@ let map_test_2 =
     (parse_type "List Nat -> List Nat")
     free_lib
     4
-    ~examples:(List.map example
+    ~examples:(List.map ~f:example
                [([],[]);
                 ([1;2;3],[2;3;4]);
                 ([4;2;6],[5;3;7])]);;
@@ -165,7 +166,7 @@ let const_test =
     (parse_type "@ #0 -> Nat")
     free_lib
     20
-    ~examples:(List.map example
+    ~examples:(List.map ~f:example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
                 ("List Nat", (list_to_list "Nat" number_to_nat [1]))]);;
@@ -180,7 +181,7 @@ let map_const_test =
     (parse_type "@ List #0 -> List Nat")
     free_lib
     100
-    ~examples:(List.map example 
+    ~examples:(List.map ~f:example 
                [("Nat", (list_to_list "Nat" number_to_nat []), (list_to_list "Nat" number_to_nat []));
                 ("List Nat", (list_to_list "(List Nat)" (list_to_list "Nat" number_to_nat) [ [3;2] ; [1] ; [1;1;1] ]), (list_to_list "Nat" number_to_nat [1;1;1]));
                 ("Nat", (list_to_list "Nat" number_to_nat [1;2;3]), (list_to_list "Nat" number_to_nat [1;1;1]))]);;
@@ -194,7 +195,7 @@ let length_test =
     (parse_type "@ List #0 -> Nat")
     free_lib
     10
-    ~examples:(List.map example
+    ~examples:(List.map ~f:example
                [("Nat", list_to_natlist [], List.length []);
                 ("Nat", list_to_natlist [1], List.length [1]);
                 ("Nat", list_to_natlist [1;2;3], List.length [1;2;3])]);;
@@ -209,11 +210,11 @@ let append_test =
     (parse_type "@ List #0 -> List #0 -> List #0")
     free_lib
     60
-    ~examples:(List.map example
+    ~examples:(List.map ~f:example
                  [([1;2;3],[]);
                   ([],[3;3;1]);
                   ([1],[2;3]);
-                  ([1;2],[4;5])]);;*)
+                  ([1;2],[4;5])]);;
 
 (* Try to generate reverse *)
 let free_lib = Library.create ();;
@@ -224,7 +225,7 @@ let reverse_test =
     (parse_type "@ List #0 -> List #0")
     free_lib
     10 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
-    ~examples:(List.map example
+    ~examples:(List.map ~f:example
                [[1;2;3];
                 [2;5;1];
                 [1;1];

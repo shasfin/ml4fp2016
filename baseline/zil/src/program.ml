@@ -106,3 +106,6 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 
+let compare p1 p2 =
+  (p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)
+

@@ -1,4 +1,5 @@
 (** Basic program enumerator *)
+open Core.Std
 open Lambda
 
 val prepare_lib : ('i, 'a) Library.t -> Program.t -> (('i, 'a) Library.t * Program.t)
@@ -12,7 +13,7 @@ val successor :
 (** Expand current term hole of a program *)
 
 val enumerate :
-  Program.t Queue.t ->
+  Program.t Heap.t ->
   sym_lib:(idx_sym, 'a) Library.t ->
   free_lib:(idx_free, 'a) Library.t ->
   int ->

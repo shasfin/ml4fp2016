@@ -54,4 +54,7 @@ end
     t ->
     unit Term.t
   (** Evaluate the program to a term *)
+
+  val compare : t -> t -> int
+  (** Comparison function based on the number of open holes *)
 	
