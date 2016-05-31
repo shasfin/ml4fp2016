@@ -107,5 +107,30 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
  * for example eval or first program given a goal type or something like that *)
 
 let compare p1 p2 =
-  (p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)
+  (*p1.current_term_hol - p2.current_term_hol*)
+  (* "Stupid queue" *)
+
+  (*(p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)*)
+  (* Programs with less holes first *)
+
+  (*p1.max_term_hol - p2.max_term_hol*)
+  (* Number of used holes *)
+
+  (*(p2.max_term_hol - p2.current_term_hol) - (p1.max_term_hol - p1.current_term_hol)*)
+  (* Programs with more holes first - does not make any sense *)
+
+  (*(p2.current_term_hol - p1.current_term_hol)*)
+  (* inverse of the "stupid queue" - not good *)
+
+  (*(match to_term p1 with
+  | Term.App (_, Term.Sym _, _) -> (-1)
+  | Term.APP (_, Term.Sym _, _) -> (-1)
+  | _ -> (match to_term p2 with
+    | Term.App (_, Term.Sym _, _) -> 1
+    | Term.APP (_, Term.Sym _, _) -> 1
+    | _ -> 0))*)
+  (* Expand terms that start with some symbol first - slow because of to_term and not good *)
+
+  String.length (to_string p1) - String.length (to_string p2)
+  (* Shortest programs first - slow because of to_string *)
 

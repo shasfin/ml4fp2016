@@ -126,16 +126,46 @@ let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
 
 (* Given a list of programs and a list of I/O-examples, output the list of the programs that satisfy all of the examples *)
 (* I/O-examples are given as a pair of a free_def and a term *)
-let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
-  let satisfies_one m (free_def, output) =
+let satisfies_one ~sym_def m (free_def, output) =
     let output = Lambda.eval ~sym_def:sym_def ~free_def:free_def output in
-    (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output in
-  let satisfies_all prog examples =
-    List.for_all
-      ~f:(fun (free_def, output) ->
-        satisfies_one
-         (Program.eval ~sym_def:sym_def ~free_def:free_def prog)
-         (free_def, output))
-      examples in
-  List.filter ~f:(fun prog -> satisfies_all prog examples) progs
+    (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output
+
+let satisfies_all ~sym_def prog examples =
+  List.for_all
+    ~f:(fun (free_def, output) ->
+      satisfies_one
+       ~sym_def:sym_def
+       (Program.eval ~sym_def:sym_def ~free_def:free_def prog)
+       (free_def, output))
+    examples
+
+
+let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
+    List.filter ~f:(fun prog -> satisfies_all ~sym_def:sym_def prog examples) progs
+
+
+(******************************************************************************)
+(* Enumerate only satisfying programs (caution, could loop forever) *)
+(* Expand hole with the smallest number *)
+
+let enumerate_satisfying queue ~sym_lib ~free_lib ?examples:(examples=[]) n =
+  let sym_def = Library.get_lib_def sym_lib in
+
+  let rec find_first_satisfying queue =
+    let top = Heap.top_exn queue in
+    (if (Program.is_closed top && satisfies_all ~sym_def:sym_def top examples)
+     then top
+     else let s = successor (Heap.pop_exn queue)  ~sym_lib:sym_lib ~free_lib:free_lib in
+          let (trues, falses) = List.partition_tf ~f:(fun x -> Program.is_closed x && satisfies_all ~sym_def:sym_def x examples) s in
+          let () = List.iter ~f:(fun x -> Heap.add queue x) falses in
+          (match trues with
+          | [] -> find_first_satisfying queue
+          | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p)) in
+
+  let rec enumerate_aux i =
+      (match i with
+      | 0 -> []
+      | _ -> (find_first_satisfying queue) :: (enumerate_aux (i-1)))
+ 
+  in enumerate_aux n
 

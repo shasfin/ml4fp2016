@@ -26,3 +26,12 @@ val filter_satisfying :
   ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
   Program.t list
 (** Given a list of programs, return the list of programs that satisfy all the I/O-examples *)
+
+val enumerate_satisfying :
+  Program.t Heap.t ->
+  sym_lib:(idx_sym, unit) Library.t ->
+  free_lib:(idx_free, unit) Library.t ->
+  ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
+  int ->
+  Program.t list
+(** Enumerate first satisfying programs found by BFS from the queue *)

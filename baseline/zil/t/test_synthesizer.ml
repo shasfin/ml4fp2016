@@ -125,22 +125,23 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
      List.map
        ~f:(fun (input, output) -> (instantiate_free input, parse_term output))
        examples in
-   let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
+   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_uni ~free_lib:free_lib ~examples:examples nof_programs in
+   (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
-   let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in
-   print_string (sprintf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)))
+   let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
+   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
 
 
-(* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
+(*(* easy test: try to generate map itself. Only three programs, because we cannot generate more from the components that we have *)
 let free_lib = Library.create ();;
 let map_test =
   test_enumeration
     ~msg:"Generating map itself only based on type information"
     (parse_type "@ @ (#1 -> #0) -> List #1 -> List #0")
     free_lib
-    20;;
-
+    11;;
+*)
 
 (*(* first test with I/O-examples. [zero] |-> [succ zero] *)
 let free_lib = Library.create ();;
@@ -151,11 +152,11 @@ let map_test_2 =
     ~msg:"Try to generate map Nat Nat succ _0"
     (parse_type "List Nat -> List Nat")
     free_lib
-    4
+    5
     ~examples:(List.map ~f:example
                [([],[]);
                 ([1;2;3],[2;3;4]);
-                ([4;2;6],[5;3;7])]);;
+                ([4;2;6],[5;3;7])]);;*)
 
 (* try to generate const 1 *)
 let free_lib = Library.create ();;
@@ -165,13 +166,13 @@ let const_test =
     ~msg:"Generate const 1"
     (parse_type "@ #0 -> Nat")
     free_lib
-    20
+    21
     ~examples:(List.map ~f:example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
                 ("List Nat", (list_to_list "Nat" number_to_nat [1]))]);;
 
-
+(*
 (* try to generate map const 1 *)
 let free_lib = Library.create ();;
 let map_const_test =
