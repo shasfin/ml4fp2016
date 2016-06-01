@@ -140,8 +140,8 @@ let map_test =
     ~msg:"Generating map itself only based on type information"
     (parse_type "@ @ (#1 -> #0) -> List #1 -> List #0")
     free_lib
-    11;;
-*)
+    11;;*)
+
 
 (*(* first test with I/O-examples. [zero] |-> [succ zero] *)
 let free_lib = Library.create ();;
@@ -166,7 +166,7 @@ let const_test =
     ~msg:"Generate const 1"
     (parse_type "@ #0 -> Nat")
     free_lib
-    1
+    10
     ~examples:(List.map ~f:example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
@@ -180,7 +180,7 @@ let map_const_test =
     ~msg:"Generate map &0 Nat (const 1) xs"
     (parse_type "@ List #0 -> List Nat")
     free_lib
-    100
+    1
     ~examples:(List.map ~f:example 
                [("Nat", (list_to_list "Nat" number_to_nat []), (list_to_list "Nat" number_to_nat []));
                 ("List Nat", (list_to_list "(List Nat)" (list_to_list "Nat" number_to_nat) [ [3;2] ; [1] ; [1;1;1] ]), (list_to_list "Nat" number_to_nat [1;1;1]));
