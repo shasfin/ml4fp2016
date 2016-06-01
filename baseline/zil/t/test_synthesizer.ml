@@ -152,13 +152,13 @@ let map_test_2 =
     ~msg:"Try to generate map Nat Nat succ _0"
     (parse_type "List Nat -> List Nat")
     free_lib
-    5
+    1
     ~examples:(List.map ~f:example
                [([],[]);
                 ([1;2;3],[2;3;4]);
                 ([4;2;6],[5;3;7])]);;*)
 
-(* try to generate const 1 *)
+(*(* try to generate const 1 *)
 let free_lib = Library.create ();;
 let const_test =
   let example (a, input) = (([input], [a]), number_to_nat 1) in
@@ -166,14 +166,13 @@ let const_test =
     ~msg:"Generate const 1"
     (parse_type "@ #0 -> Nat")
     free_lib
-    21
+    1
     ~examples:(List.map ~f:example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
-                ("List Nat", (list_to_list "Nat" number_to_nat [1]))]);;
+                ("List Nat", (list_to_list "Nat" number_to_nat [1]))]);;*)
 
-(*
-(* try to generate map const 1 *)
+(*(* try to generate map const 1 *)
 let free_lib = Library.create ();;
 let map_const_test =
   let example (a, input, output) = (([input],[a]),output) in
@@ -185,9 +184,9 @@ let map_const_test =
     ~examples:(List.map ~f:example 
                [("Nat", (list_to_list "Nat" number_to_nat []), (list_to_list "Nat" number_to_nat []));
                 ("List Nat", (list_to_list "(List Nat)" (list_to_list "Nat" number_to_nat) [ [3;2] ; [1] ; [1;1;1] ]), (list_to_list "Nat" number_to_nat [1;1;1]));
-                ("Nat", (list_to_list "Nat" number_to_nat [1;2;3]), (list_to_list "Nat" number_to_nat [1;1;1]))]);;
+                ("Nat", (list_to_list "Nat" number_to_nat [1;2;3]), (list_to_list "Nat" number_to_nat [1;1;1]))]);;*)
 
-(* try to generate length. 2000 closed programs are too few, 6000 takes too long *)
+(*(* try to generate length. 2000 closed programs are too few, 6000 takes too long *)
 let free_lib = Library.create ();;
 let length_test =
   let example (a, input, output) = (([input],[a]), number_to_nat output) in
@@ -195,14 +194,14 @@ let length_test =
     ~msg:"Generate length"
     (parse_type "@ List #0 -> Nat")
     free_lib
-    10
+    1
     ~examples:(List.map ~f:example
                [("Nat", list_to_natlist [], List.length []);
                 ("Nat", list_to_natlist [1], List.length [1]);
-                ("Nat", list_to_natlist [1;2;3], List.length [1;2;3])]);;
+                ("Nat", list_to_natlist [1;2;3], List.length [1;2;3])]);;*)
 
 
-(* Try to generate append *)
+(*(* Try to generate append *)
 let free_lib = Library.create ();;
 let append_test =
     let example (xs, ys) = (([list_to_natlist xs; list_to_natlist ys],["Nat"]), list_to_natlist (List.append xs ys)) in
@@ -210,12 +209,12 @@ let append_test =
     ~msg:"Generate append"
     (parse_type "@ List #0 -> List #0 -> List #0")
     free_lib
-    60
+    1
     ~examples:(List.map ~f:example
                  [([1;2;3],[]);
                   ([],[3;3;1]);
                   ([1],[2;3]);
-                  ([1;2],[4;5])]);;
+                  ([1;2],[4;5])]);;*)
 
 (* Try to generate reverse *)
 let free_lib = Library.create ();;
@@ -225,10 +224,10 @@ let reverse_test =
     ~msg:"Generate reverse"
     (parse_type "@ List #0 -> List #0")
     free_lib
-    10 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
+    1 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
     ~examples:(List.map ~f:example
                [[1;2;3];
                 [2;5;1];
                 [1;1];
                 [5];
-                [3;1]]);;*)
+                [3;1]]);;

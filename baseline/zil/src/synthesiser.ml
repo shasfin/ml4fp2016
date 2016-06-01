@@ -103,7 +103,7 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
 
     if Program.is_closed ctxt
-    then (* TODO debugging *) let () = printf "Trying to compute successor of closed program %s" (Program.to_string ctxt) in (* end *) []
+    then []
     else (* TODO debugging *) 
         let () = List.iter ~f:(fun x -> print_string (sprintf "%s |-> %s \n %s\n|-> %s\n\n" (Program.to_string ctxt) (Program.to_string x) (Program.to_string_typed ctxt) (Program.to_string_typed x))) (succ_free @ succ_sym @ succ_app) in (* end *)
         succ_free @ succ_sym @ succ_app
@@ -153,19 +153,14 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?examples:(examples=[]) n =
 
   let rec find_first_satisfying queue =
 
-    (* TODO debugging *)let () = print_string "\n\n\n______________________________\n\n\n" in
-    let () = Heap.iter ~f:(fun x -> printf "%s\n\n" (Program.to_string x)) queue in (* end *)
     let top = Heap.top_exn queue in
 
-    (if (Program.is_closed top && satisfies_all ~sym_def:sym_def top examples)
+    (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
      then top
      else 
-         (* TODO debugging *) let () = print_string "\n\n****\n" in
-         let () = Heap.iter ~f:(fun x -> printf "%s\n\n" (Program.to_string x)) queue in
-         let () = print_string "\n****\n\n" in (* end *)
          let s = successor (Heap.pop_exn queue)  ~sym_lib:sym_lib ~free_lib:free_lib in
-          let (trues, falses) = List.partition_tf ~f:(fun x -> Program.is_closed x && satisfies_all ~sym_def:sym_def x examples) s in
-          let () = List.iter ~f:(fun x -> Heap.add queue x) falses in
+          let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
+          let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
           (match trues with
           | [] -> find_first_satisfying queue
           | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p)) in

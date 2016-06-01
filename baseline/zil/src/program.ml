@@ -106,6 +106,22 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
 (* TODO think which functions should be defined in this module,
  * for example eval or first program given a goal type or something like that *)
 
+let nof_nodes prog =
+  let rec nof_nodes m = match m with
+  | Term.Var _ -> 1
+  | Term.App (_, m, n) -> 1 + (nof_nodes m) + (nof_nodes n)
+  | Term.Abs (_, _, m) -> 1 + (nof_nodes m)
+  | Term.APP (_, m, _) -> 1 + (nof_nodes m)
+  | Term.ABS (_, m) -> 1 + (nof_nodes m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 2
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, alt) -> 2 + (nof_nodes def)
+  | Term.FUN (_, def, env, alt) -> 2 + (nof_nodes def)
+
+  in nof_nodes (to_term prog)
+(* count holes double and don't count input variables *)
+
 let compare p1 p2 =
   (*p1.current_term_hol - p2.current_term_hol*)
   (* "Stupid queue" *)
@@ -131,6 +147,10 @@ let compare p1 p2 =
     | _ -> 0))*)
   (* Expand terms that start with some symbol first - slow because of to_term and not good *)
 
-  String.length (to_string p1) - String.length (to_string p2)
+  (*String.length (to_string p1) - String.length (to_string p2)*)
   (* Shortest programs first - slow because of to_string *)
+
+  (nof_nodes p1) - (nof_nodes p2)
+  (* Based on the number of nodes *)
+
 
