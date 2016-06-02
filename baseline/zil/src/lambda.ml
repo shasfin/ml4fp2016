@@ -507,11 +507,13 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
         (if Type.equal a an
         then App (Some b, m, n)
         else invalid_arg (sprintf
-          "Cannot apply %s to %s as %s does not match %s"
+          "Cannot apply type_of m = %s to type_of n = %s as %s does not match %s. m = %s and n = %s"
           (Type.to_string am)
           (Type.to_string an)
           (Type.to_string a)
-          (Type.to_string an))) in
+          (Type.to_string an)
+          (to_string m)
+          (to_string n))) in
 
       (match am with
       | Type.Arr (a, b) -> typecheck_arr m n a b an
