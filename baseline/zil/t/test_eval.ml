@@ -1,4 +1,5 @@
 open TestSimple;;
+open Core.Std;;
 
 open Printf;;
 open Zil.Lambda;;
@@ -36,11 +37,11 @@ let list_to_natlist = list_to_list "Nat"
 let instantiate_free (mm, aa) = {
   term_info = (fun i ->
     if i < List.length mm
-    then Some (eval ~sym_def:sym_def (parse_term (List.nth mm i)))
+    then Some (eval ~sym_def:sym_def (parse_term (List.nth_exn mm i)))
     else None);
   type_info = (fun i ->
     if i < List.length aa
-    then Some (parse_type (List.nth aa i))
+    then Some (parse_type (List.nth_exn aa i))
     else None)
 };;
 
@@ -112,6 +113,11 @@ let test_flip =
       "flip Nat Nat Nat add zero zero") in
   is (Term.to_string got) (number_to_nat 0) "flip add 0 0";;
 
+let test_range =
+  let got = eval ~sym_def:sym_def (parse_term
+      "range zero (succ zero)") in
+  is (Term.to_string got) (list_to_natlist [0;1]) "range 0 1";;
+
 let test_typechecking =
   let annotated = well ~sym_sig:sym_sig (parse_term (sprintf
       "foldl (List Nat) Nat (flip Nat (List Nat) (List Nat) (con Nat)) (nil Nat) (%s)"
@@ -121,3 +127,5 @@ let test_typechecking =
   | Some a -> Type.to_string a
   | None ->  "Unit") in
   is got "List Nat" "Typechecking rev [1;2;3]"
+
+let test = print_string (String.concat ~sep:" " (List.map ~f:(string_of_int) (List.range ~stop:`inclusive 3 6)));;

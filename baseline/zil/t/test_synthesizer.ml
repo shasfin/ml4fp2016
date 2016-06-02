@@ -216,7 +216,7 @@ let append_test =
                   ([1],[2;3]);
                   ([1;2],[4;5])]);;*)
 
-(* Try to generate reverse *)
+(*(* Try to generate reverse *)
 let free_lib = Library.create ();;
 let reverse_test =
   let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.rev xs)) in
@@ -230,4 +230,36 @@ let reverse_test =
                 [2;5;1];
                 [1;1];
                 [5];
-                [3;1]]);;
+                [3;1]]);;*)
+
+(* Try to generate factorial *)
+let free_lib = Library.create ();;
+let factorial_test =
+    let example x = (([number_to_nat x],[]), number_to_nat (List.fold_right ~f:(fun x acc -> x*acc) ~init:1 (List.range ~stop:`inclusive 1 x))) in
+  test_enumeration
+    ~msg:"Generate factorial"
+    (parse_type "Nat -> Nat")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [1;
+                2;
+                3;
+                4;
+                5]);;
+
+(*(* Try to generate enumFromTo *)
+let free_lib = Library.create ();;
+let reverse_test =
+    let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
+  test_enumeration
+    ~msg:"Generate enumFromTo"
+    (parse_type "Nat -> Nat -> List Nat")
+    free_lib
+    1 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
+    ~examples:(List.map ~f:example
+               [(1,3);
+                (0,4);
+                (4,5);
+                (2,4)]);;*)
+

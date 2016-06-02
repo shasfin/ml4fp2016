@@ -113,16 +113,43 @@ let test_foldr_con =
   let xs = [2;3;4] in
   test_foldr_list "con Nat" init xs (List.fold_right (fun x xs -> x :: xs) xs init) "foldr (con Nat) [1] [2,3,4]"*)
 
-let test_foldl_flip xs msg =
+(*let test_foldl_flip xs msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term (sprintf
     "foldl (List Nat) Nat (flip Nat (List Nat) (List Nat) (con Nat)) (nil Nat) (%s)"
     (list_to_natlist xs))) in
   is (Term.to_string got) (list_to_natlist (List.rev xs)) msg
 
-let test_rev1 = test_foldl_flip [] "rev []";;
+let test_rev1 = test_foldl_flip [] "rev []";;*)
 (*let test_rev2 = test_foldl_flip [0;1;1] "rev [0,1,1]";;
 let test_rev3 = test_foldl_flip [4;2] "rev [4,2]";;
 
 let test2 =
   print_string (Term.to_string (eval ~sym_def:sym_def (parse_term "foldl")))
 *)
+
+let test input output msg =
+  let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
+  is (Term.to_string got) output msg
+
+(*let test_add = test " { [Nat] : add $0 zero } (succ zero) " "succ zero" "1 + 0 with one lambda"
+let test_sub = test " { [Nat] : sub $0 zero } (succ zero) " "succ zero" "1 - 0 with one lambda";;
+let test_sub = test " { [Nat] [Nat] : sub $0 $1 } (zero) (succ zero) " "succ zero" "2 - 1 with lambda";;
+let test_sub = test "sub (succ zero) zero" "succ zero" "1 - 0";;
+let test_sub = test "sub (succ (succ zero)) (succ zero)" "succ zero" "2 - 1";;
+let test_add = test (sprintf
+      "add (%s) (%s)"
+     (number_to_nat 2)
+     (number_to_nat 1))
+  (number_to_nat 3)
+  "2 + 1";;*)
+
+(*let test_geq = test "natGeq zero (succ zero)" "false" "0 >= 1";;*)
+
+(*let test_range = test "range zero (succ zero)" (list_to_natlist [0;1]) "[0..1]";;*)
+
+(*let test_range =
+  let got = eval ~debug:true ~sym_def:sym_def (parse_term (sprintf
+    "range (%s) (%s)"
+    (number_to_nat 0)
+    (number_to_nat 1))) in
+  is (Term.to_string got) (list_to_natlist [0;1]) "range 0 1"*)
