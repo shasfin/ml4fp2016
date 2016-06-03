@@ -53,12 +53,12 @@ foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : fold
 
 -- list of nat functions
 
-range | { [Nat] [Nat] : sub (succ $0) $1 (List Nat) (nil Nat) { [Nat] : (con Nat $2 (range (succ $2) $1)) } } | Nat -> Nat -> List Nat
+--range | { [Nat] [Nat] : sub (succ $0) $1 (List Nat) (nil Nat) { [Nat] : (con Nat $2 (range (succ $2) $1)) } } | Nat -> Nat -> List Nat
 
 
 sum | { [List Nat] : $0 Nat zero { [Nat] [List Nat] : add $1 (sum $0) } } | List Nat -> Nat
 
---prod | { [List Nat] : $0 Nat (succ zero) { [Nat] [List Nat] : mul $1 (prod $0) } } | List Nat -> Nat
+prod | { [List Nat] : $0 Nat (succ zero) { [Nat] [List Nat] : mul $1 (prod $0) } } | List Nat -> Nat
 
 
 -- nat functions

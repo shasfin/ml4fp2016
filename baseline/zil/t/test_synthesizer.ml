@@ -244,9 +244,7 @@ let factorial_test =
     ~examples:(List.map ~f:example
                [1;
                 2;
-                3;
-                4;
-                5]);;
+                3]);;
 
 (*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
