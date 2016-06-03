@@ -6,7 +6,7 @@ module IntMap = Map.Make(struct type t = int let compare = compare end)
 type t = {
     max_term_hol: idx_hol; (* first fresh hole index *)
     max_type_hol: idx_hol; (* firse fresh type hole index *)
-    current_term_hol: idx_hol; (* smallest expandable hole *)
+    open_holes: idx_hol list; (* stack of open holes *)
     prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
 }
 
@@ -14,7 +14,7 @@ type t = {
 let create () = {
     max_term_hol = 0;
     max_type_hol = 0;
-    current_term_hol = 0;
+    open_holes = [];
     prog = IntMap.empty;
 }
 
@@ -22,20 +22,21 @@ let create () = {
 let reset prog a = {
     max_term_hol = 1;
     max_type_hol = prog.max_type_hol;
-    current_term_hol = 0;
+    open_holes = [0];
     prog = IntMap.add 0 (None, a) IntMap.empty;
 }
 
-let is_closed ctxt = ctxt.current_term_hol >= ctxt.max_term_hol
-(* if the hole to expand is a fresh hole, then the program is closed *)
+let is_closed ctxt = (ctxt.open_holes = []) (* if there are no more holes to expand, the program is closed *)
 
-let current_type ctxt = snd (IntMap.find ctxt.current_term_hol ctxt.prog)
+let current_hol ctxt = List.hd ctxt.open_holes
+
+let current_type ctxt = snd (IntMap.find (current_hol ctxt) ctxt.prog)
 
 let get_fresh_term_hol a prog =
     (Term.Hol (a, prog.max_term_hol),
     {max_term_hol = prog.max_term_hol + 1;
      max_type_hol = prog.max_type_hol;
-     current_term_hol = prog.current_term_hol;
+     open_holes = (prog.max_term_hol)::prog.open_holes;
      prog = IntMap.add prog.max_term_hol (None, a) prog.prog}
     )
 
@@ -43,15 +44,15 @@ let get_fresh_type_hol prog =
     (Type.Hol prog.max_type_hol,
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol + 1;
-     current_term_hol = prog.current_term_hol;
+     open_holes = prog.open_holes;
      prog = prog.prog}
     )
 
 let expand_current_hol m prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
-     current_term_hol = prog.current_term_hol + 1;
-     prog = IntMap.add prog.current_term_hol (Some m, Term.extract_label m) prog.prog}
+     open_holes = List.tl prog.open_holes;
+     prog = IntMap.add (current_hol prog) (Some m, Term.extract_label m) prog.prog}
 
 (* TODO find a better name to avoid conflict with Lambda.apply_subst *)
 let apply_subst subst prog =
@@ -61,7 +62,7 @@ let apply_subst subst prog =
 
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
-     current_term_hol = prog.current_term_hol;
+     open_holes = prog.open_holes;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
 let to_term prog =

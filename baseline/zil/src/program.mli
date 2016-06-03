@@ -11,7 +11,7 @@ end
   type t = {
     max_term_hol : idx_hol; (* first fresh term hole index *)
     max_type_hol : idx_hol; (* first fresh type hole index *)
-    current_term_hol : idx_hol; (* smallest expandable term hole *)
+    open_holes : idx_hol list; (* stack of open holes *)
     prog : (Type.t Term.t option * Type.t) IntMap.t;
     (** A program is a mapping from holes to the corresponding terms, if present, and to their types. The starting point is ?0 *)
   }

@@ -71,8 +71,8 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
     let succ_app =
         let current_type = current_type ctxt in
         let (a0, new_ctxt) = get_fresh_type_hol ctxt in
-        let (m1, new_ctxt) = get_fresh_term_hol (Type.Arr (a0, current_type)) new_ctxt in
         let (m2, new_ctxt) = get_fresh_term_hol a0 new_ctxt in
+        let (m1, new_ctxt) = get_fresh_term_hol (Type.Arr (a0, current_type)) new_ctxt in
         let m = Term.App (current_type, m1, m2) in
         [expand_current_hol m new_ctxt]
     in
