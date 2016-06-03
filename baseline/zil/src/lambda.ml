@@ -397,7 +397,7 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
   let rec eval_aux env alt m =
  
-    let () = if debug then (printf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+    let () = if debug then print_endline (sprintf "%s-> %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
 
     match m with
     | App (o, m, n) ->
@@ -406,11 +406,11 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
       let m = eval_aux env None m in
 
-      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+      let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
 
       let n = eval_aux env None n in
 
-      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true n)) else () in
+      let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true n)) else () in
 
       let () = depth := !depth - 1 in
 
@@ -425,7 +425,7 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
          let r = eval_aux new_env new_alt def in
 
-         let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
+         let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
          let () = depth := !depth - 1 in
 
          r
@@ -439,7 +439,7 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
       let m = eval_aux env None m in
       let a = load_type env a in
 
-      let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
+      let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true m)) else () in
       
       let () = depth := !depth - 1 in
 
@@ -455,7 +455,7 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
          let r = eval_aux new_env new_alt def in
 
-         let () = if debug then (printf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
+         let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
 
          let () = depth := !depth - 1 in
 
@@ -468,7 +468,7 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
     | m -> load_term env m in
 
   let r = eval_aux empty_env None m in
-  let () = if debug then (printf "<- %s\n" (to_string ~debug:true r)) else () in
+  let () = if debug then print_endline (sprintf "<- %s\n" (to_string ~debug:true r)) else () in
   r
 
 let name s = function
