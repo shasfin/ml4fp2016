@@ -36,7 +36,7 @@ let get_fresh_term_hol a prog =
     (Term.Hol (a, prog.max_term_hol),
     {max_term_hol = prog.max_term_hol + 1;
      max_type_hol = prog.max_type_hol;
-     open_holes = (prog.max_term_hol)::prog.open_holes;
+     open_holes = (List.hd prog.open_holes)::(prog.max_term_hol)::(List.tl prog.open_holes);
      prog = IntMap.add prog.max_term_hol (None, a) prog.prog}
     )
 
