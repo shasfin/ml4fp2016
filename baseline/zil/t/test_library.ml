@@ -143,10 +143,10 @@ let test_add = test (sprintf
   (number_to_nat 3)
   "2 + 1";;*)
 
-let test_fac = test
+(*let test_fac = test
   (sprintf "prod (range (succ zero) (%s))" (number_to_nat 5))
   (number_to_nat 120)
-  "factorial 5";;
+  "factorial 5";;*)
 
 (*let test_geq = test "natGeq zero (succ zero)" "false" "0 >= 1";;*)
 

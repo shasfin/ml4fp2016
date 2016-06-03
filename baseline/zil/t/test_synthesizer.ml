@@ -232,7 +232,7 @@ let reverse_test =
                 [5];
                 [3;1]]);;*)
 
-(* Try to generate factorial *)
+(*(* Try to generate factorial *)
 let free_lib = Library.create ();;
 let factorial_test =
     let example x = (([number_to_nat x],[]), number_to_nat (List.fold_right ~f:(fun x acc -> x*acc) ~init:1 (List.range ~stop:`inclusive 1 x))) in
@@ -244,7 +244,26 @@ let factorial_test =
     ~examples:(List.map ~f:example
                [1;
                 2;
-                3]);;
+                3]);;*)
+
+(* Try to generate replicate *)
+let free_lib = Library.create ();;
+let replicate_test =
+  let example (x, n) = 
+    let rec replicate n = match n with
+      | 0 -> []
+      | n -> x::(replicate (n-1)) in
+      
+      (([number_to_nat x; number_to_nat n],["Nat"]), list_to_natlist (replicate n)) in
+  test_enumeration
+    ~msg:"Generate replicate"
+    (parse_type "@ #0 -> Nat -> List #0")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [(1,0);
+                (0,2);
+                (3,1)]);;
 
 (*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
