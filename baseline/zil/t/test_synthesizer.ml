@@ -30,7 +30,8 @@ let rec list_to_list a f xs = match xs with
 (* Convert [1;2;3] to a list of nat *)
 let list_to_natlist = list_to_list "Nat" number_to_nat
 
-let pair_to_pair a b (m, n) = sprintf "pair (%s) (%s) %s %s" a b m n
+(* Convert "Nat" "List Nat" ("succ...","con...") to pair Nat (List Nat) (succ...) (con...) *)
+let pair_to_pair a b (m, n) = sprintf "pair (%s) (%s) (%s) (%s)" a b m n
 
 (* Generate a free_def from a list of term strings and a list of type strings *)
 let instantiate_free (mm, aa) = {
@@ -294,7 +295,7 @@ let enumTo_test =
                [2;
                 3]);;*)
 
-(* Try to generate enumTo step by step *)
+(*(* Try to generate enumTo step by step *)
 let free_lib = Library.create ();;
 let enumTo1_test =
     let example x = (([number_to_nat x],[]), pair_to_pair "Nat" "List Nat" (number_to_nat x, list_to_natlist (List.range ~stop:`inclusive 1 x))) in
@@ -305,6 +306,44 @@ let enumTo1_test =
     1 
     ~examples:(List.map ~f:example
                [2;
+                3]);;*)
+
+(*(* Try to generate enumTo step by step -- the function for foldNat -- successful *)
+let free_lib = Library.create ();;
+let enumTo2_test =
+    let example (x, xs) = (([pair_to_pair "Nat" "List Nat" ((number_to_nat x), (list_to_natlist xs))],[]), pair_to_pair "Nat" "List Nat" (number_to_nat (x+1), list_to_natlist (x::xs))) in
+  test_enumeration
+    ~msg:"Generate enumTo2 - fanout (uncurry (ignore succ)) (uncurry con)"
+    (parse_type "Pair Nat (List Nat) -> Pair Nat (List Nat)")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [(2,[1;0]);
+                (3,[1;2])]);;*)
+
+(* Try to generate enumTo step by step -- foldNat f_enumTo (succ zero, nil) n *)
+let free_lib = Library.create ();;
+let enumTo3_test =
+    let example x = (([number_to_nat x],[]), pair_to_pair "Nat" "List Nat" (number_to_nat (x+1), list_to_natlist (List.range ~stride:(-1) ~stop:`inclusive x 1))) in
+  test_enumeration
+    ~msg:"Generate enumTo3"
+    (parse_type "Nat -> Pair Nat (List Nat)")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [2;
                 3]);;
 
+(*(* Try to generate enumTo step by step -- snd (foldNat f_enumTo (succ zero, nil) n)  -- takes more than 10 times more than enumTo3 *)
+let free_lib = Library.create ();;
+let enumTo4_test =
+    let example x = (([number_to_nat x],[]), list_to_natlist (List.range ~stride:(-1) ~stop:`inclusive x 1)) in
+  test_enumeration
+    ~msg:"Generate enumTo4"
+    (parse_type "Nat -> List Nat")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [2;
+                3]);;*)
 

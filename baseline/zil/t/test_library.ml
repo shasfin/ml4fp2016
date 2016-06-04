@@ -1,5 +1,6 @@
 open TestSimple;;
 open Printf;;
+open Core.Std;;
 
 open Zil.Lambda;;
 open Zil.Parse;;
@@ -30,16 +31,19 @@ let rec list_to_list a f xs = match xs with
 (* Convert [1;2;3] to a list of nat *)
 let list_to_natlist = list_to_list "Nat" number_to_nat
 
+(* Convert "Nat" "List Nat" ("succ...","con...") to pair Nat (List Nat) (succ...) (con...) *)
+let pair_to_pair a b (m, n) = sprintf "pair (%s) (%s) (%s) (%s)" a b m n
+
 
 (* Generate a free_def from a list of term strings and a list of type strings *)
 let instantiate_free (mm, aa) = {
   term_info = (fun i ->
     if i < List.length mm
-    then Some (eval ~sym_def:sym_def (parse_term (List.nth mm i)))
+    then Some (eval ~sym_def:sym_def (parse_term (List.nth_exn mm i)))
     else None);
   type_info = (fun i ->
     if i < List.length aa
-    then Some (parse_type (List.nth aa i))
+    then Some (parse_type (List.nth_exn aa i))
     else None)
 };;
 
@@ -131,12 +135,33 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
-let test_enumTo = test
+(*let test_enumTo = test
   (sprintf
     "rev Nat (snd Nat (List Nat) (foldNat (List Nat) (fanout (Pair Nat (List Nat)) Nat (List Nat) (uncurry Nat (List Nat) Nat (ignore Nat Nat (List Nat) succ)) (uncurry Nat (List Nat) Nat (con Nat))) (pair Nat (List Nat) (succ zero) (nil Nat)) (%s)))"
     (number_to_nat 2))
   (list_to_natlist [1;2])
-  "enumTo"
+  "enumTo"*)
+
+(*let test_enumTo2 n xs = test
+  (sprintf
+    "pair Nat (List Nat) (succ (fst Nat (List Nat) (pair Nat (List Nat) (%s) (%s)))) (uncurry Nat (List Nat) (List Nat) (con Nat) (pair Nat (List Nat) (%s) (%s)))"
+    (number_to_nat n)
+    (list_to_natlist xs)
+    (number_to_nat n)
+    (list_to_natlist xs))
+  (pair_to_pair "Nat" "List Nat" (number_to_nat (n+1), list_to_natlist (n::xs)))
+  "(n, xs) -> (succ n, n :: xs)"*)
+
+(*let test_enumTo2' = test_enumTo2 2 [1;0];;*)
+
+let test_enumTo3 n = test
+  (sprintf
+    "foldNat (Pair Nat (List Nat)) f_enumTo (pair Nat (List Nat) (succ zero) (nil Nat)) (%s)"
+    (number_to_nat n))
+  (pair_to_pair "Nat" "List Nat" (number_to_nat (n+1), list_to_natlist (List.range ~stride:(-1) ~stop:`inclusive n 1)))
+  "n -> (n+1, [n; n-1; n-2; ... ; 1])"
+
+let test_enumTo3' = test_enumTo3 3;;
 
 (*let test_add = test " { [Nat] : add $0 zero } (succ zero) " "succ zero" "1 + 0 with one lambda"
 let test_sub = test " { [Nat] : sub $0 zero } (succ zero) " "succ zero" "1 - 0 with one lambda";;
