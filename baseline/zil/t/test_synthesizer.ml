@@ -30,6 +30,7 @@ let rec list_to_list a f xs = match xs with
 (* Convert [1;2;3] to a list of nat *)
 let list_to_natlist = list_to_list "Nat" number_to_nat
 
+let pair_to_pair a b (m, n) = sprintf "pair (%s) (%s) %s %s" a b m n
 
 (* Generate a free_def from a list of term strings and a list of type strings *)
 let instantiate_free (mm, aa) = {
@@ -123,7 +124,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
 
    let examples =
      List.map
-       ~f:(fun (input, output) -> (instantiate_free input, parse_term output))
+       ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
        examples in
    let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_uni ~free_lib:free_lib ~examples:examples nof_programs in
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
@@ -186,7 +187,7 @@ let map_const_test =
                 ("List Nat", (list_to_list "(List Nat)" (list_to_list "Nat" number_to_nat) [ [3;2] ; [1] ; [1;1;1] ]), (list_to_list "Nat" number_to_nat [1;1;1]));
                 ("Nat", (list_to_list "Nat" number_to_nat [1;2;3]), (list_to_list "Nat" number_to_nat [1;1;1]))]);;*)
 
-(*(* try to generate length. 2000 closed programs are too few, 6000 takes too long *)
+(*(* try to generate length *)
 let free_lib = Library.create ();;
 let length_test =
   let example (a, input, output) = (([input],[a]), number_to_nat output) in
@@ -246,7 +247,7 @@ let factorial_test =
                 2;
                 3]);;*)
 
-(* Try to generate replicate *)
+(*(* Try to generate replicate *)
 let free_lib = Library.create ();;
 let replicate_test =
   let example (x, n) = 
@@ -263,7 +264,7 @@ let replicate_test =
     ~examples:(List.map ~f:example
                [(1,0);
                 (0,2);
-                (3,1)]);;
+                (3,1)]);;*)
 
 (*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
@@ -279,4 +280,31 @@ let reverse_test =
                 (0,4);
                 (4,5);
                 (2,4)]);;*)
+
+(*(* Try to generate enumTo *)
+let free_lib = Library.create ();;
+let enumTo_test =
+    let example x = (([number_to_nat x],[]), list_to_natlist (List.range ~stop:`inclusive 1 x)) in
+  test_enumeration
+    ~msg:"Generate enumTo"
+    (parse_type "Nat -> List Nat")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [2;
+                3]);;*)
+
+(* Try to generate enumTo step by step *)
+let free_lib = Library.create ();;
+let enumTo1_test =
+    let example x = (([number_to_nat x],[]), pair_to_pair "Nat" "List Nat" (number_to_nat x, list_to_natlist (List.range ~stop:`inclusive 1 x))) in
+  test_enumeration
+    ~msg:"Generate enumTo1"
+    (parse_type "Nat -> List Nat")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example
+               [2;
+                3]);;
+
 

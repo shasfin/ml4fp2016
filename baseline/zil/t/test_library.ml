@@ -131,6 +131,13 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
+let test_enumTo = test
+  (sprintf
+    "rev Nat (snd Nat (List Nat) (foldNat (List Nat) (fanout (Pair Nat (List Nat)) Nat (List Nat) (uncurry Nat (List Nat) Nat (ignore Nat Nat (List Nat) succ)) (uncurry Nat (List Nat) Nat (con Nat))) (pair Nat (List Nat) (succ zero) (nil Nat)) (%s)))"
+    (number_to_nat 2))
+  (list_to_natlist [1;2])
+  "enumTo"
+
 (*let test_add = test " { [Nat] : add $0 zero } (succ zero) " "succ zero" "1 + 0 with one lambda"
 let test_sub = test " { [Nat] : sub $0 zero } (succ zero) " "succ zero" "1 - 0 with one lambda";;
 let test_sub = test " { [Nat] [Nat] : sub $0 $1 } (zero) (succ zero) " "succ zero" "2 - 1 with lambda";;
