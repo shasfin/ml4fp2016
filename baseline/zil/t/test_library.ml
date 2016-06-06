@@ -135,6 +135,19 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
+
+let test_enumFromTo =
+  let n = 3 in
+  test
+    (sprintf
+      "con Nat (foldNat Nat (mul (%s)) (%s) (mul (%s) (%s))) (nil Nat)"
+      (number_to_nat n)
+      (number_to_nat n)
+      (number_to_nat n)
+      (number_to_nat n))
+    "no idea"
+    "Debugging enumFromTo"
+
 (*let test_enumTo = test
   (sprintf
     "rev Nat (snd Nat (List Nat) (foldNat (List Nat) (fanout (Pair Nat (List Nat)) Nat (List Nat) (uncurry Nat (List Nat) Nat (ignore Nat Nat (List Nat) succ)) (uncurry Nat (List Nat) Nat (con Nat))) (pair Nat (List Nat) (succ zero) (nil Nat)) (%s)))"
@@ -154,14 +167,14 @@ let test input output msg =
 
 (*let test_enumTo2' = test_enumTo2 2 [1;0];;*)
 
-let test_enumTo3 n = test
+(*let test_enumTo3 n = test
   (sprintf
     "foldNat (Pair Nat (List Nat)) f_enumTo (pair Nat (List Nat) (succ zero) (nil Nat)) (%s)"
     (number_to_nat n))
   (pair_to_pair "Nat" "List Nat" (number_to_nat (n+1), list_to_natlist (List.range ~stride:(-1) ~stop:`inclusive n 1)))
   "n -> (n+1, [n; n-1; n-2; ... ; 1])"
 
-let test_enumTo3' = test_enumTo3 3;;
+let test_enumTo3' = test_enumTo3 3;;*)
 
 (*let test_add = test " { [Nat] : add $0 zero } (succ zero) " "succ zero" "1 + 0 with one lambda"
 let test_sub = test " { [Nat] : sub $0 zero } (succ zero) " "succ zero" "1 - 0 with one lambda";;

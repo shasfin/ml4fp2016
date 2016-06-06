@@ -145,7 +145,7 @@ let map_test =
     11;;*)
 
 
-(* first test with I/O-examples. [zero] |-> [succ zero] *)
+(*(* first test with I/O-examples. [zero] |-> [succ zero] *)
 let free_lib = Library.create ();;
 let map_test_2 =
   let example (input, output) =
@@ -158,7 +158,7 @@ let map_test_2 =
     ~examples:(List.map ~f:example
                [([],[]);
                 ([1;2;3],[2;3;4]);
-                ([4;2;6],[5;3;7])]);;
+                ([4;2;6],[5;3;7])]);;*)
 
 (*(* try to generate const 1 *)
 let free_lib = Library.create ();;
@@ -168,7 +168,7 @@ let const_test =
     ~msg:"Generate const 1"
     (parse_type "@ #0 -> Nat")
     free_lib
-    10
+    1
     ~examples:(List.map ~f:example
                [("Nat", (number_to_nat 6));
                 ("List Nat", (list_to_list "Nat" number_to_nat []));
@@ -213,9 +213,7 @@ let append_test =
     free_lib
     1
     ~examples:(List.map ~f:example
-                 [([1;2;3],[]);
-                  ([],[3;3;1]);
-                  ([1],[2;3]);
+                 [([1],[2;3]);
                   ([1;2],[4;5])]);;*)
 
 (*(* Try to generate reverse *)
@@ -229,10 +227,7 @@ let reverse_test =
     1 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
     ~examples:(List.map ~f:example
                [[1;2;3];
-                [2;5;1];
-                [1;1];
-                [5];
-                [3;1]]);;*)
+                [2;5;1]]);;*)
 
 (*(* Try to generate factorial *)
 let free_lib = Library.create ();;
@@ -267,7 +262,7 @@ let replicate_test =
                 (0,2);
                 (3,1)]);;*)
 
-(*(* Try to generate enumFromTo *)
+(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
 let reverse_test =
     let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
@@ -278,9 +273,7 @@ let reverse_test =
     1 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
     ~examples:(List.map ~f:example
                [(1,3);
-                (0,4);
-                (4,5);
-                (2,4)]);;*)
+                (1,2)]);;
 
 (*(* Try to generate enumTo *)
 let free_lib = Library.create ();;
