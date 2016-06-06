@@ -145,7 +145,7 @@ let map_test =
     11;;*)
 
 
-(*(* first test with I/O-examples. [zero] |-> [succ zero] *)
+(* first test with I/O-examples. [zero] |-> [succ zero] *)
 let free_lib = Library.create ();;
 let map_test_2 =
   let example (input, output) =
@@ -158,7 +158,7 @@ let map_test_2 =
     ~examples:(List.map ~f:example
                [([],[]);
                 ([1;2;3],[2;3;4]);
-                ([4;2;6],[5;3;7])]);;*)
+                ([4;2;6],[5;3;7])]);;
 
 (*(* try to generate const 1 *)
 let free_lib = Library.create ();;
@@ -321,7 +321,7 @@ let enumTo2_test =
                [(2,[1;0]);
                 (3,[1;2])]);;*)
 
-(* Try to generate enumTo step by step -- foldNat f_enumTo (succ zero, nil) n *)
+(*(* Try to generate enumTo step by step -- foldNat f_enumTo (succ zero, nil) n *)
 let free_lib = Library.create ();;
 let enumTo3_test =
     let example x = (([number_to_nat x],[]), pair_to_pair "Nat" "List Nat" (number_to_nat (x+1), list_to_natlist (List.range ~stride:(-1) ~stop:`inclusive x 1))) in
@@ -332,7 +332,7 @@ let enumTo3_test =
     1 
     ~examples:(List.map ~f:example
                [2;
-                3]);;
+                3]);;*)
 
 (*(* Try to generate enumTo step by step -- snd (foldNat f_enumTo (succ zero, nil) n)  -- takes more than 10 times more than enumTo3 *)
 let free_lib = Library.create ();;
