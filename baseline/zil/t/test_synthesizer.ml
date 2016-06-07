@@ -270,10 +270,11 @@ let reverse_test =
     ~msg:"Generate enumFromTo"
     (parse_type "Nat -> Nat -> List Nat")
     free_lib
-    1 (* result generated after 1000 closed programs with nil, con, zero, succ, map, foldr, foldl, flip, add, sum in the library *)
+    1 
     ~examples:(List.map ~f:example
-               [(1,3);
-                (1,2)]);;
+               [(1,2);
+                (2,4);
+                (2,6)]);;
 
 (*(* Try to generate enumTo *)
 let free_lib = Library.create ();;

@@ -135,8 +135,27 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
-
 let test_enumFromTo =
+  let n = 2 in
+  let m = 6 in
+  test
+    (sprintf
+      "map Nat Nat (sub (succ (%s))) (snd Nat (List Nat) (f_enumTo (pair_reverse_enum (%s))))"
+      (number_to_nat m)
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive n m))
+    "Is this really enumFromTo?"
+
+(*let test_enumTo =
+  let n = 3 in
+  test
+    (sprintf
+      "rev Nat (snd Nat (List Nat) (pair_reverse_enum (%s)))"
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive 1 n))
+    "why does enumTo not work?"*)
+
+(*let test_enumFromTo =
   let n = 3 in
   test
     (sprintf
@@ -146,7 +165,7 @@ let test_enumFromTo =
       (number_to_nat n)
       (number_to_nat n))
     "no idea"
-    "Debugging enumFromTo"
+    "Debugging enumFromTo"*)
 
 (*let test_enumTo = test
   (sprintf

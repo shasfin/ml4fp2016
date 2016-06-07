@@ -12,7 +12,7 @@ List | @ #0 -> (#1 -> List #1 -> #0) -> #0 | 1
 Nat | @ #0 -> (Nat -> #0) -> #0 | 0
 
 -- Booleans
---Bool | @ #0 -> #0 -> #0 | 0
+Bool | @ #0 -> #0 -> #0 | 0
 
 -- Pairs
 Pair | @ (#2 -> #1 -> #0) -> #0 | 2
@@ -25,13 +25,13 @@ Pair | @ (#2 -> #1 -> #0) -> #0 | 2
 
 flip | * * * { [#2 -> #1 -> #0] [#1] [#2] : $2 $0 $1 } | @ @ @ (#2 -> #1 -> #0) -> #1 -> #2 -> #0
 
-curry | * * * { [Pair #2 #1 -> #0] : { [#2] [#1] : $2 (pair #2 #1 $1 $0) } } | @ @ @ (Pair #2 #1 -> #0) -> #2 -> #1 -> #0
+--curry | * * * { [Pair #2 #1 -> #0] : { [#2] [#1] : $2 (pair #2 #1 $1 $0) } } | @ @ @ (Pair #2 #1 -> #0) -> #2 -> #1 -> #0
 
 uncurry | * * * { [#2 -> #1 -> #0] : { [Pair #2 #1] : $1 (fst #2 #1 $0) (snd #2 #1 $0) } } | @ @ @ (#2 -> #1 -> #0) -> Pair #2 #1 -> #0
 
-fanout | * * * { [#2 -> #1] [#2 -> #0] [#2] : pair #1 #0 ($2 $0) ($1 $0) } | @ @ @ (#2 -> #1) -> (#2 -> #0) -> #2 -> Pair #1 #0
+--fanout | * * * { [#2 -> #1] [#2 -> #0] [#2] : pair #1 #0 ($2 $0) ($1 $0) } | @ @ @ (#2 -> #1) -> (#2 -> #0) -> #2 -> Pair #1 #0
 
-ignore | * * * { [#2 -> #1] [#2] [#0] : $2 $1 } | @ @ @ (#2 -> #1) -> #2 -> #0 -> #1
+--ignore | * * * { [#2 -> #1] [#2] [#0] : $2 $1 } | @ @ @ (#2 -> #1) -> #2 -> #0 -> #1
 
 
 -- list constructors
@@ -90,7 +90,7 @@ foldNat | * { [#0 -> #0] [#0] [Nat] : $0 #0 $1 { [Nat] : $3 (foldNat #0 $3 $2 $0
 
 sub | { [Nat] [Nat] : $1 Nat (zero) { [Nat] : $1 Nat $2 { [Nat] : sub $1 $0 } } } | Nat -> Nat -> Nat
 
---add | { [Nat] [Nat] : $1 Nat $0 { [Nat] : succ (add $0 $1) } } | Nat -> Nat -> Nat
+add | { [Nat] [Nat] : $1 Nat $0 { [Nat] : succ (add $0 $1) } } | Nat -> Nat -> Nat
 
 --mul | { [Nat] [Nat] : $1 Nat zero { [Nat] : add (mul $0 $1) $1 } } | Nat -> Nat -> Nat
 
@@ -100,3 +100,6 @@ rev | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) 
 
 -- special function needed to synthesize enumTo with foldNat
 f_enumTo | { [Pair Nat (List Nat)] : pair Nat (List Nat) (succ (fst Nat (List Nat) $0)) (uncurry Nat (List Nat) (List Nat) (con Nat) $0) } | Pair Nat (List Nat) -> Pair Nat (List Nat)
+
+-- special function needed to synthesize enumTo with rev and snd
+pair_reverse_enum | { [Nat] : foldNat (Pair Nat (List Nat)) f_enumTo (pair Nat (List Nat) (succ zero) (nil Nat)) $0 } | Nat -> Pair Nat (List Nat)
