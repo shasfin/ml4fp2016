@@ -262,7 +262,7 @@ let replicate_test =
                 (0,2);
                 (3,1)]);;*)
 
-(* Try to generate enumFromTo *)
+(*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
 let reverse_test =
     let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
@@ -272,9 +272,8 @@ let reverse_test =
     free_lib
     1 
     ~examples:(List.map ~f:example
-               [(1,2);
-                (2,4);
-                (2,6)]);;
+               [(2,3);
+                (1,3)]);;*)
 
 (*(* Try to generate enumTo *)
 let free_lib = Library.create ();;
@@ -340,4 +339,33 @@ let enumTo4_test =
     ~examples:(List.map ~f:example
                [2;
                 3]);;*)
+
+(*(* Try to generate concat *)
+let free_lib = Library.create ();;
+let concat_test =
+    let example xs = (([list_to_list "(List Nat)" list_to_natlist xs],["Nat"]), list_to_natlist (List.concat xs)) in
+  test_enumeration
+    ~msg:"Generate concat"
+    (parse_type "@ List (List #0) -> List #0")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example 
+               [[[1];[]];
+                [[1;2];[3]]]);;*)
+
+(* Try to generate stutter *)
+let free_lib = Library.create ();;
+let concat_test =
+    let rec stutter xs = (match xs with
+      | [] -> []
+      | x::xs -> x::x::(stutter xs)) in
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (stutter xs)) in
+  test_enumeration
+    ~msg:"Generate stutter"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    1 
+    ~examples:(List.map ~f:example 
+               [[1];
+                [1;2;3]]);;
 

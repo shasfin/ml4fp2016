@@ -150,7 +150,7 @@ let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
 
 let enumerate_satisfying queue ~sym_lib ~free_lib ?examples:(examples=[]) n =
   let sym_def = Library.get_lib_def sym_lib in
-
+  
   let rec find_first_satisfying queue =
 
     let top = Heap.top_exn queue in

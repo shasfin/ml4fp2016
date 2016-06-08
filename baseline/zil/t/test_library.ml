@@ -135,7 +135,81 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
-let test_enumFromTo =
+let test_concat =
+  let xs = [[1];[]] in
+  test
+    (sprintf
+      "foldr (List Nat) (List Nat) (append Nat) (nil Nat) (%s)"
+      (list_to_list "(List Nat)" list_to_natlist xs))
+    (list_to_natlist (List.concat xs))
+    "Why isn't this concat?"
+
+(*let test_append =
+  let xs = [1;2] in
+  let ys = [3] in
+  test
+    (sprintf
+      "append Nat (%s) (%s)"
+      (list_to_natlist xs)
+      (list_to_natlist ys))
+    (list_to_natlist (xs @ ys))
+    "append [1,2] [3]"*)
+
+
+(*let test_enumFromTo =
+  let n = 2 in
+  let m = 6 in
+  test
+    (sprintf
+      "foldNat (List Nat) (con Nat (%s)) (con Nat (%s) (nil Nat)) (sub (%s) (%s))"
+      (number_to_nat n)
+      (number_to_nat m)
+      (number_to_nat m)
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive n m))
+    "Is this really enumFromTo?"*)
+
+(*let test_enumFromTo =
+  let n = 1 in
+  let m = 2 in
+  test
+    (sprintf
+      "enumTo (foldl (Nat -> Nat) Nat (foldNat Nat) (add (%s)) (enumTo (%s)) (%s))"
+      (number_to_nat m)
+      (number_to_nat m)
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive n m))
+    "Is this really enumFromTo?"*)
+
+(*let test_enumFromTo =
+  let n = 2 in
+  let m = 6 in
+  test
+    (sprintf
+      "con Nat (%s) (map Nat Nat succ (enumTo (sub (%s) (%s))))"
+      (number_to_nat n)
+      (number_to_nat m)
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive n m))
+    "Is this really enumFromTo?"*)
+
+(*let test_enumFromTo =
+  let n = 1 in
+  let m = 3 in
+  test
+    (sprintf
+      "con Nat (%s) (map Nat Nat (add (%s)) (enumTo (sub (%s) (%s))))"
+      (number_to_nat n)
+      (number_to_nat n)
+      (number_to_nat m)
+      (number_to_nat n))
+    (list_to_natlist (List.range ~stop:`inclusive n m))
+    "Hand-written enumFromTo. Needs 5 components and has 9 leaves"*)
+
+
+
+
+(*let test_enumFromTo =
   let n = 2 in
   let m = 6 in
   test
@@ -144,7 +218,7 @@ let test_enumFromTo =
       (number_to_nat m)
       (number_to_nat n))
     (list_to_natlist (List.range ~stop:`inclusive n m))
-    "Is this really enumFromTo?"
+    "Is this really enumFromTo?"*)
 
 (*let test_enumTo =
   let n = 3 in
