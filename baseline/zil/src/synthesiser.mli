@@ -31,6 +31,7 @@ val enumerate_satisfying :
   Program.t Heap.t ->
   sym_lib:(idx_sym, unit) Library.t ->
   free_lib:(idx_free, unit) Library.t ->
+  ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
   ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
   int ->
   Program.t list

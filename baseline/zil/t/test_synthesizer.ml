@@ -90,7 +90,21 @@ let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 (* side effect: changes free_lib *)
 (* examples is a list of (input,output) pair, where input is a (mm,aa) pair
  * it has hence the type ((string list * string list) * string) list *)
-let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples:(examples=[]) nof_programs =
+(* components is the list of components used for synthesis. For evaluation the whole library.tm is used *)
+let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples:(examples=[]) ?components:(components=[]) nof_programs =
+
+  let sym_lib_comp = (match components with
+    | [] -> sym_lib_uni
+    | _ -> (let sym_lib_comp = Library.create () in
+            let () = Library.iter_types
+              (fun i a k -> Library.add_type i a k sym_lib_comp)
+              sym_lib_uni in
+            let () = List.iter
+              ~f:(fun i -> let (m, a, args) = Library.lookup_term sym_lib_uni i in
+                        Library.add_term i m a ~typ_args:args sym_lib_comp)
+              components in
+            sym_lib_comp)) in
+
   (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
   let transform_type a =
     (* side effect: free_lib is built *)
@@ -127,7 +141,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
      List.map
        ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
        examples in
-   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_uni ~free_lib:free_lib ~examples:examples nof_programs in
+   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)

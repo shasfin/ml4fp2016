@@ -148,8 +148,9 @@ let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
 (* Enumerate only satisfying programs (caution, could loop forever) *)
 (* Expand hole with the smallest number *)
 
-let enumerate_satisfying queue ~sym_lib ~free_lib ?examples:(examples=[]) n =
-  let sym_def = Library.get_lib_def sym_lib in
+(* sym_lib is the library used for synthesis.
+ * sym_def is a potentially fuller library used only for evaluation *)
+let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
   
   let rec find_first_satisfying queue =
 

@@ -32,6 +32,9 @@ let get_lib_sig lib = {
   type_info = get_map_fun snd lib.typetbl;
 }
 
+let lookup_term lib i = Hashtbl.find lib.termtbl i
+
+let lookup_type lib i = Hashtbl.find lib.typetbl i
 
 let lookup_term_def lib i = (fun (x, _, _) -> x) (Hashtbl.find lib.termtbl i)
 

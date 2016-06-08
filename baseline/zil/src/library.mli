@@ -20,6 +20,12 @@ val get_lib_sig: ('i, 'a) t -> ('i, Type.t, Kind.t) lib
 val read_from_file : string -> (idx_sym, unit) t
 (** Read a sym lib from file *)
 
+val lookup_term : ('i, 'a) t -> 'i -> ('a Term.t * Type.t * Type.t list)
+(** Get the whole term record *)
+
+val lookup_type : ('i, 'a) t -> 'i -> (Type.t * Kind.t)
+(** Get the whole type record *)
+
 val lookup_term_def : ('i, 'a) t -> 'i -> 'a Term.t
 (** Lookup the definition of a term library component. Raises Not Found exception *)
 
