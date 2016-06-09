@@ -367,7 +367,7 @@ let concat_test =
                [[[1];[]];
                 [[1;2];[3]]]);;*)
 
-(* Try to generate stutter *)
+(*(* Try to generate stutter *)
 let free_lib = Library.create ();;
 let concat_test =
     let rec stutter xs = (match xs with
@@ -378,8 +378,187 @@ let concat_test =
     ~msg:"Generate stutter"
     (parse_type "@ List #0 -> List #0")
     free_lib
-    1 
+    1
+    ~components:["nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "foldNat";
+                 "add";
+                 "replicate";
+                 "concat"]
     ~examples:(List.map ~f:example 
                [[1];
-                [1;2;3]]);;
+                [1;2;3]]);;*)
+
+(*(* Try to generate sum *)
+let free_lib = Library.create ();;
+let sum_test =
+  let sum xs = List.fold_right ~f:(+) ~init:0 xs in
+  let example xs = (([list_to_natlist xs],[]), number_to_nat (sum xs)) in
+  test_enumeration
+    ~msg:"Generate sum"
+    (parse_type "List Nat -> Nat")
+    free_lib
+    1
+    ~components:["nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "foldNat";
+                 "add";
+                 "replicate";
+                 "concat"]
+    ~examples:(List.map ~f:example
+               [[1;2;3];
+                [2;2]]);;*)
+
+(*(* Try to generate sum *)
+let free_lib = Library.create ();;
+let sum_test =
+  let sum xs = List.fold_right ~f:(+) ~init:0 xs in
+  let example xs = (([list_to_natlist xs],[]), number_to_nat (sum xs)) in
+  test_enumeration
+    ~msg:"Generate sum"
+    (parse_type "List Nat -> Nat")
+    free_lib
+    1
+    ~components:["const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "foldNat";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example
+               [[1;2;3];
+                [3;2]]);;*)
+
+(*(* Try to generate multfirst *)
+let free_lib = Library.create ();;
+let multfirst_test =
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.hd_exn xs) xs)) in
+  test_enumeration
+    ~msg:"Generate multfirst"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    1
+    ~components:["const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "mul";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example 
+               [[1;2;3];
+                [4;2]]);;*)
+
+(* Try to generate multfirst *)
+let free_lib = Library.create ();;
+let multfirst_test =
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.hd_exn xs) xs)) in
+  test_enumeration
+    ~msg:"Generate multfirst"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    1
+    ~components:[
+                 "curry";
+                 "uncurry";
+                 "nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example 
+               [[1;2;3];
+                [4;2]]);;
+
+
+
 
