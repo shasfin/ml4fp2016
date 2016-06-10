@@ -40,7 +40,6 @@ nil | * * { [#0] [#1 -> List #1 -> #0] : $1 } | @ List #0
 con | * { [#0] [List #0] : * { [#0] [#1 -> List #1 -> #0] : $0 $3 $2 } } | @ #0 -> List #0 -> List #0
 
 
-
 -- nat constructors
 zero | * { [#0] [Nat -> #0] : $1 } | Nat
 
