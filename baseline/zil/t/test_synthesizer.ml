@@ -732,7 +732,7 @@ let stutter_test =
                [[1];
                 [1;2;3]]);;*)
 
-(* Try to generate stutter *)
+(*(* Try to generate stutter *)
 let stutter_test =
     let (a, first_prog) = Program.get_fresh_type_hol first_prog in
     let (b, first_prog) = Program.get_fresh_type_hol first_prog in
@@ -768,7 +768,7 @@ let stutter_test =
                  "enumTo"]
     ~examples:(List.map ~f:example 
                [[1];
-                [1;2;3]]);;
+                [1;2;3]]);;*)
 
 
 (*(* Try to generate stutter *)
@@ -930,7 +930,7 @@ let multfirst_test =
                [[1;2;3];
                 [4;2]]);;*)
 
-(*(* Try to generate multfirst -- no way, there is no head *)
+(*(* Try to generate multfirst *)
 let free_lib = Library.create ();;
 let multfirst_test =
     let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.hd_exn xs) xs)) in
@@ -944,6 +944,8 @@ let multfirst_test =
                  "uncurry";
                  "nil";
                  "con";
+                 "head";
+                 "tail";
                  "zero";
                  "succ";
                  "true";
@@ -965,10 +967,90 @@ let multfirst_test =
                  "append";
                  "rev";
                  "concat";
-                 "enumTo"]
+                 "enumTo"
+                ]
     ~examples:(List.map ~f:example 
                [[1;2;3];
                 [4;2]]);;*)
+
+(*(* Try to generate last *)
+let free_lib = Library.create ();;
+let last_test =
+    let example xs = (([list_to_natlist xs],["Nat"]), number_to_nat (List.last_exn xs)) in
+  test_enumeration
+    ~msg:"Generate last"
+    (parse_type "@ List #0 -> #0")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "foldNat";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"
+                ]
+    ~examples:(List.map ~f:example 
+               [[1;2;3];
+                [2;4]]);;*)
+
+(* Try to generate multlast *)
+let last_test =
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.last_exn xs) xs)) in
+  test_hypothesis1
+    ~msg:"Generate multlast"
+    (parse_type "@ List #0 -> List #0")
+    (["&0 -> List &0";
+      "&0"],
+     "?1 ?2")
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                ]
+    ~examples:(List.map ~f:example 
+               [[1;2;2];
+                [2;4]]);;
+
 
   
 

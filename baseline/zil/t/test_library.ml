@@ -135,6 +135,15 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
+let test_last =
+  let xs = [1;2;2] in
+  test
+    (sprintf
+      "head Nat (rev Nat (%s))"
+      (list_to_natlist xs))
+    (number_to_nat (List.last_exn xs))
+    "Why is this not last?"
+
 (*let test_concat =
   let xs = [[1];[]] in
   test
@@ -144,14 +153,14 @@ let test input output msg =
     (list_to_natlist (List.concat xs))
     "Why isn't this concat?"*)
 
-let test_head =
+(*let test_head =
   let xs = [] in
   test
     (sprintf
       "head Nat (%s)"
       (list_to_natlist xs))
     "undefined Nat"
-    "Endless loop in head?"
+    "Endless loop in head?"*)
 
 (*let test_append =
   let xs = [1;2] in
