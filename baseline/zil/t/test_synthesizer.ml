@@ -169,7 +169,8 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
             sym_lib_comp)) in
 
   (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
- 
+
+
   let prog = Program.reset first_prog (transform_type free_lib goal_type) in
   let (prog, mm) = List.fold_left
     ~f:(fun (prog, acc) a ->
@@ -177,10 +178,7 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
       (prog, mi::acc))
     ~init:(prog,[])
     holes in
-  let m = parse_term (List.fold_left
-    ~f:(fun acc x -> acc (Term.to_string x)) (* FIXME find a way to pass a list of arguments to sprintf *)
-    ~init:(sprintf template)
-    mm) in
+  let m = parse_term (template) in (* XXX this is a hack. It assumes that fresh holes are ?1, ?2, ?3 and so on *)
   let get_idx = function
     | Term.Hol (_, i) -> i
     | _ -> invalid_arg "This should be a hole" in
@@ -352,6 +350,43 @@ let enumFromTo_test =
                 (1,3)]);;*)
 
 (*(* Try to generate enumFromTo *)
+let enumFromTo_test =
+    let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
+  test_hypothesis1
+    ~msg:"Generate enumFromTo"
+    (parse_type "Nat -> Nat -> List Nat")
+    (["Nat";"List Nat"], "map Nat Nat (add ?1) ?2")
+    1
+    ~components:["const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "foldr";
+                 "foldl";
+                 "foldNat";
+                 "sub";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+
+    ~examples:(List.map ~f:example
+               [(2,3);
+                (1,3)]);;*)
+
+
+(*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
 let enumFromTo_test =
   let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
@@ -483,7 +518,7 @@ let enumFromTo_test =
                [(2,3);
                 (1,3)]);;*)
 
-(* Try to generate enumFromTo *)
+(*(* Try to generate enumFromTo *)
 let free_lib = Library.create ();;
 let enumFromTo_test =
   let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
@@ -547,7 +582,7 @@ let enumFromTo_test =
 
     ~examples:(List.map ~f:example
                [(2,3);
-                (1,3)]);;
+                (1,3)]);;*)
 
 
 
@@ -632,7 +667,7 @@ let concat_test =
 
 (*(* Try to generate stutter *)
 let free_lib = Library.create ();;
-let concat_test =
+let stutter_test =
     let rec stutter xs = (match xs with
       | [] -> []
       | x::xs -> x::x::(stutter xs)) in
@@ -642,8 +677,117 @@ let concat_test =
     (parse_type "@ List #0 -> List #0")
     free_lib
     1
-    ~components:["nil";
+    ~components:["const";
+                 "nil";
                  "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example 
+               [[1];
+                [1;2;3]]);;*)
+
+(*(* Try to generate stutter *)
+let stutter_test =
+    let rec stutter xs = (match xs with
+      | [] -> []
+      | x::xs -> x::x::(stutter xs)) in
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (stutter xs)) in
+  test_hypothesis1
+    ~msg:"Generate stutter"
+    (parse_type "@ List #0 -> List #0")
+    (["List (List &0) -> List &0"; "&0 -> List &0"; "List &0"],"?1 (map &0 (List &0) ?2 ?3)")
+    1
+    ~components:["const";
+                 "nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example 
+               [[1];
+                [1;2;3]]);;*)
+
+(* Try to generate stutter *)
+let stutter_test =
+    let (a, first_prog) = Program.get_fresh_type_hol first_prog in
+    let (b, first_prog) = Program.get_fresh_type_hol first_prog in
+    let rec stutter xs = (match xs with
+      | [] -> []
+      | x::xs -> x::x::(stutter xs)) in
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (stutter xs)) in
+  test_hypothesis1
+    ~msg:"Generate stutter"
+    (parse_type "@ List #0 -> List #0")
+    ([sprintf "List %s -> List &0" (Type.to_string b);
+      sprintf "%s -> %s" (Type.to_string a) (Type.to_string b);
+      sprintf "List %s" (Type.to_string a)],
+     sprintf "?1 (map %s %s ?2 ?3)" (Type.to_string a) (Type.to_string b))
+    1
+    ~components:["const";
+                 "nil";
+                 "con";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "sub";
+                 "add";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo"]
+    ~examples:(List.map ~f:example 
+               [[1];
+                [1;2;3]]);;
+
+
+(*(* Try to generate stutter *)
+let stutter_test =
+    let rec stutter xs = (match xs with
+      | [] -> []
+      | x::xs -> x::x::(stutter xs)) in
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (stutter xs)) in
+  test_hypothesis1
+    ~msg:"Generate stutter"
+    (parse_type "@ List #0 -> List #0")
+    (["List (List &0)"],"concat &0 ?1")
+    1
+    ~components:["const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
                  "zero";
                  "succ";
                  "true";
@@ -654,14 +798,18 @@ let concat_test =
                  "map";
                  "foldr";
                  "foldl";
-                 "range";
                  "foldNat";
-                 "add";
+                 "sub";
+                 "length";
                  "replicate";
-                 "concat"]
+                 "append";
+                 "rev";
+                 "enumTo"]
     ~examples:(List.map ~f:example 
                [[1];
                 [1;2;3]]);;*)
+
+
 
 (*(* Try to generate sum *)
 let free_lib = Library.create ();;
