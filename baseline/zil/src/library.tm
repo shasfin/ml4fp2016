@@ -43,6 +43,8 @@ con | * { [#0] [List #0] : * { [#0] [#1 -> List #1 -> #0] : $0 $3 $2 } } | @ #0 
 
 head | * { [List #0] : $0 #0 (undefined #0) { [#0] [List #0] : $1 } } | @ List #0 -> #0
 
+tail | * { [List #0] : $0 (List #0) (undefined (List #0)) { [#0] [List #0] : $0 } } | @ List #0 -> List #0
+
 
 -- nat constructors
 zero | * { [#0] [Nat -> #0] : $1 } | Nat
