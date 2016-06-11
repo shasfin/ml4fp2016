@@ -33,11 +33,15 @@ fanout | * * * { [#2 -> #1] [#2 -> #0] [#2] : pair #1 #0 ($2 $0) ($1 $0) } | @ @
 
 ignore | * * * { [#2 -> #1] [#2] [#0] : $2 $1 } | @ @ @ (#2 -> #1) -> #2 -> #0 -> #1
 
+undefined | undefined | @ #0
+
 
 -- list constructors
 nil | * * { [#0] [#1 -> List #1 -> #0] : $1 } | @ List #0
 
 con | * { [#0] [List #0] : * { [#0] [#1 -> List #1 -> #0] : $0 $3 $2 } } | @ #0 -> List #0 -> List #0
+
+head | * { [List #0] : $0 #0 (undefined #0) { [#0] [List #0] : $1 } } | @ List #0 -> #0
 
 
 -- nat constructors

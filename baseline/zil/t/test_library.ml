@@ -135,14 +135,23 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) output msg
 
-let test_concat =
+(*let test_concat =
   let xs = [[1];[]] in
   test
     (sprintf
       "foldr (List Nat) (List Nat) (append Nat) (nil Nat) (%s)"
       (list_to_list "(List Nat)" list_to_natlist xs))
     (list_to_natlist (List.concat xs))
-    "Why isn't this concat?"
+    "Why isn't this concat?"*)
+
+let test_head =
+  let xs = [] in
+  test
+    (sprintf
+      "head Nat (%s)"
+      (list_to_natlist xs))
+    "undefined Nat"
+    "Endless loop in head?"
 
 (*let test_append =
   let xs = [1;2] in
