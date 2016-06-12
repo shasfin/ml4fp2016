@@ -349,7 +349,7 @@ let enumFromTo_test =
                [(2,3);
                 (1,3)]);;*)
 
-(*(* Try to generate enumFromTo *)
+(* Try to generate enumFromTo *)
 let enumFromTo_test =
     let example (x,y) = (([number_to_nat x; number_to_nat y],[]), list_to_natlist (List.range ~stop:`inclusive x y)) in
   test_hypothesis1
@@ -357,12 +357,18 @@ let enumFromTo_test =
     (parse_type "Nat -> Nat -> List Nat")
     (["Nat";"List Nat"], "map Nat Nat (add ?1) ?2")
     1
-    ~components:["const";
+    ~components:[
+                 "const";
                  "flip";
                  "curry";
                  "uncurry";
                  "fanout";
                  "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
                  "zero";
                  "succ";
                  "true";
@@ -370,20 +376,27 @@ let enumFromTo_test =
                  "pair";
                  "fst";
                  "snd";
+                 "map";
                  "foldr";
                  "foldl";
+                 "sum";
                  "foldNat";
+                 "natEq";
+                 "natGeq";
                  "sub";
+                 "add";
                  "length";
                  "replicate";
                  "append";
                  "rev";
                  "concat";
-                 "enumTo"]
+                 "enumTo";
+                 "f_enumTo"
+                ]
 
     ~examples:(List.map ~f:example
                [(2,3);
-                (1,3)]);;*)
+                (1,3)]);;
 
 
 (*(* Try to generate enumFromTo *)
@@ -660,7 +673,47 @@ let concat_test =
     ~msg:"Generate concat"
     (parse_type "@ List (List #0) -> List #0")
     free_lib
-    1 
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "mul";
+                 "length";
+                 "factorial";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "enumTo";
+                 "f_enumTo"
+                ]
+
     ~examples:(List.map ~f:example 
                [[[1];[]];
                 [[1;2];[3]]]);;*)
@@ -677,9 +730,18 @@ let stutter_test =
     (parse_type "@ List #0 -> List #0")
     free_lib
     1
-    ~components:["const";
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
                  "nil";
                  "con";
+                 "head";
+                 "tail";
                  "zero";
                  "succ";
                  "true";
@@ -687,14 +749,26 @@ let stutter_test =
                  "pair";
                  "fst";
                  "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
                  "sub";
                  "add";
+                 "mul";
                  "length";
                  "replicate";
                  "append";
                  "rev";
                  "concat";
-                 "enumTo"]
+                 "enumTo";
+                 "f_enumTo"
+                ]
     ~examples:(List.map ~f:example 
                [[1];
                 [1;2;3]]);;*)
@@ -852,14 +926,18 @@ let sum_test =
     (parse_type "List Nat -> Nat")
     free_lib
     1
-    ~components:["const";
+    ~components:[
+                 "const";
                  "flip";
                  "curry";
                  "uncurry";
                  "fanout";
                  "ignore";
+                 "undefined";
                  "nil";
                  "con";
+                 "head";
+                 "tail";
                  "zero";
                  "succ";
                  "true";
@@ -871,18 +949,24 @@ let sum_test =
                  "foldr";
                  "foldl";
                  "range";
+                 "prod";
                  "foldNat";
+                 "natEq";
+                 "natGeq";
                  "sub";
                  "add";
+                 "mul";
                  "length";
                  "replicate";
                  "append";
                  "rev";
                  "concat";
-                 "enumTo"]
+                 "enumTo";
+                 "f_enumTo";    
+                ]
     ~examples:(List.map ~f:example
                [[1;2;3];
-                [3;2]]);;*)
+                [1;2]]);;*)
 
 (*(* Try to generate multfirst *)
 let free_lib = Library.create ();;
@@ -940,8 +1024,13 @@ let multfirst_test =
     free_lib
     1
     ~components:[
+                 "const";
+                 "flip";
                  "curry";
                  "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
                  "nil";
                  "con";
                  "head";
@@ -957,17 +1046,22 @@ let multfirst_test =
                  "foldr";
                  "foldl";
                  "range";
+                 "sum";
+                 "prod";
                  "foldNat";
                  "natEq";
                  "natGeq";
                  "sub";
                  "add";
+                 "mul";
                  "length";
+                 "factorial";
                  "replicate";
                  "append";
                  "rev";
                  "concat";
-                 "enumTo"
+                 "enumTo";
+                 "f_enumTo";    
                 ]
     ~examples:(List.map ~f:example 
                [[1;2;3];
@@ -1017,7 +1111,7 @@ let last_test =
                [[1;2;3];
                 [2;4]]);;*)
 
-(* Try to generate multlast *)
+(*(* Try to generate multlast *)
 let last_test =
     let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.last_exn xs) xs)) in
   test_hypothesis1
@@ -1049,9 +1143,160 @@ let last_test =
                 ]
     ~examples:(List.map ~f:example 
                [[1;2;2];
-                [2;4]]);;
+                [2;4]]);;*)
+
+(*(* Try to generate multlast *)
+let free_lib = Library.create ();;
+let multlast_test =
+    let example xs = (([list_to_natlist xs],["Nat"]), list_to_natlist (List.map ~f:(fun _ -> List.last_exn xs) xs)) in
+  test_enumeration
+    ~msg:"Generate multlast"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "mul";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "f_enumTo"
+                ]
+    ~examples:(List.map ~f:example 
+               [[1;3;2];
+                [2;4]]);;*)
 
 
-  
 
+(*(* Try to generate map_add *)
+let free_lib = Library.create ();;
+let map_add_test =
+  let example (n, xs) = (([number_to_nat n; list_to_natlist xs],[]), list_to_natlist (List.map ~f:(fun x -> n + x) xs)) in
+  test_enumeration
+    ~msg:"Generate map_add"
+    (parse_type "Nat -> List Nat -> List Nat")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "mul";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "f_enumTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [(2, [1]);
+                  (1, [1;3;2])]);;*)
+
+(* Try to generate map_double *)
+let free_lib = Library.create ();;
+let map_double_test =
+  let example xs = (([list_to_natlist xs],[]), list_to_natlist (List.map ~f:(fun x -> x * 2) xs)) in
+  test_enumeration
+    ~msg:"Generate map_double"
+    (parse_type "List Nat -> List Nat")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "zero";
+                 "succ";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "range";
+                 "sum";
+                 "prod";
+                 "foldNat";
+                 "natEq";
+                 "natGeq";
+                 "sub";
+                 "add";
+                 "mul";
+                 "length";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "f_enumTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[1];
+                  [1;3;2]]);;
 
