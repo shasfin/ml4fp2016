@@ -41,6 +41,9 @@ module Type : sig
     | Free of idx_free
     (** Input type variable *)
 
+    | Int
+    (** Built-in integers *)
+
   val to_string : t -> string
   (** Pretty-print a type *)
 
@@ -101,11 +104,17 @@ module Term : sig
     | Free of 'a * idx_free
     (** Input variable *)
 
+    | Int of 'a * int
+    (** Built-in integer *)
+
     | Fun of 'a * 'a t * 'a env * 'a t option
     (** Term-argument function. The optional term is used for printing *)
 
     | FUN of 'a * 'a t * 'a env * 'a t option
     (** Type-argument function. The optional term is used for printing *)
+
+    | BuiltinFun of 'a * ('a t -> 'a t) * 'a t option
+    (** Built-in funtion. The optional term is used for printing *)
 
   and 'a env = {
     type_stack: Type.t list;
@@ -122,7 +131,7 @@ module Term : sig
   val extract_label : 'a t -> 'a
   (** Extract annotation of a term *)
 
-  val map_label : ('a -> 'b) -> 'a t -> 'b t
+  val map_label : ('a -> 'a) -> 'a t -> 'a t
   (** Apply a function to all labels of a term *)
 
   val apply_subst : Type.substitution -> 'a t -> 'a t
