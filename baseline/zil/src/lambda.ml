@@ -28,6 +28,7 @@ module Type = struct
     | Sym of idx_sym * t list
     | Hol of idx_hol
     | Free of idx_free
+    | Int
 
   let rec to_string = function
     | Arr (a, b) -> sprintf "%s -> %s" (dom_to_string a) (to_string b)
@@ -41,6 +42,7 @@ module Type = struct
     | Var i       -> sprintf "#%d" i
     | Hol i       -> sprintf "^%d" i
     | Free i      -> sprintf "&%d" i
+    | Int         -> "Int"
     | a           -> sprintf "(%s)" (to_string a)
 
   (* Simple type equality. A more fancy version is Lambda.type_equal *)
@@ -170,6 +172,7 @@ let rec unify constr =
         else raise (Invalid_argument (sprintf "Unsolvable constraints, cannot unify %s with %s"
             (to_string (Free i1))
             (to_string (Free i2))))
+    | (Int, Int) :: constr -> unify constr
     | (a, b) :: constr -> raise (Invalid_argument (sprintf "Unsolvable constraints, cannot unify %s with %s"
 			(to_string a)
 			(to_string b))) (* Cannot unify input variables, bound variables and universal types, among other cases *)
@@ -187,8 +190,10 @@ module Term = struct
     | Sym of 'a * idx_sym
     | Hol of 'a * idx_hol
     | Free of 'a * idx_free
+    | Int of 'a * int
     | Fun of 'a * 'a t * 'a env * 'a t option
     | FUN of 'a * 'a t * 'a env * 'a t option
+    | BuiltinFun of 'a * ('a t -> 'a t) * 'a t option
 
   and 'a env = {
     type_stack: Type.t list;
@@ -198,11 +203,13 @@ module Term = struct
   let rec to_string ?debug:(debug=false) = function
     | Fun (_, _, _, Some m) -> if debug then sprintf "<<Fun %s>>" (to_string m) else to_string m
     | FUN (_, _, _, Some m) -> if debug then sprintf "<<FUN %s>>" (to_string m) else to_string m
+    | BuiltinFun (_, _, Some m) -> if debug then sprintf "<<BuiltinFun %s>>" (to_string m) else to_string m
     | ABS (_, m)            -> sprintf "* %s" (to_string m)
     | m                     -> cal_to_string m
   and cal_to_string = function
     | Fun (_, _, _, Some m) -> cal_to_string m
     | FUN (_, _, _, Some m) -> cal_to_string m
+    | BuiltinFun (_, _, Some m) -> cal_to_string m
     | App (_, m, n)         -> sprintf "%s %s" (cal_to_string m) (arg_to_string n)
     | APP (_, m, a)         -> sprintf "%s %s" (cal_to_string m) (Type.arg_to_string a)
     | m                     -> arg_to_string m
@@ -215,6 +222,7 @@ module Term = struct
     | Var (_, i)            -> sprintf "$%d" i
     | Hol (_, i)            -> sprintf "?%d" i
     | Free (_, i)           -> sprintf "_%d" i
+    | Int (_, i)            -> sprintf "%d" i
     | Abs (_, _, _) as m    -> abs_to_string m
     | m                     -> sprintf "(%s)" (to_string m)
   and abs_to_string m =
@@ -227,16 +235,18 @@ module Term = struct
 
   let extract_label m =
     match m with
-    | Var  (o, _)       -> o
-    | App  (o, _, _)    -> o
-    | Abs  (o, _, _)    -> o
-    | APP  (o, _, _)    -> o
-    | ABS  (o, _)       -> o
-    | Sym  (o, _)       -> o
-    | Hol  (o, _)       -> o
-    | Free (o, _)       -> o
-    | Fun  (o, _, _, _) -> o
-    | FUN  (o, _, _, _) -> o
+    | Var  (o, _)          -> o
+    | App  (o, _, _)       -> o
+    | Abs  (o, _, _)       -> o
+    | APP  (o, _, _)       -> o
+    | ABS  (o, _)          -> o
+    | Sym  (o, _)          -> o
+    | Hol  (o, _)          -> o
+    | Free (o, _)          -> o
+    | Int  (o, _)          -> o
+    | Fun  (o, _, _, _)    -> o
+    | FUN  (o, _, _, _)    -> o
+    | BuiltinFun (o, _, _) -> o
 
   let rec map_label f m =
     let map_env env = {
@@ -258,8 +268,10 @@ module Term = struct
     | Sym  (o, i)             -> Sym  (f o, i)
     | Hol  (o, i)             -> Hol  (f o, i)
     | Free (o, i)             -> Free (f o, i)
+    | Int  (o, i)             -> Int  (f o, i)
     | Fun  (o, def, env, alt) -> Fun  (f o, map_label f def, map_env env, map_alt alt)
     | FUN  (o, def, env, alt) -> FUN  (f o, map_label f def, map_env env, map_alt alt)
+    | BuiltinFun (o, def, alt) -> BuiltinFun (f o, (fun x -> map_label f (def x)), map_alt alt)
 
   let apply_subst subst m =
     let rec apply_subst_aux m =
@@ -280,6 +292,7 @@ module Term = struct
       | ABS (o, m) -> ABS (o, apply_subst_aux m)
       | Fun (o, def, env, alt) -> Fun (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
       | FUN (o, def, env, alt) -> FUN (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
+      | BuiltinFun (o, def, alt) -> BuiltinFun (o, (fun x -> apply_subst_aux (def x)), apply_subst_alt alt)
       | _ -> m in
 
     apply_subst_aux m
@@ -430,6 +443,19 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
          r
 
+       | BuiltinFun (_, def, alt) ->
+         let new_alt =
+           (match alt with
+            | Some m -> Some (App (o, m, n)) | None -> None) in
+
+            let () = depth := !depth + 1 in
+
+            let r = eval_aux env new_alt (def n) in
+
+            let () = if debug then print_endline (sprintf "%s<- %s\n" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
+
+            r
+
        | x -> App (o, m, n))
 
     | APP (o, m, a) ->
@@ -578,8 +604,10 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
       (match free_sig.term_info i with
       | Some a -> Free (Some a, i)
       | None -> invalid_arg (sprintf "Free %d not found" i))
+    | Int (_, i) -> Int (Some Type.Int, i)
     | Fun (_, def, env, alt) -> invalid_arg "not implemented"
     | FUN (_, def, env, alt) -> invalid_arg "not implemented"
+    | BuiltinFun (_, def, alt) -> invalid_arg "not implemented"
   in
   well_aux empty_store m
 
