@@ -131,8 +131,8 @@ module Term : sig
   val extract_label : 'a t -> 'a
   (** Extract annotation of a term *)
 
-  val map_label : ('a -> 'a) -> 'a t -> 'a t
-  (** Apply a function to all labels of a term *)
+  val map_label : ('a -> 'b) -> ('b -> 'a) -> 'a t -> 'b t
+  (** Apply a function to all labels of a term. The second function is something like the inverse of the first *)
 
   val apply_subst : Type.substitution -> 'a t -> 'a t
   (** Apply a type substitution to a term (concerns APP and ABS) *)
