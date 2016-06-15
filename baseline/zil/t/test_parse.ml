@@ -3,7 +3,7 @@ open TestSimple;;
 open Zil.Lambda;;
 open Zil.Parse;;
 
-plan 10;;
+plan 16;;
 
 (**********************************************************)
 (* Testing type parsing *)
@@ -41,6 +41,12 @@ is (Type.to_string length_type) "@ List #0 -> Int"  "parse length's type";;
 let mixed_type = parse_type "@ @ (#1 -> ((^0) -> (#10)) -> Foo) -> List #1 -> List ^0" in
 is (Type.to_string mixed_type) "@ @ (#1 -> (^0 -> #10) -> Foo) -> List #1 -> List ^0"  "parse a type with mixed subterms";;
 
+let int_type = parse_type "Int" in
+is (Type.to_string int_type) "Int" "parse integer type";;
+
+let int_type = parse_type "Int -> Int" in
+is (Type.to_string int_type) "Int -> Int" "parse arrow type with integers";;
+
 
 (* TODO test that parsing fails on bad inputs *)
 
@@ -50,3 +56,10 @@ is (Type.to_string mixed_type) "@ @ (#1 -> (^0 -> #10) -> Foo) -> List #1 -> Lis
 
 let term_free = parse_term "_0" in
 is (Term.to_string term_free) "_0" "parse term free";;
+
+let int_term = parse_term "42" in
+is (Term.to_string int_term) "42" "parse positive integer with two digits";;
+
+let int_term = parse_term "-2" in
+is (Term.to_string int_term) "-2" "parse negative integer";;
+
