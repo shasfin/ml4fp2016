@@ -14,6 +14,8 @@ open Lambda
 %token <int>    TERM_FREE
 %token          TYPE_ARR
 %token          TYPE_ALL
+%token <int>    TERM_INT
+%token          TYPE_INT
 %token          TERM_ABS
 %token LPAREN RPAREN
 %token LBRACK RBRACK
@@ -54,6 +56,9 @@ type_:
   | TYPE_ALL a = type_
   { Type.All a }
 
+  | TYPE_INT
+  { Type.Int }
+
   | LPAREN a = type_ RPAREN
   { a }
 
@@ -69,6 +74,9 @@ type_arg:
 
   | i = TYPE_FREE
   { Type.Free i }
+
+  | TYPE_INT
+  { Type.Int }
 
   | LPAREN a = type_ RPAREN
   { a }
@@ -107,6 +115,9 @@ term_arg:
 
   | i = TERM_FREE
   { Term.Free ((), i) }
+
+  | i = TERM_INT
+  { Term.Int ((), i) }
 
   | LBRACE l = term_par+ PARSEP m = term RBRACE 
   { List.fold_right (fun a m -> Term.Abs ((), a, m)) l m }

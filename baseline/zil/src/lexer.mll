@@ -33,6 +33,11 @@ rule token = parse
   | ['&'] ['0'-'9']+ as tok
     { TYPE_FREE (int_of_string (tail tok)) }
 
+  | "Int" { TYPE_INT }
+
+  | ['-' '+']? ['0'-'9']+ as tok
+    { TERM_INT (int_of_string tok) }
+
   | "->"  { TYPE_ARR }
   | ['@'] { TYPE_ALL }
   | ['*'] { TERM_ABS }
