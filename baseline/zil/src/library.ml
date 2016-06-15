@@ -156,10 +156,13 @@ let read_from_file filename =
 
   (* Add all built-in functions *)
   let add_builtin (i, m, a) = add_term i m a in
+  let () = add_builtin Builtin.zero lib in
+  let () = add_builtin Builtin.succ lib in
   let () = add_builtin Builtin.add lib in
   let () = add_builtin Builtin.sub lib in
   let () = add_builtin Builtin.mul lib in
   let () = add_builtin Builtin.div lib in
+  let () = add_builtin Builtin.max lib in
 
   lib
 
