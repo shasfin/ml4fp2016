@@ -193,7 +193,7 @@ module Term = struct
     | Int of 'a * int
     | Fun of 'a * 'a t * 'a env * 'a t option
     | FUN of 'a * 'a t * 'a env * 'a t option
-    | BuiltinFun of 'a * ('a t -> 'a t) * 'a t option
+    | BuiltinFun of 'a * (unit t -> unit t) * 'a t option
 
   and 'a env = {
     type_stack: Type.t list;
@@ -248,30 +248,33 @@ module Term = struct
     | FUN  (o, _, _, _)    -> o
     | BuiltinFun (o, _, _) -> o
 
-  let rec map_label (f: 'a -> 'b) (g: 'b -> 'a) m =
-    let map_env env = {
-      type_stack = env.type_stack;
-      term_stack = List.map (map_label f g) env.term_stack;
-    } in
+  let map_label f m =
+    let rec map_label_aux m =
+      let map_env env = {
+        type_stack = env.type_stack;
+        term_stack = List.map map_label_aux env.term_stack;
+      } in
+  
+      let map_alt alt =
+        (match alt with
+        | Some m -> Some (map_label_aux m)
+        | None -> None) in
+           
+      (match m with
+      | Var  (o, i)             -> Var  (f o, i)
+      | App  (o, m, n)          -> App  (f o, map_label_aux m, map_label_aux n)
+      | Abs  (o, a, m)          -> Abs  (f o, a, map_label_aux m)
+      | APP  (o, m, a)          -> APP  (f o, map_label_aux m, a)
+      | ABS  (o, m)             -> ABS  (f o, map_label_aux m)
+      | Sym  (o, i)             -> Sym  (f o, i)
+      | Hol  (o, i)             -> Hol  (f o, i)
+      | Free (o, i)             -> Free (f o, i)
+      | Int  (o, i)             -> Int  (f o, i)
+      | Fun  (o, def, env, alt) -> Fun  (f o, map_label_aux def, map_env env, map_alt alt)
+      | FUN  (o, def, env, alt) -> FUN  (f o, map_label_aux def, map_env env, map_alt alt)
+      | BuiltinFun (o, def, alt) -> BuiltinFun (f o, def, map_alt alt))
 
-    let map_alt alt =
-      match alt with
-      | Some m -> Some (map_label f g m)
-      | None -> None in
-         
-    match m with
-    | Var  (o, i)             -> Var  (f o, i)
-    | App  (o, m, n)          -> App  (f o, map_label f g m, map_label f g n)
-    | Abs  (o, a, m)          -> Abs  (f o, a, map_label f g m)
-    | APP  (o, m, a)          -> APP  (f o, map_label f g m, a)
-    | ABS  (o, m)             -> ABS  (f o, map_label f g m)
-    | Sym  (o, i)             -> Sym  (f o, i)
-    | Hol  (o, i)             -> Hol  (f o, i)
-    | Free (o, i)             -> Free (f o, i)
-    | Int  (o, i)             -> Int  (f o, i)
-    | Fun  (o, def, env, alt) -> Fun  (f o, map_label f g def, map_env env, map_alt alt)
-    | FUN  (o, def, env, alt) -> FUN  (f o, map_label f g def, map_env env, map_alt alt)
-    | BuiltinFun (o, def, alt) -> BuiltinFun (f o, (fun x -> map_label f g (def (map_label g f x))), map_alt alt)
+    in map_label_aux m
 
   let apply_subst subst m =
     let rec apply_subst_aux m =
@@ -292,7 +295,7 @@ module Term = struct
       | ABS (o, m) -> ABS (o, apply_subst_aux m)
       | Fun (o, def, env, alt) -> Fun (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
       | FUN (o, def, env, alt) -> FUN (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
-      | BuiltinFun (o, def, alt) -> BuiltinFun (o, (fun x -> apply_subst_aux (def x)), apply_subst_alt alt)
+      | BuiltinFun (o, def, alt) -> BuiltinFun (o, def, apply_subst_alt alt)
       | _ -> m in
 
     apply_subst_aux m

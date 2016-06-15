@@ -113,7 +113,7 @@ module Term : sig
     | FUN of 'a * 'a t * 'a env * 'a t option
     (** Type-argument function. The optional term is used for printing *)
 
-    | BuiltinFun of 'a * ('a t -> 'a t) * 'a t option
+    | BuiltinFun of 'a * (unit t -> unit t) * 'a t option
     (** Built-in funtion. The optional term is used for printing *)
 
   and 'a env = {
@@ -131,8 +131,8 @@ module Term : sig
   val extract_label : 'a t -> 'a
   (** Extract annotation of a term *)
 
-  val map_label : ('a -> 'b) -> ('b -> 'a) -> 'a t -> 'b t
-  (** Apply a function to all labels of a term. The second function is something like the inverse of the first *)
+  val map_label : ('a -> 'b) -> 'a t -> 'b t
+  (** Apply a function to all labels of a term *)
 
   val apply_subst : Type.substitution -> 'a t -> 'a t
   (** Apply a type substitution to a term (concerns APP and ABS) *)
@@ -166,11 +166,11 @@ val type_equal :
 
 val eval :
   ?debug:bool ->
-  ?sym_def:(idx_sym, 'a Term.t, Type.t) lib ->
-  ?hol_def:(idx_hol, 'a Term.t, Type.t) lib ->
-  ?free_def:(idx_free, 'a Term.t, Type.t) lib ->
-  'a Term.t ->
-  'a Term.t
+  ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
+  ?hol_def:(idx_hol, unit Term.t, Type.t) lib ->
+  ?free_def:(idx_free, unit Term.t, Type.t) lib ->
+  unit Term.t ->
+  unit Term.t
 (** Evaluate a term ignoring its annotations
 
     In general, all functions definitions should be evaluated to Fun or FUN

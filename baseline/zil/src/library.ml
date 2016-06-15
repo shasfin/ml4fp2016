@@ -11,13 +11,20 @@ type ('i, 'a) t = {
 let initial_guess = 10
 
 let create () = {
-    termtbl = Hashtbl.create initial_guess;
-    typetbl = Hashtbl.create initial_guess;
+  termtbl = Hashtbl.create initial_guess;
+  typetbl = Hashtbl.create initial_guess;
 }
+
 
 let add_term i m a ?typ_args:(typ_args=[]) lib = Hashtbl.replace lib.termtbl i (m, a, typ_args)
 
 let add_type i a k lib = Hashtbl.replace lib.typetbl i (a, k)
+
+let create () = {
+  termtbl = Hashtbl.create initial_guess;
+  typetbl = Hashtbl.create initial_guess;
+}
+
 
 let get_map_fun f tbl =
     (fun x -> if Hashtbl.mem tbl x then Some (f (Hashtbl.find tbl x)) else None)
@@ -146,5 +153,13 @@ let read_from_file filename =
   let () = Hashtbl.filter_map_inplace
     (fun i (m, a, args) -> if (well_typed i m a sym_def sym_sig) then Some (name i (eval m), a, args) else None)
     lib.termtbl in
+
+  (* Add all built-in functions *)
+  let add_builtin (i, m, a) = add_term i m a in
+  let () = add_builtin Builtin.add lib in
+  let () = add_builtin Builtin.sub lib in
+  let () = add_builtin Builtin.mul lib in
+  let () = add_builtin Builtin.div lib in
+
   lib
 

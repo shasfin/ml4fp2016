@@ -4,6 +4,7 @@ type ('i, 'a) t
 (** 'i is the type of the index of the component, 'a is the type of the annotation of the terms that define the components *)
 
 val create : unit -> ('i, 'a) t
+(** Create an empty library *)
 
 val add_term : 'i -> 'a Term.t -> Type.t -> ?typ_args : Type.t list -> ('i, 'a) t -> unit
 (** Add a term component to the library *)

@@ -110,6 +110,7 @@ let eval ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=empty_lib) ?free_def:(fr
 let nof_nodes prog =
   let rec nof_nodes m = match m with
   | Term.Var _ -> 1
+  | Term.Int _ -> 1
   | Term.App (_, m, n) -> 1 + (nof_nodes m) + (nof_nodes n)
   | Term.Abs (_, _, m) -> 1 + (nof_nodes m)
   | Term.APP (_, m, _) -> 1 + (nof_nodes m)
@@ -117,8 +118,9 @@ let nof_nodes prog =
   | Term.Sym _ -> 1
   | Term.Hol _ -> 2
   | Term.Free _ -> 0
-  | Term.Fun (_, def, env, alt) -> 2 + (nof_nodes def)
-  | Term.FUN (_, def, env, alt) -> 2 + (nof_nodes def)
+  | Term.Fun (_, def, _, _) -> 2 + (nof_nodes def)
+  | Term.FUN (_, def, _, _) -> 2 + (nof_nodes def)
+  | Term.BuiltinFun _ -> 1
 
   in nof_nodes (to_term prog)
 (* count holes double and don't count input variables *)
@@ -130,6 +132,7 @@ let nof_nodes_simple_type prog =
   | Type.All a -> 1 + (nof_type a)
   | Type.Sym (_, l) -> 0 (* XXX you are ignoring the complexity of the argument types *)
   | Type.Hol _ -> 0
+  | Type.Int -> 0
   | Type.Free _ -> 0 in
 
   let rec nof_nodes m = match m with
@@ -138,11 +141,13 @@ let nof_nodes_simple_type prog =
   | Term.Abs (_, a, m) -> 1 + (nof_nodes m) + (nof_type a)
   | Term.APP (_, m, a) -> 1 + (nof_nodes m) + (nof_type a)
   | Term.ABS (_, m) -> 1 + (nof_nodes m)
+  | Term.Int _ -> 1
   | Term.Sym _ -> 1
   | Term.Hol _ -> 2
   | Term.Free _ -> 0
   | Term.Fun (_, def, env, alt) -> 2 + (nof_nodes def)
   | Term.FUN (_, def, env, alt) -> 2 + (nof_nodes def)
+  | Term.BuiltinFun _ -> 1
 
   in nof_nodes (to_term prog)
 (* count holes double and don't count input variables, same for types, add the cost of the type to APP and Abs *)
