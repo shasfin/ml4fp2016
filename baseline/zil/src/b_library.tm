@@ -70,9 +70,9 @@ foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : fold
 -- list of int functions
 
 
-sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
+--sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
 
-prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | List Int -> Int
+--prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | List Int -> Int
 
 
 -- implemented built-in functions. Just for documentation purposes
@@ -81,6 +81,7 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 --b_succ | <<Built-in>> | Int -> Int
 
 --b_foldNat | <<Built-in>> | @ (#0 -> #0) -> #0 -> Int -> #0
+--b_foldNatNat | <<Built-in>> | @ (Int -> #0 -> #0) -> #0 -> Int -> #0
 
 --b_add | <<Built-in>> | Int -> Int -> Int
 --b_sub | <<Built-in>> | Int -> Int -> Int
@@ -92,7 +93,7 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 -- derived (synthesized) functions using built-in int
 length | * { [List #0] : foldr #0 Int (const (Int -> Int) #0 b_succ) b_zero $0 } | @ List #0 -> Int
 
---factorial | { [Int] : prod (enumFromTo 1 $0) } | Int -> Int
+factorial | { [Int] : b_foldNatNat Int b_mul 1 $0 } | Int -> Int
 
 replicate | * { [Int] [#0] : b_foldNat (List #0) (con #0 $0) (nil #0) $1 } | @ Int -> #0 -> List #0
 
@@ -102,11 +103,8 @@ rev | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) 
 
 concat | * { [List (List #0)] : foldr (List #0) (List #0) (append #0) (nil #0) $0 } | @ List (List #0) -> List #0
 
-enumTo | { [Int] : rev Int (snd Int (List Int) (pair_reverse_enum $0)) } | Int -> List Int
+enumTo | { [Int] : rev Int (b_foldNatNat (List Int) (con Int) (nil Int) $0) } | Int -> List Int
 
--- special function needed to synthesize enumTo with foldNat
-f_enumTo | { [Pair Int (List Int)] : pair Int (List Int) (b_succ (fst Int (List Int) $0)) (uncurry Int (List Int) (List Int) (con Int) $0) } | Pair Int (List Int) -> Pair Int (List Int)
+enumFromTo | { [Int] [Int] : con Int $1 (map Int Int (b_add $1) (enumTo (b_sub $0 $1))) } | Int -> Int -> List Int
 
--- special function needed to synthesize enumTo with rev and snd
-pair_reverse_enum | { [Int] : b_foldNat (Pair Int (List Int)) f_enumTo (pair Int (List Int) 1 (nil Int)) $0 } | Int -> Pair Int (List Int)
 

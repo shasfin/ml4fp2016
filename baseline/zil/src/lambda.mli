@@ -145,6 +145,9 @@ type ('i, 'm, 't) lib = {
 }
 (** Library of term and type information *)
 
+val empty_env: 'a Term.env
+(** Empty environment *)
+
 val empty_lib : ('i, 'm, 't) lib
 (** Empty library *)
   

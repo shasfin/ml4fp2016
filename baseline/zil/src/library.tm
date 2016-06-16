@@ -74,11 +74,9 @@ foldr | * * { [#1 -> #0 -> #0] [#0] [List #1] : $0 #0 $1 { [#1] [List #1] : $4 $
 foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : foldl #1 #0 $4 ($4 $3 $1) $0 } } | @ @ (#1 -> #0 -> #1) -> #1 -> List #0 -> #1
 
 
-
 -- list of nat functions
 
 range | { [Nat] [Nat] : sub (succ $0) $1 (List Nat) (nil Nat) { [Nat] : (con Nat $2 (range (succ $2) $1)) } } | Nat -> Nat -> List Nat
-
 
 sum | { [List Nat] : $0 Nat zero { [Nat] [List Nat] : add $1 (sum $0) } } | List Nat -> Nat
 
@@ -100,7 +98,13 @@ add | { [Nat] [Nat] : $1 Nat $0 { [Nat] : succ (add $0 $1) } } | Nat -> Nat -> N
 mul | { [Nat] [Nat] : $1 Nat zero { [Nat] : add (mul $0 $1) $1 } } | Nat -> Nat -> Nat
 
 
--- derived (synthesized) functions
+-- derived (synthesized) functions using built-in int
+fast_length | * { [List #0] : foldr #0 Int (const (Int -> Int) #0 b_succ) b_zero $0 } | @ List #0 -> Int
+
+
+
+
+-- derived (synthesized) functions using nat
 length | * { [List #0] : foldr #0 Nat (const (Nat -> Nat) #0 succ) zero $0 } | @ List #0 -> Nat
 
 factorial | { [Nat] : prod (range (succ zero) $0) } | Nat -> Nat

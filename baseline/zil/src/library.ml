@@ -98,7 +98,9 @@ let read_from_file filename =
   let well_typed i m a sym_def sym_sig =
     let m = match m with
     | Term.Fun (_, def, env, alt) -> def
+    | Term.FUN (_, def, env, Some m) -> m (* caution, you are typing the pretty-printing term *)
     | Term.FUN (_, def, env, alt) -> def
+    | Term.BuiltinFun (_, _, Some m) -> m (* caution, you are typing the pretty-printing term *)
     | m -> m in
     let annotated =
         (try well ~sym_def:sym_def ~sym_sig:sym_sig m
@@ -148,11 +150,6 @@ let read_from_file filename =
   let lines = read_lines filename in
   let () = List.iter parse_and_add lines in
   (*let () = print_string (to_string (fun x -> Term.Sym ((), x)) (fun x -> Type.Sym (x,[])) lib) in*)
-  let sym_def = get_lib_def lib in
-  let sym_sig = get_lib_sig lib in
-  let () = Hashtbl.filter_map_inplace
-    (fun i (m, a, args) -> if (well_typed i m a sym_def sym_sig) then Some (name i (eval m), a, args) else None)
-    lib.termtbl in
 
   (* Add all built-in functions *)
   let add_builtin (i, m, a) = add_term i m a in
@@ -163,6 +160,17 @@ let read_from_file filename =
   let () = add_builtin Builtin.mul lib in
   let () = add_builtin Builtin.div lib in
   let () = add_builtin Builtin.max lib in
+  let () = add_builtin Builtin.foldNat lib in
+  let () = add_builtin Builtin.foldNatNat lib in
+
+  let () = add_type "Int" Type.Int 0 lib in
+
+  let sym_def = get_lib_def lib in
+  let sym_sig = get_lib_sig lib in
+  let () = Hashtbl.filter_map_inplace
+    (fun i (m, a, args) -> if (well_typed i m a sym_def sym_sig) then Some (name i (eval m), a, args) else None)
+    lib.termtbl in
+
 
   lib
 

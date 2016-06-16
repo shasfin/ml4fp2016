@@ -93,10 +93,33 @@ let test_add_2_3 = test_add 2 3 "2+3";;*)
 
 let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
-  is (Term.to_string got) output msg
+  is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
+(*let test_factorial =
+  let rec factorial n = match n with
+  | 0 | 1 -> 1
+  | n when n > 1 -> n * (factorial (n-1))
+  | _ -> invalid_arg "Argument of factorial must be positive" in
+  
+  let n = 5 in
+  test
+    (sprintf "factorial %s" (string_of_int n))
+    (string_of_int (factorial n))
+    (sprintf "factorial %s" (string_of_int n))*)
 
-let test_replicate =
+let test_range =
+  let n = 3 in
+  let m = 5 in
+  test
+    (sprintf "enumFromTo %s %s"
+      (string_of_int n)
+      (string_of_int m))
+    (list_to_intlist (List.range ~stop:`inclusive n m))
+    (sprintf "enumFromTo %s %s"
+      (string_of_int n)
+      (string_of_int m))
+
+(*let test_replicate =
   let rec replicate n x = (match n with
     | 0 -> []
     | n when n > 0 -> x :: (replicate (n-1) x)
@@ -110,6 +133,6 @@ let test_replicate =
       (string_of_int n)
       (list_to_intlist x))
     (list_to_list "(List Int)" list_to_intlist (replicate n x))
-    "test replicate"
+    "test replicate"*)
 
 
