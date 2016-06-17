@@ -179,6 +179,17 @@ let rec unify constr =
 
 (******************************************************************************)
 
+type ('i, 'm, 't) lib = {
+  type_info : 'i -> 't option;
+  term_info : 'i -> 'm option;
+}
+
+let empty_lib = {
+  type_info = (fun _ -> None);
+  term_info = (fun _ -> None);
+}
+
+(******************************************************************************)
 module Term = struct
 
   type 'a t =
@@ -193,7 +204,7 @@ module Term = struct
     | Int of 'a * int
     | Fun of 'a * 'a t * 'a env * 'a t option
     | FUN of 'a * 'a t * 'a env * 'a t option
-    | BuiltinFun of 'a * (unit t -> unit t) * 'a t option
+    | BuiltinFun of 'a * (((idx_sym, unit t, Type.t) lib * unit t) -> unit t) * 'a t option
 
   and 'a env = {
     type_stack: Type.t list;
@@ -272,7 +283,7 @@ module Term = struct
       | Int  (o, i)             -> Int  (f o, i)
       | Fun  (o, def, env, alt) -> Fun  (f o, map_label_aux def, map_env env, map_alt alt)
       | FUN  (o, def, env, alt) -> FUN  (f o, map_label_aux def, map_env env, map_alt alt)
-      | BuiltinFun (o, def, alt) -> BuiltinFun (f o, def, map_alt alt))
+      | BuiltinFun (o, impl, alt) -> BuiltinFun (f o, impl, map_alt alt))
 
     in map_label_aux m
 
@@ -295,30 +306,20 @@ module Term = struct
       | ABS (o, m) -> ABS (o, apply_subst_aux m)
       | Fun (o, def, env, alt) -> Fun (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
       | FUN (o, def, env, alt) -> FUN (o, apply_subst_aux def, apply_subst_env env, apply_subst_alt alt)
-      | BuiltinFun (o, def, alt) -> BuiltinFun (o, def, apply_subst_alt alt)
+      | BuiltinFun (o, impl, alt) -> BuiltinFun (o, impl, apply_subst_alt alt)
       | _ -> m in
 
     apply_subst_aux m
 end
 
 (******************************************************************************)
-
 open Term
-
-type ('i, 'm, 't) lib = {
-  type_info : 'i -> 't option;
-  term_info : 'i -> 'm option;
-}
 
 let empty_env = {
   term_stack = [];
   type_stack = [];
 }
 
-let empty_lib = {
-  type_info = (fun _ -> None);
-  term_info = (fun _ -> None);
-}
 
 let empty_store = []
 (* store is a stack of the types corresponding to the variables *)
@@ -446,14 +447,15 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
          r
 
-       | BuiltinFun (_, def, alt) ->
+       | BuiltinFun (_, impl, alt) ->
+         let new_env = { env with term_stack = n::env.term_stack } in
          let new_alt =
            (match alt with
             | Some m -> Some (App (o, m, n)) | None -> None) in
 
             let () = depth := !depth + 1 in
 
-            let r = eval_aux env new_alt (def n) in
+            let r = eval_aux new_env new_alt (impl (sym_def, n)) in
 
             let () = if debug then print_endline (sprintf "%s<- %s" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
             let () = depth := !depth - 1 in
@@ -611,7 +613,7 @@ let well ?sym_def:(sym_def=empty_lib) ?sym_sig:(sym_sig=empty_lib) ?hol_sig:(hol
     | Int (_, i) -> Int (Some Type.Int, i)
     | Fun (_, def, env, alt) -> invalid_arg "not implemented"
     | FUN (_, def, env, alt) -> invalid_arg "not implemented"
-    | BuiltinFun (_, def, alt) -> invalid_arg "not implemented"
+    | BuiltinFun (_, impl, alt) -> invalid_arg "not implemented"
   in
   well_aux empty_store m
 

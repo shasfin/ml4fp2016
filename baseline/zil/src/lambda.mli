@@ -73,6 +73,16 @@ type constraint_set = (Type.t * Type.t) list
 val unify : constraint_set -> Type.substitution
 (** Unify a set of constraints *)
 
+
+type ('i, 'm, 't) lib = {
+  type_info : 'i -> 't option; (* TODO come up with better names for these fields *)
+  term_info : 'i -> 'm option;
+}
+(** Library of term and type information *)
+
+val empty_lib : ('i, 'm, 't) lib
+(** Empty library *)
+
 module Term : sig
   (** λ-terms *)
 
@@ -113,7 +123,7 @@ module Term : sig
     | FUN of 'a * 'a t * 'a env * 'a t option
     (** Type-argument function. The optional term is used for printing *)
 
-    | BuiltinFun of 'a * (unit t -> unit t) * 'a t option
+    | BuiltinFun of 'a * (((idx_sym, unit t, Type.t) lib * unit t) -> unit t)  * 'a t option
     (** Built-in funtion. The optional term is used for printing *)
 
   and 'a env = {
@@ -138,18 +148,8 @@ module Term : sig
   (** Apply a type substitution to a term (concerns APP and ABS) *)
 end
 
-
-type ('i, 'm, 't) lib = {
-  type_info : 'i -> 't option; (* TODO come up with better names for these fields *)
-  term_info : 'i -> 'm option;
-}
-(** Library of term and type information *)
-
 val empty_env: 'a Term.env
 (** Empty environment *)
-
-val empty_lib : ('i, 'm, 't) lib
-(** Empty library *)
   
 val expand :
   idx_sym ->

@@ -95,6 +95,49 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
+(*let test_foldNat =
+  let n = 1 in
+  let m = 2 in
+  test
+    (sprintf "b_foldNat Int (b_mul %d) 1 %d" m n)
+    (string_of_int (int_of_float ((float_of_int m) ** (float_of_int n))))
+    (sprintf "%d ^ %d" m n)*)
+
+let test_unknown =
+  let n = 3 in
+  let m = 2 in
+  test
+    (sprintf "b_foldNat Int (b_foldNat Int (b_mul %d) 1) 1 %d"
+      m n)
+    "boh"
+    (sprintf "unknown %d" n)
+
+(*let test_foldNat_partial =
+  let n = 3 in
+  let xs = [1;2] in
+  test
+    (sprintf "map Int Int (b_foldNat Int (b_mul %d) 1) (%s)"
+      n
+      (list_to_intlist xs))
+    (list_to_intlist (List.map ~f:(fun x -> int_of_float ((float_of_int n)**(float_of_int x))) xs))
+    "use foldNat as a partial function"*)
+
+(*let test_foldNat_builtin =
+  let n = 3 in
+  let m = 5 in
+  test
+    (sprintf "b_mul %d (b_foldNat Int (b_mul %d) 1 %d)" n m m)
+    (string_of_int (n * int_of_float ((float_of_int m) ** (float_of_int m))))
+    "mul n (foldNat ...)"*)
+
+(*let test_unknown =
+  let n = 3 in
+  test
+    (sprintf "b_mul %d (b_foldNat Int (b_foldNat Int (b_mul %d) %d) %d %d)"
+      n n n n n)
+    "boh"
+    (sprintf "unknown %d" n)*)
+
 (*let test_factorial =
   let rec factorial n = match n with
   | 0 | 1 -> 1
@@ -107,7 +150,7 @@ let test input output msg =
     (string_of_int (factorial n))
     (sprintf "factorial %s" (string_of_int n))*)
 
-let test_range =
+(*let test_range =
   let n = 3 in
   let m = 5 in
   test
@@ -117,7 +160,7 @@ let test_range =
     (list_to_intlist (List.range ~stop:`inclusive n m))
     (sprintf "enumFromTo %s %s"
       (string_of_int n)
-      (string_of_int m))
+      (string_of_int m))*)
 
 (*let test_replicate =
   let rec replicate n x = (match n with
