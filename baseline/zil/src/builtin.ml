@@ -75,11 +75,12 @@ let max = def_int_binop "b_max" max
 
 let foldNat =
   let name = "b_foldNat" in
-  let impl a m_f m_init m_i =
+  let impl a m_f m_init m_i lib =
     let rec impl_aux m_i =
       match m_i with
       | Term.Int (_, i) when i <= 0 -> m_init
       | Term.Int (_, i) when i > 0 ->
+        eval ~sym_def:lib
           (Term.App ((),
             m_f,
             (impl_aux (Term.Int ((), i-1)))))
@@ -87,30 +88,25 @@ let foldNat =
 
     impl_aux m_i in
   
-  let m = Term.FUN ((), def3_ignore (name^"_b") (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
+  let m = Term.FUN ((), def3 (name^"_b") (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
   (name, m, parse_type "@ (#0 -> #0) -> #0 -> Int -> #0")
 
 let foldNatNat =
   let name = "b_foldNatNat" in
   let impl a m_f m_init m_i lib =
-    match m_i with
-    | Term.Int (_, i) when i <= 0 -> m_init
-    | Term.Int (_, i) when i > 0 -> parse_term (sprintf
-      "(%s) %d (%s (%s) (%s) (%s) %d)"
-      (Term.to_string m_f)
-      i
-      name
-      (Type.to_string a)
-      (Term.to_string m_f)
-      (Term.to_string m_init)
-      (i-1))
-    | _ -> parse_term (sprintf
-      "%s (%s) (%s) (%s) (%s)"
-      name
-      (Type.to_string a)
-      (Term.to_string m_f)
-      (Term.to_string m_init)
-      (Term.to_string m_i)) in
+    let rec impl_aux m_i =
+      match m_i with
+      | Term.Int (_, i) when i <= 0 -> m_init
+      | Term.Int (_, i) when i > 0 -> 
+        eval ~sym_def:lib
+          (Term.App ((),
+            (Term.App ((),
+              m_f,
+              m_i)),
+            (impl_aux (Term.Int ((), i-1)))))      
+      | _ -> invalid_arg "reduce first" in
+
+    impl_aux m_i in
   
   let m = Term.FUN ((), def3 name (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
   (name, m, parse_type "@ (Int -> #0 -> #0) -> #0 -> Int -> #0")
