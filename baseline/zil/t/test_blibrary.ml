@@ -92,25 +92,47 @@ let test_add_2_3 = test_add 2 3 "2+3";;*)
 
 
 let test input output msg =
-  let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
+  let got = eval ~debug:false ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
 (*let test_foldNat =
   let n = 1 in
-  let m = 2 in
+  let m = 7 in
   test
     (sprintf "b_foldNat Int (b_mul %d) 1 %d" m n)
     (string_of_int (int_of_float ((float_of_int m) ** (float_of_int n))))
     (sprintf "%d ^ %d" m n)*)
 
 let test_unknown =
-  let n = 3 in
-  let m = 5 in
+  let n = 2 in
+  let m = 7 in
   test
     (sprintf "(b_foldNat Int (b_foldNat Int (b_mul %d) 1) 1 %d)"
       m n)
     "boh"
     (sprintf "unknown %d" n)
+
+(*let test_overflow =
+  test
+    "b_foldNat Int (b_mul 7) 1 823543"
+    "boh"
+    "b_foldNat_b (b_mul 7) 1 823543"*)
+
+(*let rec add x = match x with
+  | n when n <= 0 -> 0
+  | n -> n + (add (n - 1))*)
+
+(*let rec add x = match x with
+  | n when n <= 0 -> 0
+  | n -> (add (n - 1)) + n*)
+
+(*let add x =
+   let rec add_aux a n = match n with
+   | n when n <= 0 -> a
+   | n -> add_aux (a + n) (n - 1) in
+   add_aux 0 x
+
+let test_overflow = add 823543;;*)
 
 (*let test_foldNat_partial =
   let n = 3 in
