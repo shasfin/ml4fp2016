@@ -1,5 +1,7 @@
 open Printf
 
+exception Undefined of string;;
+
 (******************************************************************************)
 
 type idx_sym = string
@@ -455,7 +457,13 @@ let eval ?debug:(debug=false) ?sym_def:(sym_def=empty_lib) ?hol_def:(hol_def=emp
 
             let () = depth := !depth + 1 in
 
-            let r = eval_aux new_env new_alt (impl (sym_def, n)) in
+            let q = (try impl (sym_def, n) with
+            | Undefined s ->
+              let () = if debug then print_endline (sprintf "%s<- Exception undefined" (String.concat "" (replicate ["  "] !depth))) else () in
+              let () = depth := !depth - 1 in
+            raise (Undefined s)) in
+
+            let r = eval_aux new_env new_alt q in
 
             let () = if debug then print_endline (sprintf "%s<- %s" (String.concat "" (replicate ["  "] !depth)) (to_string ~debug:true r)) else () in
             let () = depth := !depth - 1 in

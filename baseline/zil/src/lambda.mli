@@ -1,5 +1,8 @@
 (** Polymorphic λ-calculus *)
 
+
+exception Undefined of string
+
 type idx_sym = string
 (** Type to index symbols *)
 

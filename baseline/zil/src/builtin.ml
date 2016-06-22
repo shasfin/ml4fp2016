@@ -51,14 +51,23 @@ let def3 name impl =
 let def_int_unop name op =
   let f x = match x with
     | Term.Int (_, i) -> Term.Int ((), op i)
-    | _ -> parse_term (sprintf "%s (%s)" name (Term.to_string x)) in
+    | Term.APP (_, Term.Sym (_, "undefined"), _) -> raise (Undefined (sprintf
+      "Problem evaluating %s. Undefined argument"
+      name))
+    | _ -> invalid_arg "Please reduce before evaluation" in
   (name, def1_ignore name f, parse_type "Int -> Int")
 
 (* op : int -> int -> int *)
 let def_int_binop name op =
   let f x y = match (x, y) with
     | (Term.Int (_, i), Term.Int (_, j)) -> Term.Int ((), op i j)
-    | (_, _) -> parse_term (sprintf "%s (%s) (%s)" name (Term.to_string x) (Term.to_string y)) in
+    | (Term.APP (_, Term.Sym (_, "undefined"), _), _) -> raise (Undefined (sprintf
+      "Problem evaluating %s. Undefined argument"
+      name))
+    | (_, Term.APP (_, Term.Sym (_, "undefined"), _)) -> raise (Undefined (sprintf
+      "Problem evaluating %s. Undefined argument"
+      name))
+    | (_, _) -> invalid_arg "Please reduce before evaluation" in
   (name, def2_ignore name f, parse_type "Int -> Int -> Int")
 
 
@@ -86,7 +95,14 @@ let foldNat =
               m_f,
               acc)))
           (Term.Int ((), i-1))
-      | _ -> invalid_arg "reduce first" in
+      | Term.APP (_, Term.Sym (_, "undefined"), _) -> raise (Undefined (sprintf
+        "Problem evaluating %s (%s) (%s) (%s). Please reduce %s before evaluation."
+        name
+        (Term.to_string m_f)
+        (Term.to_string m_init)
+        (Term.to_string m_i)
+        (Term.to_string m_i)))
+      | _ -> invalid_arg "Please reduce before evaluation" in
 
   impl_aux m_init m_i in
 
@@ -109,7 +125,14 @@ let foldNatNat =
                 m_i)),
               acc)))
           (Term.Int ((), i-1))
-      | _ -> invalid_arg "reduce first" in
+      | Term.APP (_, Term.Sym (_, "undefined"), _) -> raise (Undefined (sprintf
+        "Problem evaluating %s (%s) (%s) (%s). Please reduce %s before evaluation."
+        name
+        (Term.to_string m_f)
+        (Term.to_string m_init)
+        (Term.to_string m_i)
+        (Term.to_string m_i)))
+      | _ -> invalid_arg "Please reduce before evaluation" in
 
     impl_aux m_init m_i in
   

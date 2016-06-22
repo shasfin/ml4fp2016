@@ -128,14 +128,16 @@ let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
 (* I/O-examples are given as a pair of a free_def and a term *)
 let satisfies_one ~sym_def m (free_def, output) =
     let output = Lambda.eval ~sym_def:sym_def ~free_def:free_def output in
-    (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output
+    try (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output with
+    | Undefined s -> false
 
 let satisfies_all ~sym_def prog examples =
   List.for_all
     ~f:(fun (free_def, output) ->
       satisfies_one
        ~sym_def:sym_def
-       (Program.eval ~sym_def:sym_def ~free_def:free_def prog)
+       (try (Program.eval ~sym_def:sym_def ~free_def:free_def prog) with
+         | Undefined s -> Term.Sym ((), "undefined"))
        (free_def, output))
     examples
 

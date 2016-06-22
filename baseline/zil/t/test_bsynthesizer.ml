@@ -205,7 +205,7 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
 (******************************************************************************)
 (* Generate programs *)
 
-(*(* Try to generate factorial *)
+(* Try to generate factorial *)
 let free_lib = Library.create ();;
 let factorial_test =
   let rec factorial = function
@@ -220,16 +220,50 @@ let factorial_test =
     free_lib
     1
     ~components:[
-                 "b_foldNatNat";
-                 "b_mul";
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
                  "b_zero";
-                 "b_succ"
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
                 ]
     ~examples:(List.map ~f:example
                  [2;
-                  3]);;*)
+                  7]);;
 
-(* Try to generate enumFromTo *)
+(*(* Try to generate enumFromTo *)
 let enumFromTo_test =
     let example (x, y) = (([string_of_int x; string_of_int y],[]), list_to_intlist (List.range ~stop:`inclusive x y)) in
   test_hypothesis1
@@ -248,7 +282,7 @@ let enumFromTo_test =
     ~examples:(List.map ~f:example
                  [(2,5);
                   (1,2);
-                  (1,3)]);;
+                  (1,3)]);;*)
 
 
 (*(* Try to generate enumTo *)
@@ -261,20 +295,107 @@ let enumFromTo_test =
     free_lib
     1
     ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
                  "nil";
                  "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
                  "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
                  "b_foldNatNat";
                  "b_add";
                  "b_sub";
-                 "b_zero";
-                 "b_succ";
-                 "rev"
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 "factorial";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 (*"enumTo";*)
+                 (*"enumFromTo"*)
                 ]
     ~examples:(List.map ~f:example
                  [2;
                   4]);;*)
 
+(*(* Try to generate replicate *)
+let free_lib = Library.create ();;
+let replicate_test =
+  let example (x, n) = 
+    let rec replicate n = match n with
+      | 0 -> []
+      | n -> x::(replicate (n-1)) in
+      
+      (([string_of_int x; string_of_int n],["Int"]), list_to_intlist (replicate n)) in
+  test_enumeration
+    ~msg:"Generate replicate"
+    (parse_type "@ #0 -> Int -> List #0")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 (*"b_div";*)
+                 "b_max";
+                 "length";
+                 "factorial";
+                 (*"replicate";*)
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+    ]    
+    ~examples:(List.map ~f:example
+               [(1,0);
+                (0,2);
+                (3,1)]);;*)
 
 
 

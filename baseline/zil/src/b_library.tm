@@ -70,9 +70,9 @@ foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : fold
 -- list of int functions
 
 
---sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
+sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
 
---prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | List Int -> Int
+prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | List Int -> Int
 
 
 -- implemented built-in functions. Just for documentation purposes
