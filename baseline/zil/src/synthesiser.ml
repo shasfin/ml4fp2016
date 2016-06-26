@@ -130,6 +130,7 @@ let satisfies_one ~sym_def m (free_def, output) =
     let output = Lambda.eval ~sym_def:sym_def ~free_def:free_def output in
     try (Lambda.eval ~sym_def:sym_def ~free_def:free_def m) = output with
     | Undefined s -> false
+    | _ -> false
 
 let satisfies_all ~sym_def prog examples =
   List.for_all
@@ -137,7 +138,8 @@ let satisfies_all ~sym_def prog examples =
       satisfies_one
        ~sym_def:sym_def
        (try (Program.eval ~sym_def:sym_def ~free_def:free_def prog) with
-         | Undefined s -> Term.Sym ((), "undefined"))
+         | Undefined s -> Term.Sym ((), "undefined")
+         | _ -> Term.Sym ((), "undefined"))
        (free_def, output))
     examples
 

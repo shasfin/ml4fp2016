@@ -203,7 +203,7 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
 
 
 (******************************************************************************)
-(* Generate programs *)
+(*(* Generate programs *)
 
 (* Try to generate factorial *)
 let free_lib = Library.create ();;
@@ -261,7 +261,7 @@ let factorial_test =
                 ]
     ~examples:(List.map ~f:example
                  [2;
-                  7]);;
+                  7]);;*)
 
 (*(* Try to generate enumFromTo *)
 let enumFromTo_test =
@@ -397,5 +397,114 @@ let replicate_test =
                 (0,2);
                 (3,1)]);;*)
 
+
+(*(* Try to generate droplast *)
+let free_lib = Library.create ();;
+let droplast_test =
+  let droplast xs = List.take xs ((List.length xs) - 1) in
+
+  let example xs = (([list_to_intlist xs],["Int"]),  (list_to_intlist (droplast xs))) in
+  test_enumeration
+    ~msg:"Generate droplast"
+    (parse_type "List Int -> List Int")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[1;2;3];
+                  [4;2]]);;*)
+
+(* Try to generate take *)
+let free_lib = Library.create ();;
+let take_test =
+    let example (n, xs) = (([string_of_int n; list_to_intlist xs],["Int"]),  (list_to_intlist (List.take xs n))) in
+  test_enumeration
+    ~msg:"Generate take"
+    (parse_type "Int -> List Int -> List Int")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [(1, [1;2;3]);
+                  (2, [4;2]);
+                  (2, [1;4;2])]);;
 
 
