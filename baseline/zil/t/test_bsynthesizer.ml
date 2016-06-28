@@ -453,13 +453,13 @@ let droplast_test =
                  [[1;2;3];
                   [4;2]]);;*)
 
-(* Try to generate take *)
+(*(* Try to generate take *)
 let free_lib = Library.create ();;
 let take_test =
     let example (n, xs) = (([string_of_int n; list_to_intlist xs],["Int"]),  (list_to_intlist (List.take xs n))) in
   test_enumeration
     ~msg:"Generate take"
-    (parse_type "Int -> List Int -> List Int")
+    (parse_type "@ Int -> List #0 -> List #0")
     free_lib
     1
     ~components:[
@@ -505,6 +505,220 @@ let take_test =
     ~examples:(List.map ~f:example
                  [(1, [1;2;3]);
                   (2, [4;2]);
-                  (2, [1;4;2])]);;
+                  (2, [1;4;2])]);;*)
 
+(*(* Try to generate the identity function (most general form) *)
+let free_lib = Library.create ();;
+let id_test =
+    let example n = (([string_of_int n],["Int"]),  string_of_int n) in
+  test_enumeration
+    ~msg:"Generate general id"
+    (parse_type "@ #0 -> #0")
+    free_lib
+    100
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [1;
+                  3]);;*)
+
+
+(*(* Try to generate the identity function (on lists) *)
+let free_lib = Library.create ();;
+let id_test =
+    let example xs = (([list_to_intlist xs],["Int"]),  list_to_intlist xs) in
+  test_enumeration
+    ~msg:"Generate id on lists"
+    (parse_type "@ List #0 -> List #0")
+    free_lib
+    100
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[1];
+                  [1;2;3]]);;*)
+
+
+(*(* Try to generate the identity function (on integers) *)
+let free_lib = Library.create ();;
+let id_test =
+    let example n = (([string_of_int n],[]),  string_of_int n) in
+  test_enumeration
+    ~msg:"Generate integer id"
+    (parse_type "Int -> Int")
+    free_lib
+    100
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [1;
+                  3;
+                  4]);;*)
+
+(* Try to generate enumTo. again. *)
+let free_lib = Library.create ();;
+let enumTo_test =
+  let example n = (([string_of_int n],[]),  list_to_intlist (List.range ~stop:`inclusive 1 n)) in
+  test_enumeration
+    ~msg:"Generate enumTo"
+    (parse_type "Int -> List Int")
+    free_lib
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 (*"enumTo";*)
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [1;
+                  3]);;
 

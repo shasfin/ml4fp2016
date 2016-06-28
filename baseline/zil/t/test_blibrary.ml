@@ -95,11 +95,25 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
-let test_overflow =
+(*let test_id =
+  let n = 5 in
+  test
+    (sprintf "head Int (enumTo (%s))" (string_of_int n))
+    (string_of_int 1)
+    "why should this be id?"*)
+
+let test_enumTo =
+  let n = 5 in
+  test
+    (sprintf "enumTo %d" n)
+    (list_to_intlist (List.range ~stop:`inclusive 1 n))
+    "why is this not enumTo?"
+
+(*let test_overflow =
   test
     "head (Int -> List Int) (nil (Int -> List Int)) (factorial (head Int (nil Int)))"
     "undefined Int"
-    "head (Int -> List &0) (nil (Int -> List &0)) (factorial (head Int (nil Int)))"
+    "head (Int -> List &0) (nil (Int -> List &0)) (factorial (head Int (nil Int)))"*)
 
 (*let test_foldNat =
   let n = 1 in

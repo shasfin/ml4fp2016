@@ -103,7 +103,7 @@ rev | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) 
 
 concat | * { [List (List #0)] : foldr (List #0) (List #0) (append #0) (nil #0) $0 } | @ List (List #0) -> List #0
 
-enumTo | { [Int] : rev Int (b_foldNatNat (List Int) (con Int) (nil Int) $0) } | Int -> List Int
+enumTo | { [Int] : b_foldNatNat (List Int) (con Int) (nil Int) $0 } | Int -> List Int
 
 enumFromTo | { [Int] [Int] : con Int $1 (map Int Int (b_add $1) (enumTo (b_sub $0 $1))) } | Int -> Int -> List Int
 
