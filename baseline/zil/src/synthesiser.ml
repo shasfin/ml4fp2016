@@ -158,22 +158,23 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_
   
   let rec find_first_satisfying queue =
 
-    let top = Heap.top_exn queue in
+    let top = Heap.pop_exn queue in
 
     (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
      then top
      else 
-         let s = successor (Heap.pop_exn queue)  ~sym_lib:sym_lib ~free_lib:free_lib in
+         let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
           let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
           let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
           (match trues with
           | [] -> find_first_satisfying queue
           | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p)) in
 
-  let rec enumerate_aux i =
+  let rec enumerate_aux acc i =
       (match i with
-      | 0 -> []
-      | _ -> (find_first_satisfying queue) :: (enumerate_aux (i-1)))
+      | 0 -> acc
+      | _ -> 
+        enumerate_aux ((find_first_satisfying queue)::acc) (i-1))
  
-  in enumerate_aux n
+  in enumerate_aux [] n
 
