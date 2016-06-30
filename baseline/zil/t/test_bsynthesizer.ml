@@ -146,7 +146,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
    printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
 
-
+(******************************************************************************)
+(* Start enumeration from given template *)
 let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, template) ?examples:(examples=[]) ?components:(components=[]) nof_programs =
   let free_lib = Library.create () in
 
@@ -200,6 +201,10 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
       examples in
   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
+
+
+(******************************************************************************)
+(* Prune identity branches *)
 
 
 (******************************************************************************)
