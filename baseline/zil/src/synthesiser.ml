@@ -202,10 +202,10 @@ let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym
     | Term.Fun (_, _, _, None)   -> "<fun>"
     | Term.FUN (_, _, _, None)   -> "<FUN>"
     | Term.Sym (_, i)            -> i
-    | Term.Var (_, i)            -> sprintf "$%d" i
-    | Term.Hol (_, i)            -> sprintf "?%d" i
-    | Term.Free (_, i)           -> sprintf "_%d" i
-    | Term.Int (_, i)            -> sprintf "%d" i
+    | Term.Var (_, i)            -> "_" 
+    | Term.Hol (_, i)            -> "_" 
+    | Term.Free (_, i)           -> "_" 
+    | Term.Int (_, i)            -> "_" 
     | Term.Abs (_, _, _) as m    -> abs_to_string m
     | m                     -> sprintf "(%s)" (to_string_ignore_types m)
   and abs_to_string m =
@@ -222,9 +222,8 @@ let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym
     (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
     then top
     else
-    (let b = (match to_term top with
-      | Term.App (_, m, _) -> (Set.mem black_list (to_string_ignore_types m))
-      | _ -> false) in
+    (let str = to_string_ignore_types (to_term top) in
+     let b = String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
     (if b then find_first_satisfying queue
     else
       (let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in

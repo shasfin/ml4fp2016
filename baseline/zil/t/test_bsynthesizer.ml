@@ -764,11 +764,11 @@ let enumTo_test =
                  [1;
                   3]);;*)
 
-(* Try to generate replicate. with a very simple blacklist *)
-let black_list = ["head (nil)"; "tail (nil)"; "append (nil)"];;
+(*(* Try to generate replicate. with a very simple blacklist *)
+let black_list = ["head (nil)"; "tail (nil)"; "append (nil)"; "append _ (nil)"];;
 (*let black_list = [];;*)
 let free_lib = Library.create ();;
-let enumTo_test =
+let replicate_test =
     let replicate n x =
       let rec repl_aux n = match n with
       | 0 -> []
@@ -825,4 +825,130 @@ let enumTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,0);
-                  (3,2)]);;
+                  (3,2)]);;*)
+
+(*(* Try to generate map_add. with a very simple blacklist *)
+let black_list = [
+    "undefined";
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+    ];;
+(*let black_list = [];;*)
+let free_lib = Library.create ();;
+let map_add_test =
+    let example (n, xs) = (([string_of_int n; list_to_intlist xs],[]),  list_to_intlist (List.map ~f:(fun x -> x + n) xs)) in
+  test_black_list
+    ~msg:"Generate map_add"
+    (parse_type "Int -> List Int -> List Int")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,[0]);
+                  (3,[1;2])]);;*)
+
+(* Try to generate concat. with a very simple blacklist *)
+let black_list = [
+    "undefined";
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+    "fst (pair _ _)";
+    ];;
+let free_lib = Library.create ();;
+let concat_test =
+    let example xss = (([list_to_list "(List Int)" list_to_intlist xss],["Int"]),  list_to_intlist (List.concat xss)) in
+  test_black_list
+    ~msg:"Generate concat"
+    (parse_type "@ List (List #0) -> List #0")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[[2;3];[]];
+                  [[1];[2;3]]]);;
