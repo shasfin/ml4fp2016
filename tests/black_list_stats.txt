@@ -1,0 +1,364 @@
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    "undefined";
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+nof_lines: 13953
+
+___________________________________________________________
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    (*"undefined";*)
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+nof_lines: 600873
+
+___________________________________________________________
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    (*"undefined";*)
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    (*"const _ _";*)
+nof_lines: 492929
+
+___________________________________________________________
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    "undefined";
+    (*"head (nil)";*)
+    (*"tail (nil)";*)
+    (*"append (nil)";*)
+    (*"append _ (nil)";*)
+    (*"const _ _";*)
+nof_lines: 50237
+
+___________________________________________________________
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    "undefined";
+    (*"head (nil)";*)
+    (*"tail (nil)";*)
+    (*"append (nil)";*)
+    (*"append _ (nil)";*)
+    "const _ _";
+nof_lines: 29301
+
+___________________________________________________________
+name: map_add
+program: map Int Int (b_add _0) _1
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+black_list:
+    "undefined";
+    (*"head (nil)";*)
+    (*"tail (nil)";*)
+    (*"append (nil)";*)
+    (*"append _ (nil)";*)
+    "const _ _";
+nof_lines: 20737
+
+___________________________________________________________
+name: enumFromTo
+program: con Int _0 (map Int Int (b_add _0) (b_foldNatNat (List Int) (con Int) (nil Int) (b_sub _1 _0)))
+components:
+                 (*"const";*)
+                 (*"flip";*)
+                 (*"curry";*)
+                 (*"uncurry";*)
+                 (*"fanout";*)
+                 (*"ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 (*"head";*)
+                 (*"tail";*)
+                 (*"true";*)
+                 (*"false";*)
+                 (*"pair";*)
+                 (*"fst";*)
+                 (*"snd";*)
+                 "map";
+                 (*"foldr";*)
+                 (*"foldl";*)
+                 (*"sum";*)
+                 (*"prod";*)
+                 (*"b_zero";*)
+                 (*"b_succ";*)
+                 (*"b_foldNat";*)
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 (*"b_mul";*)
+                 (*"b_div";*)
+                 (*"b_max";*)
+                 (*"length";*)
+                 (*"factorial";*)
+                 (*"replicate";*)
+                 (*"append";*)
+                 (*"rev";*)
+                 (*"concat";*)
+                 (*"enumTo";*)
+                 (*"enumFromTo"*)
+black_list:
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul (succ b_zero)";
+    "b_mul _ (succ b_zero)";
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+nof_lines: 10810608
+notes: without the restrictions about foldNatNat gets stuck in the evaluation of foldNatNat (foldNatNat (foldNatNat ...))
+that's a lot considering that we only give the components it needs.
+
+___________________________________________________________
+

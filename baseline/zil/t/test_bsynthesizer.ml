@@ -94,7 +94,7 @@ let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 
 
 (******************************************************************************)
-(* Generate some simple programs *)
+(* Plain enumeration *)
 
 
 (* general structure:
@@ -243,6 +243,11 @@ let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_lis
    printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
 (******************************************************************************)
+(* Automatic black_list generation for id-pruning *)
+
+
+(******************************************************************************)
+
 (*(* Generate programs *)
 
 (* Try to generate factorial *)
@@ -890,15 +895,28 @@ let map_add_test =
                  [(1,[0]);
                   (3,[1;2])]);;*)
 
-(* Try to generate concat. with a very simple blacklist *)
+(*(* Try to generate concat. with a very simple blacklist *)
 let black_list = [
-    "undefined";
+    (*"undefined";*)
     "head (nil)";
     "tail (nil)";
     "append (nil)";
     "append _ (nil)";
     "const _ _";
     "fst (pair _ _)";
+    "snd (pair _ _)";
+    "head (con _ _)";
+    "concat (nil)";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul (succ b_zero)";
+    "b_mul (prod (nil))";
+    "b_mul _ (succ b_zero)";
+    "b_mul _ (prod (nil))";
+    "b_succ (b_sub _ (prod (nil)))";
+    "b_add _ (length (nil))";
     ];;
 let free_lib = Library.create ();;
 let concat_test =
@@ -951,4 +969,84 @@ let concat_test =
                 ]
     ~examples:(List.map ~f:example
                  [[[2;3];[]];
-                  [[1];[2;3]]]);;
+                  [[1];[2;3]]]);;*)
+
+(* Try to generate enumFromTo. with a longer black_list *)
+let black_list = [
+    (*"head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append (rev (nil))";
+    "append _ (nil)"; (* not sure this pattern does something *)
+    "const _ _";
+    "fst (pair _ _)";
+    "snd (pair _ _)";
+    "head (con _ _)";
+    "concat (nil)";*)
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul (succ b_zero)";
+    (*"b_mul (prod (nil))";*)
+    "b_mul _ (succ b_zero)";
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+    (*"b_mul _ (prod (nil))";
+    "b_succ (b_sub _ (prod (nil)))";
+    "b_add _ (length (nil))"*)
+    ];;
+let free_lib = Library.create ();;
+let enumFromTo_test =
+    let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
+  test_black_list
+    ~msg:"Generate enumFromTo"
+    (parse_type "Int -> Int -> List Int")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 (*"head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 (*"foldr";
+                 "foldl";
+                 "sum";
+                 "prod";*)
+                 (*"b_zero";
+                 "b_succ";*)
+                 (*"b_foldNat";*)
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 (*"b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";*)
+                 (*"factorial";*)
+                 (*"replicate";
+                 "append";
+                 "rev";
+                 "concat";*)
+                 (*"enumTo";
+                 "enumFromTo"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,3);
+                  (2,5)]);;
