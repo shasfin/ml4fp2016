@@ -150,7 +150,6 @@ let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
 
 (******************************************************************************)
 (* Enumerate only satisfying programs (caution, could loop forever) *)
-(* Expand hole with the smallest number *)
 
 (* sym_lib is the library used for synthesis.
  * sym_def is a potentially fuller library used only for evaluation *)
@@ -163,12 +162,76 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_
     (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
      then top
      else 
-         let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
-          let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
-          let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
-          (match trues with
-          | [] -> find_first_satisfying queue
-          | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p)) in
+       let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
+        let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
+        let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
+        (match trues with
+        | [] -> find_first_satisfying queue
+        | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p)) in
+
+  let rec enumerate_aux acc i =
+      (match i with
+      | 0 -> acc
+      | _ -> 
+        enumerate_aux ((find_first_satisfying queue)::acc) (i-1))
+ 
+  in enumerate_aux [] n
+
+
+(******************************************************************************)
+(* Enumerate satisfying programs (caution, could loop forever) *)
+(* prune branches of the form App (o, m, ??) where m belongs to black_list *)
+let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
+
+  let rec to_string_ignore_types = function
+    | Term.Fun (_, _, _, Some m) -> to_string_ignore_types m
+    | Term.FUN (_, _, _, Some m) -> to_string_ignore_types m
+    | Term.BuiltinFun (_, _, Some m) -> to_string_ignore_types m
+    | Term.ABS (_, m)            -> sprintf "* %s" (to_string_ignore_types m)
+    | m                     -> cal_to_string m
+  and cal_to_string = function
+    | Term.Fun (_, _, _, Some m) -> cal_to_string m
+    | Term.FUN (_, _, _, Some m) -> cal_to_string m
+    | Term.BuiltinFun (_, _, Some m) -> cal_to_string m
+    | Term.App (_, m, n)         -> sprintf "%s %s" (cal_to_string m) (arg_to_string n)
+    | Term.APP (_, m, _)         -> sprintf "%s" (cal_to_string m)
+    | m                     -> arg_to_string m
+  and arg_to_string = function
+    | Term.Fun (_, _, _, Some m) -> arg_to_string m
+    | Term.FUN (_, _, _, Some m) -> arg_to_string m
+    | Term.Fun (_, _, _, None)   -> "<fun>"
+    | Term.FUN (_, _, _, None)   -> "<FUN>"
+    | Term.Sym (_, i)            -> i
+    | Term.Var (_, i)            -> "_" 
+    | Term.Hol (_, i)            -> "_" 
+    | Term.Free (_, i)           -> "_" 
+    | Term.Int (_, i)            -> "_" 
+    | Term.Abs (_, _, _) as m    -> abs_to_string m
+    | m                     -> sprintf "(%s)" (to_string_ignore_types m)
+  and abs_to_string m =
+    let rec get_sig l = function
+      | Term.Abs (_, a, m) -> get_sig (a::l) m
+      | m -> (List.rev l, m) in
+    let l, m = get_sig [] m in
+    sprintf "{ %s : %s }" (String.concat ~sep:" " (List.map ~f:par_to_string l)) (to_string_ignore_types m)
+  and par_to_string a = sprintf "[%s]" (Type.to_string a) in
+
+  let rec find_first_satisfying queue =
+    let top = Heap.pop_exn queue in
+
+    (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
+    then top
+    else
+    (let str = to_string_ignore_types (to_term top) in
+     let b = String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
+    (if b then find_first_satisfying queue
+    else
+      (let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
+      let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
+      let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
+      (match trues with
+      | [] -> find_first_satisfying queue
+      | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p))))) in
 
   let rec enumerate_aux acc i =
       (match i with

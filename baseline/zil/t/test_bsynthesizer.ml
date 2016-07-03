@@ -146,7 +146,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
    printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
 
-
+(******************************************************************************)
+(* Start enumeration from given template *)
 let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, template) ?examples:(examples=[]) ?components:(components=[]) nof_programs =
   let free_lib = Library.create () in
 
@@ -201,6 +202,45 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
+
+(******************************************************************************)
+(* Test black_list pruning *)
+let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs =
+
+  let sym_lib_comp = (match components with
+    | [] -> sym_lib_uni
+    | _ -> (let sym_lib_comp = Library.create () in
+            let () = Library.iter_types
+              (fun i a k -> Library.add_type i a k sym_lib_comp)
+              sym_lib_uni in
+            let () = List.iter
+              ~f:(fun i -> let (m, a, args) = Library.lookup_term sym_lib_uni i in
+                        Library.add_term i m a ~typ_args:args sym_lib_comp)
+              components in
+            sym_lib_comp)) in
+
+  (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
+
+  let prog = Program.reset first_prog (transform_type free_lib goal_type) in
+  let queue = Heap.create ~min_size:100 ~cmp:Program.compare () in
+  let () = Heap.add queue prog in
+
+(*(* TODO debugging *) let () = print_string "Printing free_lib...\n" in
+   let () = print_free_lib free_lib in
+   let () = print_string "\n________________\n" in
+   let () = print_string "Printing sym_lib_uni...\n" in
+   let () = print_sym_lib sym_lib_uni in
+   let () = print_string "\n________________\n\n" in (* end *)*)
+
+   let examples =
+     List.map
+       ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
+       examples in
+   let satisfying = Synthesiser.enumerate_with_black_list queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~black_list:(String.Set.of_list black_list) ~examples:examples nof_programs in
+   (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
+   let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
+   let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
+   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
 
 (******************************************************************************)
 (*(* Generate programs *)
@@ -669,14 +709,16 @@ let id_test =
                   3;
                   4]);;*)
 
-(* Try to generate enumTo. again. *)
+(*(* Try to generate enumTo. with a very simple blacklist *)
+let black_list = ["head (nil)"; "tail (nil)"; "append (nil)"];;
 let free_lib = Library.create ();;
 let enumTo_test =
   let example n = (([string_of_int n],[]),  list_to_intlist (List.range ~stop:`inclusive 1 n)) in
-  test_enumeration
+  test_black_list
     ~msg:"Generate enumTo"
     (parse_type "Int -> List Int")
     free_lib
+    ~black_list:black_list
     1
     ~components:[
                  "const";
@@ -720,5 +762,193 @@ let enumTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [1;
-                  3]);;
+                  3]);;*)
 
+(*(* Try to generate replicate. with a very simple blacklist *)
+let black_list = ["head (nil)"; "tail (nil)"; "append (nil)"; "append _ (nil)"];;
+(*let black_list = [];;*)
+let free_lib = Library.create ();;
+let replicate_test =
+    let replicate n x =
+      let rec repl_aux n = match n with
+      | 0 -> []
+      | n when n > 0 -> x::(repl_aux (n-1))
+      | _ -> invalid_arg "first argument to replicate must be non-negative"
+    in repl_aux n in
+
+    let example (n, x) = (([string_of_int n; string_of_int x],["Int"]),  list_to_intlist (replicate n x)) in
+  test_black_list
+    ~msg:"Generate replicate"
+    (parse_type "@ Int -> #0 -> List #0")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 "factorial";
+                 (*"replicate";*)
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,0);
+                  (3,2)]);;*)
+
+(*(* Try to generate map_add. with a very simple blacklist *)
+let black_list = [
+    "undefined";
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+    ];;
+(*let black_list = [];;*)
+let free_lib = Library.create ();;
+let map_add_test =
+    let example (n, xs) = (([string_of_int n; list_to_intlist xs],[]),  list_to_intlist (List.map ~f:(fun x -> x + n) xs)) in
+  test_black_list
+    ~msg:"Generate map_add"
+    (parse_type "Int -> List Int -> List Int")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,[0]);
+                  (3,[1;2])]);;*)
+
+(* Try to generate concat. with a very simple blacklist *)
+let black_list = [
+    "undefined";
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+    "fst (pair _ _)";
+    ];;
+let free_lib = Library.create ();;
+let concat_test =
+    let example xss = (([list_to_list "(List Int)" list_to_intlist xss],["Int"]),  list_to_intlist (List.concat xss)) in
+  test_black_list
+    ~msg:"Generate concat"
+    (parse_type "@ List (List #0) -> List #0")
+    free_lib
+    ~black_list:black_list
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[[2;3];[]];
+                  [[1];[2;3]]]);;

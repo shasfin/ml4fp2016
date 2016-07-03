@@ -220,4 +220,39 @@ let test_overflow = add 823543;;*)
     (list_to_list "(List Int)" list_to_intlist (replicate n x))
     "test replicate"*)
 
+(******************************************************************************)
+(* Test new to_string function used to speed-up blacklists *)
+let rec to_string_ignore_types = function
+    | Term.Fun (_, _, _, Some m) -> to_string_ignore_types m
+    | Term.FUN (_, _, _, Some m) -> to_string_ignore_types m
+    | Term.BuiltinFun (_, _, Some m) -> to_string_ignore_types m
+    | Term.ABS (_, m)            -> sprintf "* %s" (to_string_ignore_types m)
+    | m                     -> cal_to_string m
+  and cal_to_string = function
+    | Term.Fun (_, _, _, Some m) -> cal_to_string m
+    | Term.FUN (_, _, _, Some m) -> cal_to_string m
+    | Term.BuiltinFun (_, _, Some m) -> cal_to_string m
+    | Term.App (_, m, n)         -> sprintf "%s %s" (cal_to_string m) (arg_to_string n)
+    | Term.APP (_, m, _)         -> sprintf "%s" (cal_to_string m)
+    | m                     -> arg_to_string m
+  and arg_to_string = function
+    | Term.Fun (_, _, _, Some m) -> arg_to_string m
+    | Term.FUN (_, _, _, Some m) -> arg_to_string m
+    | Term.Fun (_, _, _, None)   -> "<fun>"
+    | Term.FUN (_, _, _, None)   -> "<FUN>"
+    | Term.Sym (_, i)            -> sprintf "%s" i
+    | Term.Var (_, i)            -> sprintf "$%d" i
+    | Term.Hol (_, i)            -> sprintf "?%d" i
+    | Term.Free (_, i)           -> sprintf "_%d" i
+    | Term.Int (_, i)            -> sprintf "%d" i
+    | Term.Abs (_, _, _) as m    -> abs_to_string m
+    | m                     -> sprintf "(%s)" (to_string_ignore_types m)
+  and abs_to_string m =
+    let rec get_sig l = function
+      | Term.Abs (_, a, m) -> get_sig (a::l) m
+      | m -> (List.rev l, m) in
+    let l, m = get_sig [] m in
+    sprintf "{ %s : %s }" (String.concat ~sep:" " (List.map ~f:par_to_string l)) (to_string_ignore_types m)
+  and par_to_string a = sprintf "[%s]" (Type.to_string a);;
 
+let () = print_endline (to_string_ignore_types (parse_term "head (List Int) (nil (List Int))"));;

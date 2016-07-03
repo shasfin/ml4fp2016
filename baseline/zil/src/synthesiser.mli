@@ -36,3 +36,14 @@ val enumerate_satisfying :
   int ->
   Program.t list
 (** Enumerate first satisfying programs found by BFS from the queue *)
+
+val enumerate_with_black_list :
+  Program.t Heap.t ->
+  sym_lib:(idx_sym, unit) Library.t ->
+  free_lib:(idx_free, unit) Library.t ->
+  black_list:String.Set.t ->
+  ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
+  ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
+  int ->
+  Program.t list
+(** Enumerate first satisfying programs found by BFS from the queue, prune according to black_list *)

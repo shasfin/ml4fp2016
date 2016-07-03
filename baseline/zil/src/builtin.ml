@@ -90,7 +90,7 @@ let foldNat =
       | Term.Int (_, i) when i <= 0 -> acc
       | Term.Int (_, i) ->
         impl_aux
-          (eval ~debug:true ~sym_def:lib
+          (eval ~sym_def:lib
             (Term.App ((),
               m_f,
               acc)))
