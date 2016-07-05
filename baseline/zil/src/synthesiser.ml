@@ -183,39 +183,7 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_
 (* prune branches of the form App (o, m, ??) where m belongs to black_list *)
 let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
 
-  let rec to_string_ignore_types = function
-    | Term.Fun (_, _, _, Some m) -> to_string_ignore_types m
-    | Term.FUN (_, _, _, Some m) -> to_string_ignore_types m
-    | Term.BuiltinFun (_, _, Some m) -> to_string_ignore_types m
-    | Term.ABS (_, m)            -> sprintf "* %s" (to_string_ignore_types m)
-    | m                     -> cal_to_string m
-  and cal_to_string = function
-    | Term.Fun (_, _, _, Some m) -> cal_to_string m
-    | Term.FUN (_, _, _, Some m) -> cal_to_string m
-    | Term.BuiltinFun (_, _, Some m) -> cal_to_string m
-    | Term.App (_, m, n)         -> sprintf "%s %s" (cal_to_string m) (arg_to_string n)
-    | Term.APP (_, m, _)         -> sprintf "%s" (cal_to_string m)
-    | m                     -> arg_to_string m
-  and arg_to_string = function
-    | Term.Fun (_, _, _, Some m) -> arg_to_string m
-    | Term.FUN (_, _, _, Some m) -> arg_to_string m
-    | Term.Fun (_, _, _, None)   -> "<fun>"
-    | Term.FUN (_, _, _, None)   -> "<FUN>"
-    | Term.Sym (_, i)            -> i
-    | Term.Var (_, i)            -> "_" 
-    | Term.Hol (_, i)            -> "_" 
-    | Term.Free (_, i)           -> "_" 
-    | Term.Int (_, i)            -> "_" 
-    | Term.Abs (_, _, _) as m    -> abs_to_string m
-    | m                     -> sprintf "(%s)" (to_string_ignore_types m)
-  and abs_to_string m =
-    let rec get_sig l = function
-      | Term.Abs (_, a, m) -> get_sig (a::l) m
-      | m -> (List.rev l, m) in
-    let l, m = get_sig [] m in
-    sprintf "{ %s : %s }" (String.concat ~sep:" " (List.map ~f:par_to_string l)) (to_string_ignore_types m)
-  and par_to_string a = sprintf "[%s]" (Type.to_string a) in
-
+ 
   let rec find_first_satisfying queue =
     let top = Heap.pop_exn queue in
 

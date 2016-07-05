@@ -195,6 +195,9 @@ val well :
 val name : string -> 'a Term.t -> 'a Term.t
 (** Set a function name if not set *)
 
+val to_string_ignore_types : 'a Term.t -> string
+(** Printing function that ignores types, free variables and holes *)
+
 (* TODO implement a nice API for definig libraries (see test_lambda.ml for the low-level hell) *)
 
 (* TODO currently documentation is scattered around.  Consolidate and improve *)
