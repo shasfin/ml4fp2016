@@ -143,7 +143,8 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
-   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
+   let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+   satisfying
 
 
 (******************************************************************************)
@@ -200,7 +201,8 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
       ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
       examples in
   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
-  printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
+  let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+  satisfying
 
 
 (******************************************************************************)
@@ -231,6 +233,12 @@ let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_lis
    let () = print_string "Printing sym_lib_uni...\n" in
    let () = print_sym_lib sym_lib_uni in
    let () = print_string "\n________________\n\n" in (* end *)*)
+   let black_set = String.Set.of_list black_list in
+   let () = List.iter ~f:print_endline black_list in
+   let () = print_endline "\n***\n" in
+   let () = String.Set.iter ~f:print_endline black_set in
+   let () = print_endline "\n\n___________\n" in
+
 
    let examples =
      List.map
@@ -240,10 +248,33 @@ let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_lis
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
-   printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))
+   let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+   satisfying
 
 (******************************************************************************)
 (* Automatic black_list generation for id-pruning *)
+let generate_id_blacklist n =
+  let examples a =
+    let inputs = test_enumeration a (Library.create ()) 3 in
+    List.map
+      ~f:(fun input -> (([Program.to_string input],[]), Program.to_string input))
+      inputs in
+  let template a =
+    let (a1, first_prog) = Program.get_fresh_type_hol first_prog in
+    ([Type.to_string (Type.Arr (a1,a)); Type.to_string a1],
+     "?1 ?2") in
+  let type_list = List.map ~f:parse_type ["Int"; "List Int"; "List (List Int)"] in
+  let id_list =
+    List.map
+      ~f:(fun a -> test_hypothesis1 (Type.Arr (a, a)) (template a) ~examples:(examples a) n)
+      type_list in
+  let id_list = List.concat id_list in
+  List.map ~f:(fun prog -> to_string_ignore_types (Program.to_term prog)) id_list
+
+
+let test_id_pruning ?msg:(msg="With id-pruning") goal_type ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs nof_id =
+  let free_lib = Library.create () in
+  test_black_list ~msg:msg goal_type free_lib ~black_list:(List.append black_list (generate_id_blacklist nof_id)) ~examples:examples ~components:components nof_programs
 
 
 (******************************************************************************)
@@ -1007,6 +1038,67 @@ let enumFromTo_test =
     free_lib
     ~black_list:black_list
     1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 (*"head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 (*"foldr";
+                 "foldl";
+                 "sum";
+                 "prod";*)
+                 (*"b_zero";
+                 "b_succ";*)
+                 (*"b_foldNat";*)
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 (*"b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";*)
+                 (*"factorial";*)
+                 (*"replicate";
+                 "append";
+                 "rev";
+                 "concat";*)
+                 (*"enumTo";
+                 "enumFromTo"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,3);
+                  (2,5)]);;
+
+(* Try to generate enumFromTo. with a very long black_list *)
+let black_list = [
+    "head (nil)";
+    "tail (nil)";
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+    ];;
+let enumFromTo_test =
+    let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
+  test_id_pruning
+    ~msg:"Generate enumFromTo"
+    (parse_type "Int -> Int -> List Int")
+    ~black_list:black_list
+    1
+    100
     ~components:[
                  (*"const";
                  "flip";
