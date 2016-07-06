@@ -51,7 +51,7 @@ let prepare_lib lib ctxt =
 (* Expand only one of the holes, the open hole with the smallest number. Returns a list of contexts *)
 (* ctxt is of type Program.t *)
 (* sym_sig and free_sig are hashtbls and already prepared for unification, their type holes are already included in ctxt.max_type_hol *)
-let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
+let successor ?debug:(debug=false) ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
     (* args has the reversed order, i.e. for map A B we will have [B,A] *)
   let rec apply_args m a args = match args with
@@ -104,15 +104,16 @@ let successor ctxt ~sym_lib:sym_lib ~free_lib:free_lib =
 
     if Program.is_closed ctxt
     then []
-    else (* TODO debugging *) 
-        let () = List.iter ~f:(fun x -> print_string (sprintf "%s |-> %s \n %s\n|-> %s\n\n" (Program.to_string ctxt) (Program.to_string x) (Program.to_string_typed ctxt) (Program.to_string_typed x))) (succ_free @ succ_sym @ succ_app) in (* end *)
-        succ_free @ succ_sym @ succ_app
-
+    else
+        (let res = succ_free @ succ_sym @ succ_app in
+        let () = if debug then List.iter ~f:(fun x -> print_string (sprintf "%s |-> %s \n %s\n|-> %s\n\n" (Program.to_string ctxt) (Program.to_string x) (Program.to_string_typed ctxt) (Program.to_string_typed x))) res else () in
+        res)
+        
 (* Given a queue and the libraries (hashtables ready for unification), return the list of the first n closed programs found during BFS *)
-let enumerate queue ~sym_lib:sym_lib ~free_lib:free_lib n =
+let enumerate ?debug:(debug=false) queue ~sym_lib:sym_lib ~free_lib:free_lib n =
     let find_first_closed queue =
         while not (Program.is_closed (Heap.top_exn queue)) do
-            let s = successor (Heap.pop_exn queue) ~sym_lib:sym_lib ~free_lib:free_lib in
+            let s = successor ~debug (Heap.pop_exn queue) ~sym_lib:sym_lib ~free_lib:free_lib in
             List.iter ~f:(fun x -> Heap.add queue x) s
         done;
         Heap.pop_exn queue in 
@@ -153,7 +154,7 @@ let filter_satisfying progs examples ?sym_def:(sym_def=empty_lib) =
 
 (* sym_lib is the library used for synthesis.
  * sym_def is a potentially fuller library used only for evaluation *)
-let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
+let enumerate_satisfying ?debug:(debug=false) queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
   
   let rec find_first_satisfying queue =
 
@@ -162,7 +163,7 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_
     (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
      then top
      else 
-       let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
+       let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
         let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
         let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
         (match trues with
@@ -181,7 +182,7 @@ let enumerate_satisfying queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_
 (******************************************************************************)
 (* Enumerate satisfying programs (caution, could loop forever) *)
 (* prune branches of the form App (o, m, ??) where m belongs to black_list *)
-let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
+let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
 
  
   let rec find_first_satisfying queue =
@@ -194,7 +195,7 @@ let enumerate_with_black_list queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym
      let b = String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
     (if b then find_first_satisfying queue
     else
-      (let s = successor top  ~sym_lib:sym_lib ~free_lib:free_lib in
+      (let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
       let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
       let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
       (match trues with
