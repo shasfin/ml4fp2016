@@ -108,7 +108,7 @@ let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 (* examples is a list of (input,output) pair, where input is a (mm,aa) pair
  * it has hence the type ((string list * string list) * string) list *)
 (* components is the list of components used for synthesis. For evaluation the whole library.tm is used *)
-let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples:(examples=[]) ?components:(components=[]) nof_programs =
+let test_enumeration ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type free_lib ?examples:(examples=[]) ?components:(components=[]) nof_programs =
 
   let sym_lib_comp = (match components with
     | [] -> sym_lib_uni
@@ -139,7 +139,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
      List.map
        ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
        examples in
-   let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
+   let satisfying = Synthesiser.enumerate_satisfying ~debug queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
@@ -149,7 +149,7 @@ let test_enumeration ?msg:(msg="Basic enumeration") goal_type free_lib ?examples
 
 (******************************************************************************)
 (* Start enumeration from given template *)
-let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, template) ?examples:(examples=[]) ?components:(components=[]) nof_programs =
+let test_hypothesis1 ?debug:(debug=true) ?msg:(msg="First order enumeration") goal_type (holes, template) ?examples:(examples=[]) ?components:(components=[]) nof_programs =
   let free_lib = Library.create () in
 
   let sym_lib_comp = (match components with
@@ -200,14 +200,14 @@ let test_hypothesis1 ?msg:(msg="First order enumeration") goal_type (holes, temp
     List.map
       ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
       examples in
-  let satisfying = Synthesiser.enumerate_satisfying queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
+  let satisfying = Synthesiser.enumerate_satisfying ~debug queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
   let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
   satisfying
 
 
 (******************************************************************************)
 (* Test black_list pruning *)
-let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs =
+let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type free_lib ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs =
 
   let sym_lib_comp = (match components with
     | [] -> sym_lib_uni
@@ -244,7 +244,7 @@ let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_lis
      List.map
        ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
        examples in
-   let satisfying = Synthesiser.enumerate_with_black_list queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~black_list:(String.Set.of_list black_list) ~examples:examples nof_programs in
+   let satisfying = Synthesiser.enumerate_with_black_list ~debug queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~black_list:(String.Set.of_list black_list) ~examples:examples nof_programs in
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
@@ -253,9 +253,15 @@ let test_black_list ?msg:(msg="Basic enumeration") goal_type free_lib ~black_lis
 
 (******************************************************************************)
 (* Automatic black_list generation for id-pruning *)
-let generate_id_blacklist n =
+let generate_id_blacklist ?components:(components=[]) n =
   let examples a =
-    let inputs = test_enumeration a (Library.create ()) 3 in
+    let constructors = [
+      "con";
+      "nil";
+      "b_succ";
+      "b_zero";
+    ] in
+    let inputs = test_enumeration ~debug:false a (Library.create ()) ~components:constructors 3 in
     List.map
       ~f:(fun input -> (([Program.to_string input],[]), Program.to_string input))
       inputs in
@@ -266,15 +272,62 @@ let generate_id_blacklist n =
   let type_list = List.map ~f:parse_type ["Int"; "List Int"; "List (List Int)"] in
   let id_list =
     List.map
-      ~f:(fun a -> test_hypothesis1 (Type.Arr (a, a)) (template a) ~examples:(examples a) n)
+      ~f:(fun a -> test_hypothesis1 ~debug:false (Type.Arr (a, a)) (template a) ~components ~examples:(examples a) n)
       type_list in
   let id_list = List.concat id_list in
   List.map ~f:(fun prog -> to_string_ignore_types (Program.to_term prog)) id_list
 
+(* TODO debugging *)
+(*let test_id_generation = generate_id_blacklist 10;;*)
+let components = [
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 "factorial";
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
 
-let test_id_pruning ?msg:(msg="With id-pruning") goal_type ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs nof_id =
+let test_input_generation = test_enumeration (parse_type "List Int") (Library.create ()) ~components:components 6;;
+(* end *)
+
+
+
+let test_id_pruning ?debug:(debug=true) ?msg:(msg="With id-pruning") goal_type ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs nof_id =
   let free_lib = Library.create () in
-  test_black_list ~msg:msg goal_type free_lib ~black_list:(List.append black_list (generate_id_blacklist nof_id)) ~examples:examples ~components:components nof_programs
+  test_black_list ~debug ~msg:msg goal_type free_lib ~black_list:(List.append black_list (generate_id_blacklist ~components nof_id)) ~examples:examples ~components:components nof_programs
 
 
 (******************************************************************************)
@@ -1002,7 +1055,7 @@ let concat_test =
                  [[[2;3];[]];
                   [[1];[2;3]]]);;*)
 
-(* Try to generate enumFromTo. with a longer black_list *)
+(*(* Try to generate enumFromTo. with a longer black_list *)
 let black_list = [
     (*"head (nil)";
     "tail (nil)";
@@ -1080,9 +1133,9 @@ let enumFromTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;
+                  (2,5)]);;*)
 
-(* Try to generate enumFromTo. with a very long black_list *)
+(*(* Try to generate enumFromTo. with a very long black_list *)
 let black_list = [
     "head (nil)";
     "tail (nil)";
@@ -1141,4 +1194,5 @@ let enumFromTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;
+                  (2,5)]);;*)
+
