@@ -122,7 +122,7 @@ let test_enumeration ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_typ
               components in
             sym_lib_comp)) in
 
-  (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
+  (* TODO debugging *) let () = if debug then printf "\n\n\n%s...\n" msg else () in (* end *)
 
   let prog = Program.reset first_prog (transform_type free_lib goal_type) in
   let queue = Heap.create ~min_size:100 ~cmp:Program.compare () in
@@ -143,7 +143,7 @@ let test_enumeration ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_typ
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
-   let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+   let () = if debug then printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) else () in
    satisfying
 
 
@@ -164,7 +164,7 @@ let test_hypothesis1 ?debug:(debug=true) ?msg:(msg="First order enumeration") go
               components in
             sym_lib_comp)) in
 
-  (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
+  (* TODO debugging *) let () = if debug then printf "\n\n\n%s...\n" msg else () in (* end *)
 
 
   let prog = Program.reset first_prog (transform_type free_lib goal_type) in
@@ -201,7 +201,7 @@ let test_hypothesis1 ?debug:(debug=true) ?msg:(msg="First order enumeration") go
       ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
       examples in
   let satisfying = Synthesiser.enumerate_satisfying ~debug queue ~sym_lib:sym_lib_comp ~free_lib:free_lib ~sym_def:sym_def ~examples:examples nof_programs in
-  let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+  let () = if debug then printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) else () in
   satisfying
 
 
@@ -221,7 +221,7 @@ let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type
               components in
             sym_lib_comp)) in
 
-  (* TODO debugging *) let () = printf "\n\n\n%s...\n" msg in (* end *)
+  (* TODO debugging *) let () = if debug then printf "\n\n\n%s...\n" msg else () in (* end *)
 
   let prog = Program.reset first_prog (transform_type free_lib goal_type) in
   let queue = Heap.create ~min_size:100 ~cmp:Program.compare () in
@@ -234,10 +234,12 @@ let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type
    let () = print_sym_lib sym_lib_uni in
    let () = print_string "\n________________\n\n" in (* end *)*)
    let black_set = String.Set.of_list black_list in
-   let () = List.iter ~f:print_endline black_list in
-   let () = print_endline "\n***\n" in
-   let () = String.Set.iter ~f:print_endline black_set in
-   let () = print_endline "\n\n___________\n" in
+   let () = if debug then 
+     (let () = List.iter ~f:print_endline black_list in
+      let () = print_endline "\n***\n" in
+      let () = String.Set.iter ~f:print_endline black_set in
+      print_endline "\n\n___________\n")
+     else () in
 
 
    let examples =
@@ -248,7 +250,7 @@ let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type
    (*let closed = (Synthesiser.enumerate queue sym_lib_uni free_lib nof_programs) in
    let satisfying = Synthesiser.filter_satisfying closed examples ~sym_def:(Library.get_lib_def sym_lib) in
    let () = print_string (sprintf "\n***Closed***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string closed))) in*)
-   let () = printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying)) in
+   let () = if debug then printf "\n***Satisfying***\n________________\n%s\n" (String.concat ~sep:"\n" (List.map ~f:Program.to_string satisfying))  else () in
    satisfying
 
 (******************************************************************************)
@@ -261,7 +263,7 @@ let generate_id_blacklist ?components:(components=[]) n =
       "b_succ";
       "b_zero";
     ] in
-    let inputs = test_enumeration ~debug:false a (Library.create ()) ~components:constructors 3 in
+    let inputs = test_enumeration ~debug:false a (Library.create ()) ~components:constructors 8 in
     List.map
       ~f:(fun input -> (([Program.to_string input],[]), Program.to_string input))
       inputs in
@@ -280,12 +282,12 @@ let generate_id_blacklist ?components:(components=[]) n =
 (* TODO debugging *)
 (*let test_id_generation = generate_id_blacklist 10;;*)
 let components = [
-                 (*"const";
+                 "const";
                  "flip";
                  "curry";
                  "uncurry";
                  "fanout";
-                 "ignore";*)
+                 "ignore";
                  (*"undefined";*)
                  "nil";
                  "con";
@@ -320,7 +322,8 @@ let components = [
                  "enumFromTo"
                 ]
 
-let test_input_generation = test_enumeration (parse_type "List Int") (Library.create ()) ~components:components 6;;
+(*let test_input_generation = test_enumeration (parse_type "List Int") (Library.create ()) ~components:components 6;;*)
+(*let test_id = generate_id_blacklist ~components:components 100;;*)
 (* end *)
 
 
@@ -1143,6 +1146,8 @@ let black_list = [
     "b_foldNatNat (b_foldNatNat _)";
     "b_foldNatNat (b_foldNatNat)";
     "b_foldNatNat (b_foldNatNat _ _)";
+    "enumTo (prod (enumTo _))";
+    (*"factorial (factorial _)";*)
     ];;
 let enumFromTo_test =
     let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
@@ -1153,8 +1158,8 @@ let enumFromTo_test =
     1
     100
     ~components:[
-                 (*"const";
-                 "flip";
+                 "const";
+                 (*"flip";
                  "curry";
                  "uncurry";
                  "fanout";
@@ -1162,37 +1167,103 @@ let enumFromTo_test =
                  (*"undefined";*)
                  "nil";
                  "con";
-                 (*"head";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 (*"pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 (*"enumFromTo"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [(1,3);
+                  (2,5)]);;*)
+
+(* Try to generate maximum without black_list *)
+let black_list = [
+    "head (nil)";
+    "tail (nil)";
+    (*"const _ _";*)
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+    (*"factorial (factorial _)";*)
+    ];;
+let maximum_test =
+    let example xs = (([list_to_intlist xs],[]),  string_of_int (match List.max_elt ~cmp:compare xs with Some m -> m | None -> invalid_arg "empty list")) in
+  test_id_pruning
+    ~msg:"Generate maximum"
+    (parse_type "List Int -> Int")
+    ~black_list:black_list
+    1
+    10
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
                  "tail";
                  "true";
                  "false";
                  "pair";
                  "fst";
-                 "snd";*)
+                 "snd";
                  "map";
-                 (*"foldr";
+                 "foldr";
                  "foldl";
                  "sum";
-                 "prod";*)
-                 (*"b_zero";
-                 "b_succ";*)
-                 (*"b_foldNat";*)
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
                  "b_foldNatNat";
                  "b_add";
                  "b_sub";
-                 (*"b_mul";
+                 "b_mul";
                  "b_div";
                  "b_max";
-                 "length";*)
+                 "length";
                  (*"factorial";*)
-                 (*"replicate";
+                 "replicate";
                  "append";
                  "rev";
-                 "concat";*)
-                 (*"enumTo";
-                 "enumFromTo"*)
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
                 ]
     ~examples:(List.map ~f:example
-                 [(1,3);
-                  (2,5)]);;*)
+                 [[2;4;3];
+                  [5;1];
+                  [2;1;1]]);;
+
+
 

@@ -361,4 +361,163 @@ notes: without the restrictions about foldNatNat gets stuck in the evaluation of
 that's a lot considering that we only give the components it needs.
 
 ___________________________________________________________
+name: maximum
+program: foldr Int Int b_max b_zero _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
 
+black_list:
+
+nof_lines: 35465
+
+___________________________________________________________
+name: maximum
+program: foldr Int Int b_max b_zero _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+
+black_list:
+    "head (nil)";
+    "tail (nil)";
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+nof_lines: 23634
+time: ~1.200s
+real	0m1.185s
+user	0m1.155s
+sys	0m0.030s
+___________________________________________________________
+name: maximum
+program: foldr Int Int b_max b_zero _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+
+black_list:
+    "head (nil)";
+    "tail (nil)";
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat _ _ _)";
+    "b_foldNatNat (b_foldNatNat _)";
+    "b_foldNatNat (b_foldNatNat)";
+    "b_foldNatNat (b_foldNatNat _ _)";
+nof_lines: 23634
+time: ~1.200s
+real	0m1.185s
+user	0m1.155s
+sys	0m0.030s
+
+___________________________________________________________
