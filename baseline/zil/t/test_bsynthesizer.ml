@@ -235,9 +235,7 @@ let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type
    let () = print_string "\n________________\n\n" in (* end *)*)
    let black_set = String.Set.of_list black_list in
    let () = if debug then 
-     (let () = List.iter ~f:print_endline black_list in
-      let () = print_endline "\n***\n" in
-      let () = String.Set.iter ~f:print_endline black_set in
+     (let () = String.Set.iter ~f:print_endline black_set in
       print_endline "\n\n___________\n")
      else () in
 
@@ -1201,25 +1199,67 @@ let enumFromTo_test =
                  [(1,3);
                   (2,5)]);;*)
 
-(* Try to generate maximum without black_list *)
+(* Try to generate maximum with an accurate manual black_list *)
 let black_list = [
+    "uncurry _ (pair _ _)";
     "head (nil)";
     "tail (nil)";
-    (*"const _ _";*)
-    "b_foldNatNat (b_foldNatNat _ _ _)";
-    "b_foldNatNat (b_foldNatNat _)";
-    "b_foldNatNat (b_foldNatNat)";
-    "b_foldNatNat (b_foldNatNat _ _)";
-    (*"factorial (factorial _)";*)
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat";
+    (*"factorial (factorial";*)
+    "length (nil)";
+    "prod (nil)";
+    "sum (nil)";
+    "rev (nil)";
+    "rev (con _ (nil))";
+    "append (nil)";
+    "append _ (nil)";
+    "concat (nil)";
+    "prod (rev";
+    "sum (rev";
+    "length (rev";
+    "enumTo b_zero";
+    "enumFromTo (b_succ b_zero)";
+    "length (enumTo _)";
+    "head (enumTo";
+    "head (enumFromTo";
+    "b_div _ b_zero";
+    "b_div b_zero";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul b_zero";
+    "b_mul _ b_zero";
+    "b_mul (b_succ b_zero)";
+    "b_mul _ (b_succ b_zero)";
+    "head (con _)";
+    "prod (con _ (nil))";
+    "sum (con _ (nil))";
+    "map _ (nil)";
+    "replicate b_zero";
+    "rev (rev";
+    "b_foldNat _ _ b_zero";
+    "b_foldNatNat _ _ b_zero";
+    "b_foldNat b_succ b_zero";
+    "snd (pair";
+    "fst (pair";
+    "flip _ _ _";
+    "foldl _ _ (nil)";
+    "foldr _ _ (nil)";
+    "foldr (con) (nil)";
+    "rev (map _ (rev";
+    "tail (con _ (nil))";
+    "prod (con b_zero";
     ];;
 let maximum_test =
     let example xs = (([list_to_intlist xs],[]),  string_of_int (match List.max_elt ~cmp:compare xs with Some m -> m | None -> invalid_arg "empty list")) in
-  test_id_pruning
+  test_black_list
     ~msg:"Generate maximum"
     (parse_type "List Int -> Int")
     ~black_list:black_list
+    (Library.create ())
     1
-    10
     ~components:[
                  "const";
                  "flip";

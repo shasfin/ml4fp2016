@@ -183,24 +183,24 @@ let enumerate_satisfying ?debug:(debug=false) queue ~sym_lib ~free_lib ?sym_def:
 (* Enumerate satisfying programs (caution, could loop forever) *)
 (* prune branches of the form App (o, m, ??) where m belongs to black_list *)
 let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
-
  
   let rec find_first_satisfying queue =
+
+    let black_prog prog =
+      let str = to_string_ignore_types (to_term prog) in
+      String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
+
     let top = Heap.pop_exn queue in
 
     (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
     then top
     else
-    (let str = to_string_ignore_types (to_term top) in
-     let b = String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
-    (if b then find_first_satisfying queue
-    else
       (let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
       let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
-      let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
+      let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog x))  falses) in
       (match trues with
       | [] -> find_first_satisfying queue
-      | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p))))) in
+      | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p))) in
 
   let rec enumerate_aux acc i =
       (match i with
