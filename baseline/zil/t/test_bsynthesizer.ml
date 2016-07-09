@@ -252,6 +252,61 @@ let test_black_list ?debug:(debug=true) ?msg:(msg="Basic enumeration") goal_type
    satisfying
 
 (******************************************************************************)
+(* Best manual black list for now *)
+let black_list = [
+    "append (nil)";
+    "append _ (nil)";
+    "b_add _ b_zero";
+    "b_add b_zero";
+    "b_div _ b_zero";
+    "b_div b_zero";
+    "b_foldNat _ _ b_zero";
+    "b_foldNat b_succ b_zero";
+    "b_foldNatNat (b_foldNatNat";
+    "b_foldNatNat _ _ b_zero";
+    "b_mul (b_succ b_zero)";
+    "b_mul _ (b_succ b_zero)";
+    "b_mul _ b_zero";
+    "b_mul b_zero";
+    "b_sub _ b_zero";
+    "b_sub b_zero";
+    "concat (nil)";
+    "const _ _";
+    "enumFromTo (b_succ b_zero)";
+    "enumTo b_zero";
+    "flip _ _ _";
+    "foldl _ _ (nil)";
+    "foldr (con) (nil)";
+    "foldr _ _ (nil)";
+    "fst (pair";
+    "head (con _)";
+    "head (enumFromTo";
+    "head (enumTo";
+    "head (nil)";
+    "length (enumTo _)";
+    "length (nil)";
+    "length (rev";
+    "map _ (nil)";
+    "prod (con _ (nil))";
+    "prod (con b_zero";
+    "prod (nil)";
+    "prod (rev";
+    "replicate b_zero";
+    "rev (con _ (nil))";
+    "rev (map _ (rev";
+    "rev (nil)";
+    "rev (rev";
+    "snd (pair";
+    "sum (con _ (nil))";
+    "sum (nil)";
+    "sum (rev";
+    "tail (con _ (nil))";
+    "tail (nil)";
+    "uncurry _ (pair _ _)";
+];;
+
+
+(******************************************************************************)
 (* Automatic black_list generation for id-pruning *)
 let generate_id_blacklist ?components:(components=[]) n =
   let examples a =
@@ -276,54 +331,6 @@ let generate_id_blacklist ?components:(components=[]) n =
       type_list in
   let id_list = List.concat id_list in
   List.map ~f:(fun prog -> to_string_ignore_types (Program.to_term prog)) id_list
-
-(* TODO debugging *)
-(*let test_id_generation = generate_id_blacklist 10;;*)
-let components = [
-                 "const";
-                 "flip";
-                 "curry";
-                 "uncurry";
-                 "fanout";
-                 "ignore";
-                 (*"undefined";*)
-                 "nil";
-                 "con";
-                 "head";
-                 "tail";
-                 "true";
-                 "false";
-                 "pair";
-                 "fst";
-                 "snd";
-                 "map";
-                 "foldr";
-                 "foldl";
-                 "sum";
-                 "prod";
-                 "b_zero";
-                 "b_succ";
-                 "b_foldNat";
-                 "b_foldNatNat";
-                 "b_add";
-                 "b_sub";
-                 "b_mul";
-                 "b_div";
-                 "b_max";
-                 "length";
-                 "factorial";
-                 "replicate";
-                 "append";
-                 "rev";
-                 "concat";
-                 "enumTo";
-                 "enumFromTo"
-                ]
-
-(*let test_input_generation = test_enumeration (parse_type "List Int") (Library.create ()) ~components:components 6;;*)
-(*let test_id = generate_id_blacklist ~components:components 100;;*)
-(* end *)
-
 
 
 let test_id_pruning ?debug:(debug=true) ?msg:(msg="With id-pruning") goal_type ~black_list ?examples:(examples=[]) ?components:(components=[]) nof_programs nof_id =
@@ -981,7 +988,7 @@ let map_add_test =
                   (3,[1;2])]);;*)
 
 (*(* Try to generate concat. with a very simple blacklist *)
-let black_list = [
+(*let black_list = [
     (*"undefined";*)
     "head (nil)";
     "tail (nil)";
@@ -1002,12 +1009,13 @@ let black_list = [
     "b_mul _ (prod (nil))";
     "b_succ (b_sub _ (prod (nil)))";
     "b_add _ (length (nil))";
-    ];;
+    ];;*)
 let free_lib = Library.create ();;
 let concat_test =
     let example xss = (([list_to_list "(List Int)" list_to_intlist xss],["Int"]),  list_to_intlist (List.concat xss)) in
   test_black_list
     ~msg:"Generate concat"
+    (*~debug:false*)
     (parse_type "@ List (List #0) -> List #0")
     free_lib
     ~black_list:black_list
@@ -1019,7 +1027,7 @@ let concat_test =
                  "uncurry";
                  "fanout";
                  "ignore";
-                 "undefined";
+                 (*"undefined";*)
                  "nil";
                  "con";
                  "head";
@@ -1056,8 +1064,8 @@ let concat_test =
                  [[[2;3];[]];
                   [[1];[2;3]]]);;*)
 
-(*(* Try to generate enumFromTo. with a longer black_list *)
-let black_list = [
+(* Try to generate enumFromTo. with a longer black_list *)
+(*let black_list = [
     (*"head (nil)";
     "tail (nil)";
     "append (nil)";
@@ -1082,12 +1090,13 @@ let black_list = [
     (*"b_mul _ (prod (nil))";
     "b_succ (b_sub _ (prod (nil)))";
     "b_add _ (length (nil))"*)
-    ];;
+    ];;*)
 let free_lib = Library.create ();;
 let enumFromTo_test =
     let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
   test_black_list
     ~msg:"Generate enumFromTo"
+    ~debug:false
     (parse_type "Int -> Int -> List Int")
     free_lib
     ~black_list:black_list
@@ -1134,7 +1143,7 @@ let enumFromTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;*)
+                  (2,5)]);;
 
 (*(* Try to generate enumFromTo. with a very long black_list *)
 let black_list = [
@@ -1199,7 +1208,7 @@ let enumFromTo_test =
                  [(1,3);
                   (2,5)]);;*)
 
-(* Try to generate maximum with an accurate manual black_list *)
+(*(* Try to generate maximum with an accurate manual black_list *)
 let black_list = [
     "uncurry _ (pair _ _)";
     "head (nil)";
@@ -1303,7 +1312,7 @@ let maximum_test =
     ~examples:(List.map ~f:example
                  [[2;4;3];
                   [5;1];
-                  [2;1;1]]);;
+                  [2;1;1]]);;*)
 
 
 

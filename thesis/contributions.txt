@@ -1,0 +1,28 @@
+Contributions:
+
+- 
+- different program expansion strategies:
+  * queue of open holes (hole with the smalles number first)
+  * stack of open holes (leftmost hole first)
+- different cost functions in the priority queue
+  * standard queue without priority
+  * based on the number of nodes
+  * length of the program as a string
+  * based on the number of nodes and the size of the implicit types
+  * number of holes (fewer holes first)
+- black list
+  * automatic black list
+    slow (bad examples)
+    only identity pruning (I generate identity, actually one could try to generate also other things like nil, b_zero, b_succ b_zero and so on than prune all except for the first one)
+    many repetitions ("append (append nil nil) _" is already ruled out by "append nil")
+  * manual black list
+    inspired by the automatic one
+
+
+
+
+- pure implementation:
+  * set up (interpreter for System F and so on, mostly code written by Dimitar)
+  * unification
+  * built-in integers and functions
+  * practical library format (not that practical for adding built-in functions, poor error handling)

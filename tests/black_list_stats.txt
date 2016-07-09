@@ -738,6 +738,265 @@ black_list: (accurate manual black_list, not only identity but also verbose syno
     "rev (map _ (rev";
     "tail (con _ (nil))";
     "prod (con b_zero";
+cost: nof_nodes
 nof_lines: 12326
 
+___________________________________________________________
+name: concat
+program: foldl (List &0) (List &0) (append &0) (nil &0) _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 "undefined";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
 
+black_list: (accurate manual black_list, not only identity but also verbose synonyms)
+    "uncurry _ (pair _ _)";
+    "head (nil)";
+    "tail (nil)";
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat";
+    (*"factorial (factorial";*)
+    "length (nil)";
+    "prod (nil)";
+    "sum (nil)";
+    "rev (nil)";
+    "rev (con _ (nil))";
+    "append (nil)";
+    "append _ (nil)";
+    "concat (nil)";
+    "prod (rev";
+    "sum (rev";
+    "length (rev";
+    "enumTo b_zero";
+    "enumFromTo (b_succ b_zero)";
+    "length (enumTo _)";
+    "head (enumTo";
+    "head (enumFromTo";
+    "b_div _ b_zero";
+    "b_div b_zero";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul b_zero";
+    "b_mul _ b_zero";
+    "b_mul (b_succ b_zero)";
+    "b_mul _ (b_succ b_zero)";
+    "head (con _)";
+    "prod (con _ (nil))";
+    "sum (con _ (nil))";
+    "map _ (nil)";
+    "replicate b_zero";
+    "rev (rev";
+    "b_foldNat _ _ b_zero";
+    "b_foldNatNat _ _ b_zero";
+    "b_foldNat b_succ b_zero";
+    "snd (pair";
+    "fst (pair";
+    "flip _ _ _";
+    "foldl _ _ (nil)";
+    "foldr _ _ (nil)";
+    "foldr (con) (nil)";
+    "rev (map _ (rev";
+    "tail (con _ (nil))";
+    "prod (con b_zero";
+cost: nof_nodes_simple_types
+nof_lines: 3386
+
+___________________________________________________________
+name: concat
+program: foldl (List &0) (List &0) (append &0) (nil &0) _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
+
+black_list: (accurate manual black_list, not only identity but also verbose synonyms)
+    "uncurry _ (pair _ _)";
+    "head (nil)";
+    "tail (nil)";
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat";
+    (*"factorial (factorial";*)
+    "length (nil)";
+    "prod (nil)";
+    "sum (nil)";
+    "rev (nil)";
+    "rev (con _ (nil))";
+    "append (nil)";
+    "append _ (nil)";
+    "concat (nil)";
+    "prod (rev";
+    "sum (rev";
+    "length (rev";
+    "enumTo b_zero";
+    "enumFromTo (b_succ b_zero)";
+    "length (enumTo _)";
+    "head (enumTo";
+    "head (enumFromTo";
+    "b_div _ b_zero";
+    "b_div b_zero";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul b_zero";
+    "b_mul _ b_zero";
+    "b_mul (b_succ b_zero)";
+    "b_mul _ (b_succ b_zero)";
+    "head (con _)";
+    "prod (con _ (nil))";
+    "sum (con _ (nil))";
+    "map _ (nil)";
+    "replicate b_zero";
+    "rev (rev";
+    "b_foldNat _ _ b_zero";
+    "b_foldNatNat _ _ b_zero";
+    "b_foldNat b_succ b_zero";
+    "snd (pair";
+    "fst (pair";
+    "flip _ _ _";
+    "foldl _ _ (nil)";
+    "foldr _ _ (nil)";
+    "foldr (con) (nil)";
+    "rev (map _ (rev";
+    "tail (con _ (nil))";
+    "prod (con b_zero";
+cost: nof_nodes_simple_types
+nof_lines: 1726
+
+___________________________________________________________
+name: concat
+program: foldl (List &0) (List &0) (append &0) (nil &0) _0
+components:
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
+
+black_list: (short manual black_list)
+    "head (nil)";
+    "tail (nil)";
+    "append (nil)";
+    "append _ (nil)";
+    "const _ _";
+    "fst (pair _ _)";
+    "snd (pair _ _)";
+    "head (con _ _)";
+    "concat (nil)";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul (succ b_zero)";
+    "b_mul (prod (nil))";
+    "b_mul _ (succ b_zero)";
+    "b_mul _ (prod (nil))";
+    "b_succ (b_sub _ (prod (nil)))";
+    "b_add _ (length (nil))";
+cost: nof_nodes_simple_types
+nof_lines: 1936
