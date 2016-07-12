@@ -157,10 +157,10 @@ let compare p1 p2 =
   (*p1.current_term_hol - p2.current_term_hol*)
   (* "Stupid queue" *)
 
-  (*(nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)*)
+  (nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)
   (* Take also the size of types into account *)
 
-  (nof_nodes p1) - (nof_nodes p2)
+  (*(nof_nodes p1) - (nof_nodes p2)*)
   (* Based on the number of nodes *)
 
   (*(p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)*)
