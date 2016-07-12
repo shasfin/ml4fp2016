@@ -1382,7 +1382,7 @@ let concat_test =
     ~black_list:black_list
     ~nof_hoc:2
     ~nof_hol:5
-    ~nof_cal:500
+    ~nof_cal:10
     ~ho_components:[
                  (*"const";*)
                  "flip";
@@ -1392,24 +1392,24 @@ let concat_test =
                  "ignore";
                  (*"undefined";*)
                  (*"nil";*)
-                 (*"con";
+                 "con";
                  "head";
-                 "tail";*)
+                 "tail";
                  (*"true";*)
                  (*"false";*)
-                 (*"pair";
+                 "pair";
                  "fst";
-                 "snd";*)
+                 "snd";
                  "map";
                  "foldr";
                  "foldl";
-                 (*"sum";
+                 "sum";
                  "prod";
                  (*"b_zero";*)
-                 "b_succ";*)
+                 "b_succ";
                  "b_foldNat";
                  "b_foldNatNat";
-                 (*"b_add";
+                 "b_add";
                  "b_sub";
                  "b_mul";
                  "b_div";
@@ -1421,7 +1421,7 @@ let concat_test =
                  "rev";
                  (*"concat";*)
                  "enumTo";
-                 "enumFromTo"*)
+                 "enumFromTo"
                 ]
     ~fo_components:[
                  "const";
