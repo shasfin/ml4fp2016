@@ -35,6 +35,15 @@ end
   val expand_current_hol : Type.t Term.t -> t -> t
   (** Expand current hole with a term *)
 
+  val close_current_hol : t -> t
+  (** Make current hole non-expandable *)
+
+  val open_all_closed_holes : t -> t
+  (** Transform all non-expandable holes into expandable holes *)
+
+  val nof_holes : t -> int
+  (** Number of holes *)
+
   val apply_subst : Type.substitution -> t -> t
   (** Apply substitution to all types of the program *)
 

@@ -7,6 +7,7 @@ type t = {
     max_term_hol: idx_hol; (* first fresh hole index *)
     max_type_hol: idx_hol; (* firse fresh type hole index *)
     open_holes: idx_hol list; (* stack of open holes *)
+    closed_holes: idx_hol list; (* stack of closed holes *)
     prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
 }
 
@@ -15,6 +16,7 @@ let create () = {
     max_term_hol = 0;
     max_type_hol = 0;
     open_holes = [];
+    closed_holes = [];
     prog = IntMap.empty;
 }
 
@@ -23,20 +25,22 @@ let reset prog a = {
     max_term_hol = 1;
     max_type_hol = prog.max_type_hol;
     open_holes = [0];
+    closed_holes = [];
     prog = IntMap.add 0 (None, a) IntMap.empty;
 }
 
-let is_closed ctxt = (ctxt.open_holes = []) (* if there are no more holes to expand, the program is closed *)
+let is_closed prog = (prog.open_holes = []) (* if there are no more holes to expand, the program is closed *)
 
-let current_hol ctxt = List.hd ctxt.open_holes
+let current_hol prog = List.hd prog.open_holes
 
-let current_type ctxt = snd (IntMap.find (current_hol ctxt) ctxt.prog)
+let current_type prog = snd (IntMap.find (current_hol prog) prog.prog)
 
 let get_fresh_term_hol a prog =
     (Term.Hol (a, prog.max_term_hol),
     {max_term_hol = prog.max_term_hol + 1;
      max_type_hol = prog.max_type_hol;
      open_holes = (List.hd prog.open_holes)::(prog.max_term_hol)::(List.tl prog.open_holes);
+     closed_holes = prog.closed_holes;
      prog = IntMap.add prog.max_term_hol (None, a) prog.prog}
     )
 
@@ -45,6 +49,7 @@ let get_fresh_type_hol prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol + 1;
      open_holes = prog.open_holes;
+     closed_holes = prog.closed_holes;
      prog = prog.prog}
     )
 
@@ -52,7 +57,35 @@ let expand_current_hol m prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
      open_holes = List.tl prog.open_holes;
+     closed_holes = prog.closed_holes;
      prog = IntMap.add (current_hol prog) (Some m, Term.extract_label m) prog.prog}
+
+let close_current_hol prog =
+    {max_term_hol = prog.max_term_hol;
+     max_type_hol = prog.max_type_hol;
+     open_holes = List.tl prog.open_holes;
+     closed_holes = (List.hd prog.open_holes)::prog.closed_holes;
+     prog = prog.prog;
+    }
+
+let open_all_closed_holes prog =
+    let rec transfer_holes closed_holes open_holes =
+      match closed_holes with
+      | [] -> open_holes
+      | (c::cs) -> transfer_holes cs (c::open_holes) in
+
+    {max_term_hol = prog.max_term_hol;
+     max_type_hol = prog.max_type_hol;
+     open_holes = transfer_holes prog.closed_holes prog.open_holes;
+     closed_holes = [];
+     prog = prog.prog;
+    }
+
+let nof_open_holes prog = List.length prog.open_holes
+
+let nof_closed_holes prog = List.length prog.closed_holes
+
+let nof_holes prog = (nof_open_holes prog) + (nof_closed_holes prog)
 
 (* TODO find a better name to avoid conflict with Lambda.apply_subst *)
 let apply_subst subst prog =
@@ -63,6 +96,7 @@ let apply_subst subst prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
      open_holes = prog.open_holes;
+     closed_holes = prog.closed_holes;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
 let to_term prog =
