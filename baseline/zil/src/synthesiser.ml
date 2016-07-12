@@ -219,7 +219,7 @@ let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~bla
  * nof_hol holes
  For each template, enumerate programs with the standard enumeration procedure using only first-order components, but call the standard enumeration procedure no more than nof_cal times *)
 (* as always, sym_def is used only for evaluation *)
-let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first_order_lib ~free_lib ~black_list ~sym_def ?examples:(examples=[]) nof_hoc nof_hol nof_cal =
+let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first_order_lib ~free_lib ~black_list ~sym_def ?examples:(examples=[]) ~nof_hoc ~nof_hol ~nof_cal =
 
   let rec is_first_order_type a = match a with
     | Type.All b -> false (* assume no universal types should be present *)
@@ -229,7 +229,7 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
       | _ -> is_first_order_type b)
     | _ -> true in
 
-  let template_successor (prog, n) =
+  let template_successor ?debug:(debug=false) (prog, n) =
     let succ_close prog =
       if (is_first_order_type (Program.current_type prog)) then
         [(Program.close_current_hol prog, n)]
@@ -258,23 +258,37 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
         [(expand_current_hol m new_prog, n)])
       else [] in
 
-    if (Program.is_closed prog) then
-      (succ_close prog @ succ_hoc prog n @ succ_app prog)
-    else [] in
+    (if not (Program.is_closed prog) then
+      let res = (succ_hoc prog n @ succ_close prog @ succ_app prog) in
+      let () = (if debug then
+        List.iter
+          ~f:(fun (x, m) -> print_string
+            (sprintf
+              "(%s, %d) |-> (%s, %d) \n %s\n|-> %s\n\n"
+              (Program.to_string prog)
+              n
+              (Program.to_string x)
+              m
+              (Program.to_string_typed prog)
+              (Program.to_string_typed x)))
+          res else ()) in
+      res
+    else []) in
 
+  let first_order_enumerate_with_black_list prog =
+    (*let () = print_endline (sprintf "|queue| = %d" (Heap.length queue)) in*)
     let black_prog prog =
       let str = to_string_ignore_types (to_term prog) in
       String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
-
-  let first_order_enumerate_with_black_list prog =
     let cal = ref 0 in
     let queue = Heap.create () ~cmp:Program.compare in
     let () = Heap.add queue prog in
 
     let rec enumerate_aux queue =
       let () = (cal := !cal + 1) in
-      let top = Heap.pop_exn queue in
-      if !cal > nof_cal then
+      (match Heap.pop queue with
+      | Some top ->
+      (if !cal > nof_cal then
         None
       else (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples)) then Some top
         else
@@ -283,27 +297,30 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
           let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog x))  falses) in
           (match trues with
           | [] -> enumerate_aux queue
-          | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; Some p))) in
+          | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; Some p))))
+      | None -> None) in
     
     enumerate_aux queue in
 
   let rec enumerate_templates template_queue =
-    let (prog, n) = Heap.pop_exn template_queue in
-    if (Program.nof_holes prog + n) > nof_hoc + nof_hol then
-      enumerate_templates template_queue
-    else if (Program.is_closed prog) then
-      (match first_order_enumerate_with_black_list (Program.open_all_closed_holes prog) with
-      | Some prog -> prog
-      | None -> enumerate_templates template_queue)
-    else
-      (let s = template_successor (prog, n) in
-       let () = List.iter
-         ~f:(fun x -> Heap.add template_queue x)
-         s in
-        enumerate_templates template_queue)
+    (*let () = print_endline (sprintf "|temp_queue| = %d" (Heap.length template_queue)) in*)
+    (match Heap.pop template_queue with
+    | Some (prog, n) ->
+      (if (Program.nof_holes prog + n) > nof_hoc + nof_hol then
+        enumerate_templates template_queue
+      else if (Program.is_closed prog) then
+        (match first_order_enumerate_with_black_list (Program.open_all_closed_holes prog) with
+        | Some prog -> Some prog
+        | None -> enumerate_templates template_queue)
+      else
+        (let s = template_successor ~debug (prog, n) in
+         let () = List.iter
+           ~f:(fun x -> Heap.add template_queue x)
+           s in
+          enumerate_templates template_queue))
+    | None -> None)
     
     in
-
 
   enumerate_templates queue
 

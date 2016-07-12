@@ -339,6 +339,61 @@ let test_id_pruning ?debug:(debug=true) ?msg:(msg="With id-pruning") goal_type ~
 
 
 (******************************************************************************)
+(* Enumeration with templates *)
+let test_enumaration_with_templates ?debug:(debug=true) ?msg:(msg="Enumeration with templates and black list") goal_type free_lib ~black_list ?examples:(examples=[]) ?ho_components:(ho_components=[]) ?fo_components:(fo_components=[]) ~nof_hoc ~nof_hol ~nof_cal =
+
+  let sym_lib_comp components = (match components with
+    | [] -> sym_lib_uni
+    | _ -> (let sym_lib_comp_aux = Library.create () in
+            let () = Library.iter_types
+              (fun i a k -> Library.add_type i a k sym_lib_comp_aux)
+              sym_lib_uni in
+            let () = List.iter
+              ~f:(fun i -> let (m, a, args) = Library.lookup_term sym_lib_uni i in
+                        Library.add_term i m a ~typ_args:args sym_lib_comp_aux)
+              components in
+            sym_lib_comp_aux)) in
+
+  (* TODO debugging *) let () = if debug then printf "\n\n\n%s...\n" msg else () in (* end *)
+
+  let compare (prog1, n1) (prog2, n2) = match Program.compare prog1 prog2 with
+    | 0 -> n2 - n1
+    | n -> n in
+
+  let prog = Program.reset first_prog (transform_type free_lib goal_type) in
+  let queue = Heap.create ~min_size:100 ~cmp:compare () in
+  let () = Heap.add queue (prog,0) in
+
+  let black_set = String.Set.of_list black_list in
+  let () = if debug then 
+    (let () = String.Set.iter ~f:print_endline black_set in
+     print_endline "\n\n___________\n")
+    else () in
+
+    let examples =
+      List.map
+        ~f:(fun (input, output) -> (instantiate_free input, eval ~sym_def:sym_def (parse_term output)))
+        examples in
+    let satisfying =
+      Synthesiser.enumerate_with_templates
+        ~debug
+        queue
+        ~higher_order_lib:(sym_lib_comp ho_components)
+        ~first_order_lib:(sym_lib_comp fo_components)
+        ~free_lib:free_lib
+        ~sym_def:sym_def
+        ~black_list:(String.Set.of_list black_list)
+        ~examples
+        ~nof_hoc
+        ~nof_hol
+        ~nof_cal in
+    let () = if debug then (printf "\n***Satisfying***\n________________\n%s\n" 
+      (match satisfying with
+      | None -> "No program found"
+      | Some prog -> (Program.to_string prog)))  else () in
+   satisfying
+
+(******************************************************************************)
 
 (*(* Generate programs *)
 
@@ -1314,5 +1369,91 @@ let maximum_test =
                   [5;1];
                   [2;1;1]]);;*)
 
+
+(* Try to generate concat. with a very simple blacklist *)
+let free_lib = Library.create ();;
+let concat_test =
+  let example xss = (([list_to_list "(List Int)" list_to_intlist xss],["Int"]),  list_to_intlist (List.concat xss)) in
+  test_enumaration_with_templates
+    ~msg:"Generate concat"
+    (*~debug:false*)
+    (parse_type "@ List (List #0) -> List #0")
+    free_lib
+    ~black_list:black_list
+    ~nof_hoc:2
+    ~nof_hol:5
+    ~nof_cal:500
+    ~ho_components:[
+                 (*"const";*)
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 (*"nil";*)
+                 (*"con";
+                 "head";
+                 "tail";*)
+                 (*"true";*)
+                 (*"false";*)
+                 (*"pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 "foldr";
+                 "foldl";
+                 (*"sum";
+                 "prod";
+                 (*"b_zero";*)
+                 "b_succ";*)
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 (*"b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"*)
+                ]
+    ~fo_components:[
+                 "const";
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 (*"concat";*)
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[[2;3];[]];
+                  [[1];[2;3]]]);;
 
 

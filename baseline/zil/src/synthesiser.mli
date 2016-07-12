@@ -51,3 +51,19 @@ val enumerate_with_black_list :
   int ->
   Program.t list
 (** Enumerate first satisfying programs found by BFS from the queue, prune according to black_list *)
+
+val enumerate_with_templates :
+  ?debug:bool ->
+  (Program.t * int) Heap.t ->
+  higher_order_lib:(idx_sym, unit) Library.t ->
+  first_order_lib:(idx_sym, unit) Library.t ->
+  free_lib:(idx_free, unit) Library.t ->
+  black_list:(String.Set.t) ->
+  sym_def:(idx_sym, unit Term.t, Type.t) lib ->
+  ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
+  nof_hoc:int ->
+  nof_hol:int ->
+  nof_cal:int ->
+  Program.t option
+(** Enumerate first satisfying program using two queues: one to find a template, the other to search a program from that template. This is the variant with the black_list *)
+

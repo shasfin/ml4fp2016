@@ -1,6 +1,6 @@
 Contributions:
 
-- 
+- top-down, type directed search for possible programs (simple inference rules)
 - different program expansion strategies:
   * queue of open holes (hole with the smalles number first)
   * stack of open holes (leftmost hole first)
@@ -10,13 +10,19 @@ Contributions:
   * length of the program as a string
   * based on the number of nodes and the size of the implicit types
   * number of holes (fewer holes first)
+  * TODO penalize use of the same component depending on the cost of the component
 - black list
   * automatic black list
     slow (bad examples)
-    only identity pruning (I generate identity, actually one could try to generate also other things like nil, b_zero, b_succ b_zero and so on than prune all except for the first one)
+    only identity pruning (I generate identity, actually one could try to generate also other things like nil, b_zero, b_succ b_zero and so on and then prune all except for the first one)
     many repetitions ("append (append nil nil) _" is already ruled out by "append nil")
   * manual black list
     inspired by the automatic one
+- templates
+  * top-down, type directed search for possible templates (simple inference rules)
+  * TODO try cost functions for the template search?
+  * TODO different first-order enumeration strategies (plug in all other enumeration implementations with a restricted library)
+  
 
 
 
@@ -26,3 +32,4 @@ Contributions:
   * unification
   * built-in integers and functions
   * practical library format (not that practical for adding built-in functions, poor error handling)
+  * implementation of components in System F
