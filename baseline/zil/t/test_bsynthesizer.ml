@@ -1064,7 +1064,7 @@ let concat_test =
                  [[[2;3];[]];
                   [[1];[2;3]]]);;*)
 
-(* Try to generate enumFromTo. with a longer black_list *)
+(*(* Try to generate enumFromTo. with a longer black_list *)
 (*let black_list = [
     (*"head (nil)";
     "tail (nil)";
@@ -1096,7 +1096,7 @@ let enumFromTo_test =
     let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
   test_black_list
     ~msg:"Generate enumFromTo"
-    ~debug:false
+    (*~debug:false*)
     (parse_type "Int -> Int -> List Int")
     free_lib
     ~black_list:black_list
@@ -1143,7 +1143,7 @@ let enumFromTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;
+                  (2,5)]);;*)
 
 (*(* Try to generate enumFromTo. with a very long black_list *)
 let black_list = [
