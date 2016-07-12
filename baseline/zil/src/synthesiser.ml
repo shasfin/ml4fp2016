@@ -229,10 +229,10 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
       | _ -> is_first_order_type b)
     | _ -> true in
 
-  let template_successor prog n =
+  let template_successor (prog, n) =
     let succ_close prog =
       if (is_first_order_type (Program.current_type prog)) then
-        [Program.close_current_hol prog]
+        [(Program.close_current_hol prog, n)]
       else [] in
 
     (* n = number of higher-order components in prog *)
@@ -243,7 +243,7 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
           let new_type = universalise a args in
           let new_term = Term.Sym(new_type, i) in
           let new_prog = expand_current_hol (apply_args new_term a args) prog in
-          apply_subst subst new_prog
+          (apply_subst subst new_prog, n+1)
         )
         (Library.unifiable_term_sigs higher_order_lib (current_type prog))
       else [] in
@@ -255,7 +255,7 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
         let (m2, new_prog) = get_fresh_term_hol a0 new_prog in
         let (m1, new_prog) = get_fresh_term_hol (Type.Arr (a0, current_type)) new_prog in
         let m = Term.App (current_type, m1, m2) in
-        [expand_current_hol m new_prog])
+        [(expand_current_hol m new_prog, n)])
       else [] in
 
     if (Program.is_closed prog) then
