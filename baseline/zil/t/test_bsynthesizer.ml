@@ -340,7 +340,7 @@ let test_id_pruning ?debug:(debug=true) ?msg:(msg="With id-pruning") goal_type ~
 
 (******************************************************************************)
 (* Enumeration with templates *)
-let test_enumaration_with_templates ?debug:(debug=true) ?msg:(msg="Enumeration with templates and black list") goal_type free_lib ~black_list ?examples:(examples=[]) ?ho_components:(ho_components=[]) ?fo_components:(fo_components=[]) ~nof_hoc ~nof_hol ~nof_cal =
+let test_enumeration_with_templates ?debug:(debug=true) ?msg:(msg="Enumeration with templates and black list") goal_type free_lib ~black_list ?examples:(examples=[]) ?ho_components:(ho_components=[]) ?fo_components:(fo_components=[]) ~nof_hoc ~nof_hol ~nof_cal =
 
   let sym_lib_comp components = (match components with
     | [] -> sym_lib_uni
@@ -356,9 +356,12 @@ let test_enumaration_with_templates ?debug:(debug=true) ?msg:(msg="Enumeration w
 
   (* TODO debugging *) let () = if debug then printf "\n\n\n%s...\n" msg else () in (* end *)
 
-  let compare (prog1, n1) (prog2, n2) = match Program.compare prog1 prog2 with
+  (*let compare (prog1, n1) (prog2, n2) = match Program.compare prog1 prog2 with
     | 0 -> n2 - n1
-    | n -> n in
+    | n -> n in*)
+  let compare (prog1, n1) (prog2,n2) =
+    let cost (prog, n) = Program.nof_holes prog - n in
+    (- cost (prog2, n2) + cost (prog1, n1)) in
 
   let prog = Program.reset first_prog (transform_type free_lib goal_type) in
   let queue = Heap.create ~min_size:100 ~cmp:compare () in
@@ -1370,11 +1373,11 @@ let maximum_test =
                   [2;1;1]]);;*)
 
 
-(* Try to generate concat. with a very simple blacklist *)
+(*(* Try to generate concat. with a very simple blacklist *)
 let free_lib = Library.create ();;
 let concat_test =
   let example xss = (([list_to_list "(List Int)" list_to_intlist xss],["Int"]),  list_to_intlist (List.concat xss)) in
-  test_enumaration_with_templates
+  test_enumeration_with_templates
     ~msg:"Generate concat"
     (*~debug:false*)
     (parse_type "@ List (List #0) -> List #0")
@@ -1385,28 +1388,28 @@ let concat_test =
     ~nof_cal:10
     ~ho_components:[
                  (*"const";*)
-                 "flip";
+                 (*"flip";
                  "curry";
                  "uncurry";
                  "fanout";
-                 "ignore";
+                 "ignore";*)
                  (*"undefined";*)
                  (*"nil";*)
-                 "con";
+                 (*"con";
                  "head";
                  "tail";
                  (*"true";*)
                  (*"false";*)
                  "pair";
                  "fst";
-                 "snd";
+                 "snd";*)
                  "map";
                  "foldr";
                  "foldl";
-                 "sum";
+                 (*"sum";
                  "prod";
                  (*"b_zero";*)
-                 "b_succ";
+                 "b_succ";*)
                  "b_foldNat";
                  "b_foldNatNat";
                  "b_add";
@@ -1453,7 +1456,112 @@ let concat_test =
                  "enumFromTo"
                 ]
     ~examples:(List.map ~f:example
-                 [[[2;3];[]];
-                  [[1];[2;3]]]);;
+                 [[[1;2;3];[4;5]];
+                  [[1];[2;3]]]);;*)
 
+
+(* Try to generate maximum with an accurate manual black_list *)
+(*let black_list = [
+    "uncurry _ (pair _ _)";
+    "head (nil)";
+    "tail (nil)";
+    "const _ _";
+    "b_foldNatNat (b_foldNatNat";
+    (*"factorial (factorial";*)
+    "length (nil)";
+    "prod (nil)";
+    "sum (nil)";
+    "rev (nil)";
+    "rev (con _ (nil))";
+    "append (nil)";
+    "append _ (nil)";
+    "concat (nil)";
+    "prod (rev";
+    "sum (rev";
+    "length (rev";
+    "enumTo b_zero";
+    "enumFromTo (b_succ b_zero)";
+    "length (enumTo _)";
+    "head (enumTo";
+    "head (enumFromTo";
+    "b_div _ b_zero";
+    "b_div b_zero";
+    "b_add b_zero";
+    "b_add _ b_zero";
+    "b_sub b_zero";
+    "b_sub _ b_zero";
+    "b_mul b_zero";
+    "b_mul _ b_zero";
+    "b_mul (b_succ b_zero)";
+    "b_mul _ (b_succ b_zero)";
+    "head (con _)";
+    "prod (con _ (nil))";
+    "sum (con _ (nil))";
+    "map _ (nil)";
+    "replicate b_zero";
+    "rev (rev";
+    "b_foldNat _ _ b_zero";
+    "b_foldNatNat _ _ b_zero";
+    "b_foldNat b_succ b_zero";
+    "snd (pair";
+    "fst (pair";
+    "flip _ _ _";
+    "foldl _ _ (nil)";
+    "foldr _ _ (nil)";
+    "foldr (con) (nil)";
+    "rev (map _ (rev";
+    "tail (con _ (nil))";
+    "prod (con b_zero";
+    ];;*)
+let sum_test =
+    let example xs = (([list_to_intlist xs],[]),  string_of_int (List.fold_left ~f:(+) ~init:0 xs)) in
+  test_black_list
+    ~msg:"Generate sum"
+    (parse_type "List Int -> Int")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 (*"sum";*)
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 (*"b_foldNat";*)
+                 (*"b_foldNatNat";*)
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[2;1];
+                  [2;3;2]]);;
 
