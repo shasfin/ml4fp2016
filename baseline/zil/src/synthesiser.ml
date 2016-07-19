@@ -184,13 +184,54 @@ let enumerate_satisfying ?debug:(debug=false) queue ~sym_lib ~free_lib ?sym_def:
 (******************************************************************************)
 (* Enumerate satisfying programs (caution, could loop forever) *)
 (* prune branches of the form App (o, m, ??) where m belongs to black_list *)
+
+(* Does term m match the pattern n? *)
+let rec matches (m, n) = match (m, n) with
+  | (Term.App (_, m1, m2), Term.App (_, n1, n2)) -> (matches (m1, n1)) && (matches (m2, n2))
+  | (_, Term.Hol _) -> true
+  | (Term.Sym (_, i), Term.Sym (_, j)) -> i = j
+  | (Term.Var (_, i), Term.Var (_, j)) -> i = j
+  | (Term.Int (_, i), Term.Int (_, j)) -> i = j
+  | (Term.Free (_, i), Term.Free (_, j)) -> i = j
+  | (Term.Abs (_, _, m1), Term.Abs (_, _, n1)) -> matches (m1, n1)
+  | (Term.APP (_, m1, _), Term.APP (_, n1, _)) -> matches (m1, n1)
+  | (Term.ABS (_, m1), Term.ABS (_, n1)) -> matches (m1, n1)
+  | _ -> false
+
+(* Does any subtree of term m match the pattern n? *)
+let matches_subtree m n =
+  let rec subtree_aux m =
+    matches (m, n) || (match m with
+      | Term.App (_, m1, m2) -> (subtree_aux m1) || (subtree_aux m2)
+      | Term.APP (_, m1, _) -> (subtree_aux m1)
+      | Term.Abs (_, _, m1) -> (subtree_aux m1)
+      | Term.ABS (_, m1) -> (subtree_aux m1)
+      | _ -> false) in
+
+  let res = subtree_aux m in
+
+  (*let () = print_endline (sprintf
+    "matches_subtree (%s) (%s) = %b"
+    (Term.to_string m)
+    (Term.to_string n)
+    res) in*)
+
+  res
+
+
+(* black list on strings *)
+(*let black_prog black_list prog =
+  let str = to_string_ignore_types (to_term prog) in
+  String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x)*)
+
+(* black list on terms *)
+let black_prog black_list prog =
+  let m = to_term prog in
+  List.exists black_list ~f:(fun x -> matches_subtree m x) 
+
 let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) n =
  
   let rec find_first_satisfying queue =
-
-    let black_prog prog =
-      let str = to_string_ignore_types (to_term prog) in
-      String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
 
     let top = Heap.pop_exn queue in
 
@@ -199,7 +240,7 @@ let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~bla
     else
       (let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
       let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
-      let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog x))  falses) in
+      let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog black_list x))  falses) in
       (match trues with
       | [] -> find_first_satisfying queue
       | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; p))) in
@@ -277,9 +318,7 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
 
   let first_order_enumerate_with_black_list prog =
     (*let () = print_endline (sprintf "|queue| = %d" (Heap.length queue)) in*)
-    let black_prog prog =
-      let str = to_string_ignore_types (to_term prog) in
-      String.Set.exists black_list ~f:(fun x -> String.is_substring str ~substring:x) in
+
     let cal = ref 0 in
     let queue = Heap.create () ~cmp:Program.compare in
     let () = Heap.add queue prog in
@@ -294,7 +333,7 @@ let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first
         else
           (let s = successor ~debug top  ~sym_lib:first_order_lib ~free_lib:free_lib in
           let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
-          let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog x))  falses) in
+          let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog black_list x))  falses) in
           (match trues with
           | [] -> enumerate_aux queue
           | (p::ps) -> List.iter ~f:(fun x -> Heap.add queue x) ps; Some p))))

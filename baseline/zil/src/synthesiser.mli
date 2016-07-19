@@ -45,7 +45,7 @@ val enumerate_with_black_list :
   Program.t Heap.t ->
   sym_lib:(idx_sym, unit) Library.t ->
   free_lib:(idx_free, unit) Library.t ->
-  black_list:String.Set.t ->
+  black_list:('a Term.t list) ->
   ?sym_def:(idx_sym, unit Term.t, Type.t) lib ->
   ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
   int ->
@@ -58,7 +58,7 @@ val enumerate_with_templates :
   higher_order_lib:(idx_sym, unit) Library.t ->
   first_order_lib:(idx_sym, unit) Library.t ->
   free_lib:(idx_free, unit) Library.t ->
-  black_list:(String.Set.t) ->
+  black_list:('a Term.t list) ->
   sym_def:(idx_sym, unit Term.t, Type.t) lib ->
   ?examples:((idx_free, unit Term.t, Type.t) lib * unit Term.t) list ->
   nof_hoc:int ->
