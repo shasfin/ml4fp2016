@@ -95,6 +95,20 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
+let test_filter =
+  let xs = [1;3;0;4;1] in
+  test
+    (sprintf "filter Int b_is_zero (%s)" (list_to_intlist xs))
+    (list_to_intlist (List.filter xs ~f:(fun x -> x = 0)))
+    "filter and is_zero"
+
+(*let test_foldNatNat =
+  let n = 3 in
+  test
+    (sprintf "b_foldNatNat Int b_add b_zero %d" n)
+    (string_of_int (List.fold_left ~f:(+) ~init:0 (List.range ~stop:`inclusive 1 n)))
+    "foldNatNat add"*)
+
 (*let test_enumFromTo =
   let n = -1 in
   let m = 2 in

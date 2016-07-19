@@ -162,6 +162,8 @@ let read_from_file filename =
   let () = add_builtin Builtin.max lib in
   let () = add_builtin Builtin.foldNat lib in
   let () = add_builtin Builtin.foldNatNat lib in
+  let () = add_builtin Builtin.filter_aux lib in
+  let () = add_builtin Builtin.is_zero lib in
 
   let () = add_type "Int" Type.Int 0 lib in
 
