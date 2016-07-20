@@ -6,6 +6,10 @@ module IntMap : sig
   type 'a t
 end
 
+module StringMap : sig
+  type 'a t
+end
+
   (** Type of generated partial programs *)
 
   type t = {
@@ -13,6 +17,7 @@ end
     max_type_hol : idx_hol; (* first fresh type hole index *)
     open_holes : idx_hol list; (* stack of open holes *)
     closed_holes : idx_hol list; (* stack of closed holes *)
+    components : int StringMap.t; (* association list of used components *)
     prog : (Type.t Term.t option * Type.t) IntMap.t;
     (** A program is a mapping from holes to the corresponding terms, if present, and to their types. The starting point is ?0 *)
   }
