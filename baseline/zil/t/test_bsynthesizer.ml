@@ -259,7 +259,9 @@ let black_list = [
     "b_add ?0 b_zero";
     "b_add b_zero";
     "b_div ?0 b_zero";
+    "b_div ?0 (b_succ b_zero)";
     "b_div b_zero";
+    "b_div (b_succ b_zero)";
     "b_foldNat ^0 ?0 ?0 b_zero";
     "b_foldNat ^0 b_succ b_zero";
     "b_foldNatNat ^0 (b_foldNatNat ^0 ?0 ?0 ?0)";
@@ -274,6 +276,7 @@ let black_list = [
     "const ^0 ^0 ?0 ?0";
     "enumFromTo (b_succ b_zero)";
     "enumTo b_zero";
+    "enumTo (prod ?0 ?0)";
     "flip ^0 ^0 ^0 ?0 ?0 ?0";
     "foldl ^0 ^0 ?0 ?0 (nil ^0)";
     "foldr ^0 ^0 (con ^0) (nil ^0)";
@@ -282,9 +285,12 @@ let black_list = [
     "head ^0 (con ^0 ?0 ?0)";
     "head ^0 (enumFromTo ?0 ?0)";
     "head ^0 (enumTo ?0)";
+    (*"head ^0 (map ^0 ^0 ?0 ?0)";*)
     "head ^0 (nil ^0)";
+    (*"length ^0 (con ^0 ?0 ?0)";*)
     "length ^0 (enumFromTo ?0 ?0)";
     "length ^0 (enumTo ?0)";
+    "length ^0 (map ^0 ^0 ?0 ?0)";
     "length ^0 (nil ^0)";
     "length ^0 (rev ^0 ?0)";
     "map ^0 ^0 ?0 (nil ^0)";
@@ -1123,7 +1129,7 @@ let concat_test =
                  [[[2;3];[]];
                   [[1];[2;3]]]);;*)
 
-(*(* Try to generate enumFromTo. with a longer black_list *)
+(* Try to generate enumFromTo. with a longer black_list *)
 (*let black_list = [
     (*"head (nil)";
     "tail (nil)";
@@ -1161,60 +1167,50 @@ let enumFromTo_test =
     ~black_list:black_list
     1
     ~components:[
-                 (*"const";
+                 "const";
                  "flip";
                  "curry";
                  "uncurry";
                  "fanout";
-                 "ignore";*)
+                 "ignore";
                  (*"undefined";*)
                  "nil";
                  "con";
-                 (*"head";
+                 "head";
                  "tail";
                  "true";
                  "false";
                  "pair";
                  "fst";
-                 "snd";*)
+                 "snd";
                  "map";
-                 (*"foldr";
+                 "foldr";
                  "foldl";
                  "sum";
-                 "prod";*)
-                 (*"b_zero";
-                 "b_succ";*)
-                 (*"b_foldNat";*)
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_foldNat";
                  "b_foldNatNat";
                  "b_add";
                  "b_sub";
-                 (*"b_mul";
+                 "b_mul";
                  "b_div";
                  "b_max";
-                 "length";*)
+                 "length";
                  (*"factorial";*)
-                 (*"replicate";
+                 "replicate";
                  "append";
                  "rev";
-                 "concat";*)
-                 (*"enumTo";
-                 "enumFromTo"*)
+                 "concat";
+                 "enumTo";
+                 (*"enumFromTo"*)
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;*)
+                  (2,5)]);;
 
 (*(* Try to generate enumFromTo. with a very long black_list *)
-let black_list = [
-    "head (nil)";
-    "tail (nil)";
-    "b_foldNatNat (b_foldNatNat _ _ _)";
-    "b_foldNatNat (b_foldNatNat _)";
-    "b_foldNatNat (b_foldNatNat)";
-    "b_foldNatNat (b_foldNatNat _ _)";
-    "enumTo (prod (enumTo _))";
-    (*"factorial (factorial _)";*)
-    ];;
 let enumFromTo_test =
     let example (n, m) = (([string_of_int n; string_of_int m],[]),  list_to_intlist (List.range ~stop:`inclusive n m)) in
   test_id_pruning
@@ -1225,11 +1221,11 @@ let enumFromTo_test =
     100
     ~components:[
                  "const";
-                 (*"flip";
+                 "flip";
                  "curry";
                  "uncurry";
                  "fanout";
-                 "ignore";*)
+                 "ignore";
                  (*"undefined";*)
                  "nil";
                  "con";
@@ -1419,12 +1415,12 @@ let sum_test =
     (Library.create ())
     1
     ~components:[
-                 "const";
+                 (*"const";
                  "flip";
                  "curry";
                  "uncurry";
                  "fanout";
-                 "ignore";
+                 "ignore";*)
                  (*"undefined";*)
                  "nil";
                  "con";
