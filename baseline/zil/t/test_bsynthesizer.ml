@@ -1267,7 +1267,7 @@ let enumFromTo_test =
                  [(1,3);
                   (2,5)]);;*)
 
-(* Try to generate maximum with an accurate manual black_list *)
+(*(* Try to generate maximum with an accurate manual black_list *)
 let maximum_test =
     let example xs = (([list_to_intlist xs],[]),  string_of_int (match List.max_elt ~cmp:compare xs with Some m -> m | None -> invalid_arg "empty list")) in
   test_black_list
@@ -1319,7 +1319,7 @@ let maximum_test =
     ~examples:(List.map ~f:example
                  [[2;4;3];
                   [5;1];
-                  [2;1;1]]);;
+                  [2;1;1]]);;*)
 
 
 (*(* Try to generate concat. with a very simple blacklist *)
@@ -1409,7 +1409,7 @@ let concat_test =
                   [[1];[2;3]]]);;*)
 
 
-(*(* Try to generate maximum with an accurate manual black_list *)
+(*(* Try to generate sum with an accurate manual black_list *)
 let sum_test =
     let example xs = (([list_to_intlist xs],[]),  string_of_int (List.fold_left ~f:(+) ~init:0 xs)) in
   test_black_list
@@ -1461,4 +1461,60 @@ let sum_test =
     ~examples:(List.map ~f:example
                  [[2;5];
                   [4;2;1]]);;*)
+
+(* Try to generate filter is_zero with an accurate manual black_list *)
+let filter_is_zero_test =
+    let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = 0) xs)) in
+  test_black_list
+    ~msg:"Generate filter is_zero"
+    (parse_type "List Int -> List Int")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 "const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "true";
+                 "false";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "filter";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_is_zero";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo"
+                ]
+    ~examples:(List.map ~f:example
+                 [[2;5;0];
+                  [4;0;2;1];
+                  [0;0;1]]);;
 

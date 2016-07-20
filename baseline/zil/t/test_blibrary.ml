@@ -98,9 +98,27 @@ let test input output msg =
 let test_filter =
   let xs = [1;3;0;4;1] in
   test
+    (sprintf "rev Int (filter Int b_is_zero (%s))" (list_to_intlist xs))
+    (list_to_intlist (List.filter xs ~f:(fun x -> x = 0)))
+    "rev filter"
+
+(*let test_replicate =
+  let n = 5 in
+  let x = 0 in
+  test
+    (sprintf
+      "b_foldNat (List Int) (con Int %d) (nil Int) %d"
+      x
+      n)
+    (list_to_intlist [0;0;0;0;0])
+    "foldNat"*)
+
+let test_filter =
+  let xs = [1;3;0;4;1] in
+  test
     (sprintf "filter Int b_is_zero (%s)" (list_to_intlist xs))
     (list_to_intlist (List.filter xs ~f:(fun x -> x = 0)))
-    "filter and is_zero"
+    "filter"
 
 (*let test_foldNatNat =
   let n = 3 in
