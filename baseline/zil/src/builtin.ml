@@ -139,27 +139,6 @@ let foldNatNat =
   let m = Term.FUN ((), def3 name (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
   (name, m, parse_type "@ (Int -> #0 -> #0) -> #0 -> Int -> #0")
 
-let filter_aux =
-  let name = "b_filter_aux" in
-  let impl a m_f m_x m_xs lib =
-    match Term.to_string (eval ~sym_def:lib (Term.App ((), m_f, m_x))) with
-    | "true" -> eval ~sym_def:lib (parse_term (sprintf
-        "con (%s) (%s) (filter (%s) (%s) (%s))"
-        (Type.to_string a)
-        (Term.to_string m_x)
-        (Type.to_string a)
-        (Term.to_string m_f)
-        (Term.to_string m_xs)))
-    | "false" -> eval ~sym_def:lib (parse_term (sprintf
-        "filter (%s) (%s) (%s)"
-        (Type.to_string a)
-        (Term.to_string m_f)
-        (Term.to_string m_xs)))
-    | x -> invalid_arg "Please reduce before evaluation" in
-  
-  let m = Term.FUN ((), def3 name (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
-  (name, m, parse_type "@ (#0 -> Bool) -> #0 -> List #0 -> List #0")
-
 
 let is_zero =
   let name = "b_is_zero" in

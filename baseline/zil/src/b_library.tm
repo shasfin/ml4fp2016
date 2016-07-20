@@ -66,7 +66,7 @@ foldr | * * { [#1 -> #0 -> #0] [#0] [List #1] : $0 #0 $1 { [#1] [List #1] : $4 $
 
 foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : foldl #1 #0 $4 ($4 $3 $1) $0 } } | @ @ (#1 -> #0 -> #1) -> #1 -> List #0 -> #1
 
-filter | * {[#0 -> Bool] [List #0] : $0 (List #0) (nil #0) (b_filter_aux #0 $1) } | @ (#0 -> Bool) -> List #0 -> List #0
+filter | * { [#0 -> Bool] [List #0] : $0 (List #0) (nil #0) { [#0] [List #0] : (($3 $1) (List #0 -> List #0) { [List #0] : con #0 $2 $0 } { [List #0] : $0 }) (filter #0 $3 $0) } } | @ (#0 -> Bool) -> List #0 -> List #0
 
 -- list of int functions
 
