@@ -90,8 +90,6 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 --b_div | <<Built-in>> | Int -> Int -> Int
 --b_max | <<Built-in>> | Int -> Int -> Int
 
---b_filter_aux | <<Built-in>> | @ (#0 -> Bool) -> #0 -> List #0 -> List #0
-
 --b_is_zero | <<Built-in>> | Int -> Bool
 
 -- derived (synthesized) functions using built-in int

@@ -1409,7 +1409,7 @@ let concat_test =
                   [[1];[2;3]]]);;*)
 
 
-(*(* Try to generate sum with an accurate manual black_list *)
+(* Try to generate sum with an accurate manual black_list *)
 let sum_test =
     let example xs = (([list_to_intlist xs],[]),  string_of_int (List.fold_left ~f:(+) ~init:0 xs)) in
   test_black_list
@@ -1460,9 +1460,9 @@ let sum_test =
                 ]
     ~examples:(List.map ~f:example
                  [[2;5];
-                  [4;2;1]]);;*)
+                  [4;2;1]]);;
 
-(* Try to generate filter is_zero with an accurate manual black_list *)
+(*(* Try to generate filter is_zero with an accurate manual black_list *)
 let filter_is_zero_test =
     let example xs = (([list_to_intlist xs],[]),  list_to_intlist (List.filter ~f:(fun x -> x = 0) xs)) in
   test_black_list
@@ -1515,6 +1515,6 @@ let filter_is_zero_test =
                 ]
     ~examples:(List.map ~f:example
                  [[2;0;5];
-                  [4;2;1]]);;
+                  [4;2;1]]);;*)
 
 
