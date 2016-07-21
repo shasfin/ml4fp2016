@@ -66,7 +66,7 @@ foldr | * * { [#1 -> #0 -> #0] [#0] [List #1] : $0 #0 $1 { [#1] [List #1] : $4 $
 
 foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : foldl #1 #0 $4 ($4 $3 $1) $0 } } | @ @ (#1 -> #0 -> #1) -> #1 -> List #0 -> #1
 
-filter | * {[#0 -> Bool] [List #0] : $0 (List #0) (nil #0) (b_filter_aux #0 $1) } | @ (#0 -> Bool) -> List #0 -> List #0
+filter | * { [#0 -> Bool] [List #0] : $0 (List #0) (nil #0) { [#0] [List #0] : (($3 $1) (List #0 -> List #0) { [List #0] : con #0 $2 $0 } { [List #0] : $0 }) (filter #0 $3 $0) } } | @ (#0 -> Bool) -> List #0 -> List #0
 
 -- list of int functions
 
@@ -89,8 +89,6 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 --b_mul | <<Built-in>> | Int -> Int -> Int
 --b_div | <<Built-in>> | Int -> Int -> Int
 --b_max | <<Built-in>> | Int -> Int -> Int
-
---b_filter_aux | <<Built-in>> | @ (#0 -> Bool) -> #0 -> List #0 -> List #0
 
 --b_is_zero | <<Built-in>> | Int -> Bool
 
