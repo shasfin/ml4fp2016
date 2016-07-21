@@ -312,6 +312,7 @@ let black_list = [
     "sum (nil ^0)";
     "sum (rev ^0 ?0)";
     "tail ^0 (con ^0 ?0 (nil))";
+    "tail ^0 (enumFromTo ?0 ?0)";
     "tail ^0 (nil ^0)";
     "uncurry ^0 ^0 ^0 ?0 (pair ^0 ^0 ?0 ?0)";
 ];;
@@ -1646,7 +1647,7 @@ let dedup_test =
                   [1;2;1]]);;*)
 
 
-(* Try to generate dedup with an accurate manual black_list -- not possible *)
+(*(* Try to generate dropmax with an accurate manual black_list *)
 let dropmax_test =
     let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = (match (List.max_elt ~cmp:compare xs) with Some m -> m | None -> invalid_arg "max of empty list")) xs)) in
   test_black_list
@@ -1707,5 +1708,69 @@ let dropmax_test =
     ~examples:(List.map ~f:example
                  [[1;2;3];
                   [1;1];
+                  [1;2;1]]);;*)
+
+(* Try to generate map_double with an accurate manual black_list *)
+let map_double_test =
+    let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.map ~f:(fun x -> x * 2) xs)) in
+  test_black_list
+    ~msg:"Generate map_double"
+    (parse_type "List Int -> List Int")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "is_nil";
+                 (*"true";
+                 "false";*)
+                 "not";
+                 (*"pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "filter";
+                 "sum";
+                 "prod";
+                 "b_zero";
+                 "b_succ";
+                 "b_is_zero";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "b_eq";
+                 (*"b_neq";*)
+                 (*"b_leq";
+                 "b_geq";*)
+                 "length";
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 "enumTo";
+                 "enumFromTo";
+                 (*"member"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [[1;2;3];
+                  [1;1];
                   [1;2;1]]);;
+
 
