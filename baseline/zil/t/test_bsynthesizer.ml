@@ -266,6 +266,8 @@ let black_list = [
     "b_foldNat ^0 b_succ b_zero";
     "b_foldNatNat ^0 (b_foldNatNat ^0 ?0 ?0 ?0)";
     "b_foldNatNat ^0 ?0 ?0 b_zero";
+    "b_is_zero b_zero";
+    "b_max b_zero b_zero";
     "b_mul (b_succ b_zero)";
     "b_mul ?0 (b_succ b_zero)";
     "b_mul ?0 b_zero";
@@ -287,6 +289,7 @@ let black_list = [
     "head ^0 (enumTo ?0)";
     (*"head ^0 (map ^0 ^0 ?0 ?0)";*)
     "head ^0 (nil ^0)";
+    "is_nil ^0 (nil ^0)";
     (*"length ^0 (con ^0 ?0 ?0)";*)
     "length ^0 (enumFromTo ?0 ?0)";
     "length ^0 (enumTo ?0)";
@@ -294,6 +297,7 @@ let black_list = [
     "length ^0 (nil ^0)";
     "length ^0 (rev ^0 ?0)";
     "map ^0 ^0 ?0 (nil ^0)";
+    "not (not ?0)";
     "prod (con ^0 ?0 (nil))";
     "prod (con ^0 b_zero ?0)";
     "prod (nil ^0)";
@@ -1129,7 +1133,7 @@ let concat_test =
                  [[[2;3];[]];
                   [[1];[2;3]]]);;*)
 
-(* Try to generate enumFromTo. with a longer black_list *)
+(*(* Try to generate enumFromTo. with a longer black_list *)
 (*let black_list = [
     (*"head (nil)";
     "tail (nil)";
@@ -1208,7 +1212,7 @@ let enumFromTo_test =
                 ]
     ~examples:(List.map ~f:example
                  [(1,3);
-                  (2,5)]);;
+                  (2,5)]);;*)
 
 (*(* Try to generate enumFromTo. with a very long black_list *)
 let enumFromTo_test =
@@ -1458,7 +1462,7 @@ let sum_test =
                  [[2;5];
                   [4;2;1]]);;*)
 
-(* Try to generate filter is_zero with an accurate manual black_list *)
+(*(* Try to generate filter is_zero with an accurate manual black_list *)
 let filter_is_zero_test =
     let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = 0) xs)) in
   test_black_list
@@ -1512,5 +1516,196 @@ let filter_is_zero_test =
     ~examples:(List.map ~f:example
                  [[2;5;0];
                   [4;0;2;1];
-                  [0;0;1]]);;
+                  [0;0;1]]);;*)
+
+(*(* Try to generate member with an accurate manual black_list *)
+let member_test =
+    let example (x, xs) = (([string_of_int x; list_to_intlist xs],[]), string_of_bool (List.mem xs x)) in
+  test_black_list
+    ~msg:"Generate member"
+    (parse_type "Int -> List Int -> Bool")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "is_nil";
+                 "true";
+                 "false";
+                 "not";
+                 "pair";
+                 "fst";
+                 "snd";
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "filter";
+                 (*"sum";
+                 "prod";*)
+                 "b_zero";
+                 "b_succ";
+                 "b_is_zero";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";
+                 "b_eq";
+                 (*"b_neq";
+                 "b_leq";
+                 "b_geq";*)
+                 (*"length";*)
+                 (*"factorial";*)
+                 "replicate";
+                 "append";
+                 "rev";
+                 "concat";
+                 (*"enumTo";*)
+                 (*"enumFromTo"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [(5, [1;2;3]);
+                  (1, [1;2;3]);
+                  (2, [4;1;3;5]);
+                  (4, [3;1;4;5]);
+                  (1, [0])]);;*)
+
+(*(* Try to generate dedup with an accurate manual black_list -- not possible *)
+let dedup_test =
+    let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.dedup xs)) in
+  test_black_list
+    ~msg:"Generate dedup"
+    (parse_type "List Int -> List Int")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "is_nil";
+                 (*"true";
+                 "false";*)
+                 "not";
+                 (*"pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "filter";
+                 (*"sum";
+                 "prod";*)
+                 (*"b_zero";
+                 "b_succ";
+                 "b_is_zero";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";
+                 "b_max";*)
+                 "b_eq";
+                 (*"b_neq";
+                 "b_leq";
+                 "b_geq";*)
+                 (*"length";*)
+                 (*"factorial";*)
+                 (*"replicate";
+                 "append";
+                 "rev";
+                 "concat";*)
+                 (*"enumTo";*)
+                 (*"enumFromTo";*)
+                 "member"
+                ]
+    ~examples:(List.map ~f:example
+                 [[1;2;3];
+                  [1;1];
+                  [1;2;1]]);;*)
+
+
+(* Try to generate dedup with an accurate manual black_list -- not possible *)
+let dropmax_test =
+    let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = (match (List.max_elt ~cmp:compare xs) with Some m -> m | None -> invalid_arg "max of empty list")) xs)) in
+  test_black_list
+    ~msg:"Generate dropmax"
+    (parse_type "List Int -> List Int")
+    ~black_list:black_list
+    (Library.create ())
+    1
+    ~components:[
+                 (*"const";
+                 "flip";
+                 "curry";
+                 "uncurry";
+                 "fanout";
+                 "ignore";*)
+                 (*"undefined";*)
+                 "nil";
+                 "con";
+                 "head";
+                 "tail";
+                 "is_nil";
+                 (*"true";
+                 "false";*)
+                 "not";
+                 (*"pair";
+                 "fst";
+                 "snd";*)
+                 "map";
+                 "foldr";
+                 "foldl";
+                 "filter";
+                 (*"sum";
+                 "prod";*)
+                 "b_zero";
+                 "b_succ";
+                 (*"b_is_zero";
+                 "b_foldNat";
+                 "b_foldNatNat";
+                 "b_add";
+                 "b_sub";
+                 "b_mul";
+                 "b_div";*)
+                 "b_max";
+                 "b_eq";
+                 (*"b_neq";*)
+                 (*"b_leq";
+                 "b_geq";*)
+                 (*"length";*)
+                 (*"factorial";*)
+                 (*"replicate";
+                 "append";
+                 "rev";
+                 "concat";*)
+                 (*"enumTo";*)
+                 (*"enumFromTo";*)
+                 (*"member"*)
+                ]
+    ~examples:(List.map ~f:example
+                 [[1;2;3];
+                  [1;1];
+                  [1;2;1]]);;
 

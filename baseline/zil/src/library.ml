@@ -163,6 +163,10 @@ let read_from_file filename =
   let () = add_builtin Builtin.foldNat lib in
   let () = add_builtin Builtin.foldNatNat lib in
   let () = add_builtin Builtin.is_zero lib in
+  let () = add_builtin Builtin.eq lib in
+  let () = add_builtin Builtin.neq lib in
+  let () = add_builtin Builtin.leq lib in
+  let () = add_builtin Builtin.geq lib in
 
   let () = add_type "Int" Type.Int 0 lib in
 
