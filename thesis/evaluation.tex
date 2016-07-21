@@ -1,0 +1,35 @@
+\chapter{Evaluation} \label{evaluation}
+
+What I want to see in this chapter:
+\begin{itemize}
+\item Table of all components
+\item Table of synthesized programs with synthesis times for the different algorithms
+\item Figure of the synthesis times of synthesized programs
+\item Comparison to Feser
+\item Explain why automatic black list and templates perform so poorly
+\item Show advantages of using black lists (I know it's trivial)
+\item Talk about the trivial thing that if you have more functions with the same time you will need much more time to find the program you are looking for.
+\item Talk about the constants in the cost functions and how they affect the search space???
+\item Stack versus queue expanding $\rightarrow$ mention it in the definitions
+\end{itemize}
+
+\section{Set up}
+  \note{Describe the machine and the testing set up, which components were used, what information did you give to the synthesizer, how many examples were given. What else?}
+  
+\section{Cost functions}
+  \note{Compare the different cost functions with each other, explain why are they good for some programs and bad for other. Table.}
+
+\section{Black lists}
+  \subsection{Benefits of black lists}
+  \note{Table of your super manual black list. Figure that for each cost function compares time with and without black list. Trivial words about pruning search space and useless branches.}
+  \subsection{Shortcomes of automatically generated black lists}
+  \note{Maybe really bring the automatically generated table. Point at the repetitions. Say that automatically generated I/O-examples are bad and we need a lot of them. Say that you tried only identity pruning, but one could also try to generate, say, the empty list or whatever.}
+
+\section{Templates}
+  \note{Short section explaining that the templates you generate are not the templates you expect and why}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End:
