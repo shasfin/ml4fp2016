@@ -1,29 +1,130 @@
-\chapter{Definitions} \label{definitions}
+\chapter{Top down type driven synthesis} \label{definitions}
+
+\TODO{starting words}
+In this chapter we will present and formally define all concepts and algorithms used by the synthesis system \textsc{Tamandu}.
+
+
+\section{Problem}
+introductory example
+consider we want to generate 
+\begin{lstlisting}[style=plain, mathescape]
+replicate :: $\forall$ X. Int $\rightarrow$ X $\rightarrow$ List X
+\end{lstlisting}
+
+\begin{lstlisting}[style=plain, mathescape]
+replicate n x = map Int X (const X Int x) (enumTo n)
+\end{lstlisting}
 
 \section{System F}
-  \subsubsection{Terms and Types}
-  \subsubsection{Evaluator}
-  \note{Maybe shift to the appendix the implementation of lists, booleans, integers and trees in System F?}
+The exposition will closely follow  Pierce \note{cite the book properly}.
 
-\section{Top down type driven synthesis, aka stupid queue}
-\subsection{Successor rules}
-  \note{Write about stack vs queue of open holes}
-\subsection{Type unification}
+  \subsection{Terms and Types}
+\begin{itemize}
+\item similar to Pierce
+\item except holes, components and free variables
+\item the search space is not the whole language but only a subset of it
+\end{itemize}
 
-\section{Enhancements}
-\subsection{Priority queue and cost functions}
-  \subsubsection{nof-nodes}
-  \subsubsection{nof-nodes-simple-type}
-  \subsubsection{no-same-component}
-  \subsubsection{length of the string}
+Real System F
+ \begin{plstx}
+(terms): t ::= x | \lambda x : T. t | t\;t | \Lambda X. t | t\;[T]\\
+(types): T ::= X | T \rightarrow T | \forall X. T\\
+(variable bindings): \Gamma ::= \emptyset | \Gamma \cup x : T\\
+\end{plstx}
 
-\subsection{Black list}
+We use an extension of System F featuring holes $?x$, input variables $i$ as well as named library components $c$ and named types $C$. The use of the names enables recursion in the definition of library components and types. Named types also support type parameters. The number of type parameters supported by a named type is denoted as $K$ in its definition.
+
+Question: where is the output? Can you define input and output pairs?
+Our system
+ \begin{plstx}
+(terms): t ::= x | \lambda x : T. t | t\;t | \Lambda X. t | t\;[T] | c | {?x} | i\\
+(types): T ::= X | T \rightarrow T | \forall X. T | ?X | I | C\;[T,\ldots, T]\\
+(variable bindings): \Gamma ::= \emptyset | \Gamma \cup x : T | \Gamma \cup X\\
+(hole bindings): \Xi ::= \emptyset | \Xi \cup {?x : T} | \Xi \cup {?X}\\
+(input variable bindings): \Phi ::= \emptyset | \Phi \cup i = t : T | \Phi \cup I = T : K\\
+(library components): \Delta ::= \emptyset | \Delta \cup c = t : T | \Delta \cup C = T : K\\
+\end{plstx}
+
+Question: do we need the definitions of library components for synthesis? We use them only for evaluation, but we always evaluate programs during synthesis. Same for the input variables. Actually, for each I/O-example we get the pair $(\Phi,o)$, where $\Phi$ instantiates all input variables and input types of a program and $o$ is the expected output.
+Subset of our system that builds the search space
+ \begin{plstx}
+(terms): t ::= t\;t | t\;[T] | c | ?x | i\\
+(types): T ::= X | T \rightarrow T | \forall X. T | ?X | I | C\;[T,\ldots, T]\\
+(hole bindings): \Xi ::= \emptyset | \Xi \cup {?x : T} | \Xi \cup {?X}\\
+(input variable bindings): \Phi ::= \emptyset | \Phi \cup i = t : T | \Phi \cup I = T : K\\
+(library components): \Delta ::= \emptyset | \Delta \cup c = t : T | \Delta \cup C = T : K\\
+\end{plstx}
+ 
+ 
+  \subsection{Evaluation semantics}
+
+
+  
+  
+  \subsection{Encodings}
+Note that in the definition of types we do not see familiar types such as booleans, integers, lists or trees. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it's more efficient in our case.
+Scott's booleans coincide with Church's booleans and are encoded as follows.
+\begin{lstlisting}[style=plain, mathescape]
+Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
+true  = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_1$
+      : Bool
+false = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_2$
+      : Bool
+if-then-else = $\Lambda$X. $\lambda$b:Bool. $\lambda$t:X. $\lambda$f:X. b [X] t f
+             : $\forall$X. Bool $\rightarrow$ X $\rightarrow$ X $\rightarrow$ X
+\end{lstlisting}
+
+Scott's integers differ from Church's integers as they are more suitable for pattern matching. \note{because they don't unwrap the whole integer every time.}
+\begin{lstlisting}[style=plain, mathescape]
+Int = $\forall$R. R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
+zero = $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. z
+     : Int
+succ = $\lambda$ n:Int. $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. s n
+     : Int $\rightarrow$ Int
+case = $\Lambda$R. $\lambda$n:Int. $\lambda$a:R. $\lambda$f:Int $\rightarrow$ R. n [R] a f
+     : $\forall$R. Int $\rightarrow$ R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
+\end{lstlisting}
+
+Analogously, Scott's lists are a recursive type and naturally support pattern matching.
+\begin{lstlisting}[style=plain, mathescape]
+List X = $\forall$R. R $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ R) $\rightarrow$ R
+nil = $\Lambda$X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. n
+    : $\forall$X. List X
+con = $\Lambda$X. $\lambda$x:X. $\lambda$xs:List X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. c x xs
+    : $\forall$X. X $\rightarrow$ List X $\rightarrow$ List X
+case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ Y. l [Y] n c
+     : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
+\end{lstlisting}
+
+ 
+ 
+  \subsection{Type unification}
+  \subsection{Type checking}
+  
+
+\section{Search}
+how do we explore the search space (best-first search).
+ (only priority queue)
+\subsection{Search space} (the successor rules)
+\subsection{Exploration}
+  \note{Write also about stack vs queue of open holes}
+
+
+\section{Cost functions}
+  \subsection{nof-nodes}
+  \subsection{nof-nodes-simple-type}
+  \subsection{no-same-component}
+  \subsection{length of the string}
+
+\section{Black list}
   \note{automatic generation of black list discussed in evaluation}
 
-\subsection{Templates}
+\section{Templates}
   Top-down type-driven synthesis, aka stupid queue
-  \subsubsection{Successor rules}
-  \note{Do we really need to describe it? Well, I have code to generate templates, but it does not really do what it is meant to do}
+  \subsection{Successor rules}
+  \note{Do we really need to describe it? Well, I have code to generate templates, but it does not really do what it is meant to do. Yes. You will describe it. Negative results are also results. People will know how not to do it.}
+  
+  cite Type Systems book.
   
 
 

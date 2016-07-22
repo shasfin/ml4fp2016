@@ -104,7 +104,11 @@
 \setlength\theorempostskipamount{0pt}
 
 %% This defines how your lstlistings look like
-\lstset{%
+\lstdefinestyle{plain}{%
+	tabsize=2,
+}
+
+\lstdefinestyle{algorithm}{%
 	tabsize=2,
 	keywordstyle=\color{blue},
 	otherkeywords={while,if,else,for,end}
