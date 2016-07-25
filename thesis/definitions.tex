@@ -54,11 +54,16 @@ Subset of our system that builds the search space
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup i = t : T | \Phi \cup I = T : K\\
 (library components): \Delta ::= \emptyset | \Delta \cup c = t : T | \Delta \cup C = T : K\\
 \end{plstx}
- 
+
+
+A program is the quadriplet $\{\Xi, \Phi, \Delta \vdash t :: T\}$. 
+A term is called \emph{closed} if it does not contain holes.
+A program is closed, if $\Xi$ is empty and $t$ and $T$ do not contain holes.
+
  
   \subsection{Evaluation semantics}
 
-
+We usually evaluate only closed programs. Eager evaluation. Rules.
   
   
   \subsection{Encodings}
@@ -99,16 +104,81 @@ case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\r
  
  
   \subsection{Type unification}
+The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
+  
+  
   \subsection{Type checking}
   
 
 \section{Search}
 how do we explore the search space (best-first search).
  (only priority queue)
-\subsection{Search space} (the successor rules)
+\subsection{Search space}\label{Search space} (the successor rules)
+Use only third system presented in Section System F.
+
+We see the search space as a graph of programs with holes (see third syntax presented in Section System F) where there is an edge between two terms $t_1$ and $t_2$ if and only if the judgement \emph{derive} defined below $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
+
+To express the rules in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
+
+A hole $?x$ can be turned into a library component $c$ from the context $\Delta$ or an input variable $i$ from the context $\Phi$. The procedure fresh($T$) transforms universally quantified type variables into fresh type variables $?X$ not used in $\Xi$.
+The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigma$ to all types contained in the context $\Delta$.
+
+\begin{prooftree}
+\AxiomC{$c : T_c \in \Delta$}
+\AxiomC{$\sigma$ unifies $T$ with fresh($T_c$)}
+	\RightLabel{D-VarLib}
+	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash c :: \sigma(T) $
+	}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$i : T_i \in \Phi$}
+\AxiomC{$\sigma$ unifies $T$ with fresh($T_i$)}
+	\RightLabel{D-VarInp}
+	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash i :: \sigma(T) $
+	}
+\end{prooftree}
+
+A hole can also be turned into a function application of two new active holes.
+\begin{prooftree}
+\AxiomC{$?X$ is a fresh type variable}
+\AxiomC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
+	\RightLabel{D-VarApp}
+	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
+\end{prooftree}
+
+In all other cases we just choose a hole and expand it according to the three rules above.
+\begin{prooftree}
+\AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
+	\RightLabel{D-App}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: T[T_1/T_1']$}
+\end{prooftree}
+
+Note that the types of all successor programs unify with the types of their ancestors. Thus, the search is type directed.
+
+
 \subsection{Exploration}
   \note{Write also about stack vs queue of open holes}
 
+We explore the search graph using a best first search.
+We can play with the algorithm in two points (marked in blue): first, we can define which hole to expand first, second, we can choose the compare function of the priority queue.
+
+\begin{algorithm}
+\caption{Best first search}
+\KwIn{goal type $T$, library components $\Delta$, list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$}
+
+queue $\gets$ PriorityQueue.empty {\color{blue}compare}\\
+queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}$\\
+
+\While{not ((PriorityQueue.top queue) satisfies all I/O-examples)}{
+	successors $\gets$ {\color{blue}successor} (PriorityQueue.top queue)\\
+	queue $\gets$ PriorityQueue.pop queue\\
+	\For{all s in successors}{
+		queue $\gets$ PrioriryQueue.push queue s\\
+	}
+}
+\KwOut{PriorityQueue.top queue}
+\end{algorithm}
 
 \section{Cost functions}
   \subsection{nof-nodes}
@@ -118,13 +188,75 @@ how do we explore the search space (best-first search).
 
 \section{Black list}
   \note{automatic generation of black list discussed in evaluation}
+A black list is a list of terms. Programs containing a black term as a subterm are not allowed to have successors. Thus, the algorithm above is modified as follows.
+
+\begin{algorithm}
+\caption{Best first search with black list}
+\KwIn{goal type $T$, library components $\Delta$, list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, black list $[b_1, \ldots , b_M]$}
+
+queue $\gets$ PriorityQueue.empty compare\\
+queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}$\\
+
+\While{not ((PriorityQueue.top queue) satisfies all I/O-examples)}{
+	\uIf{{\color{blue}not ((PriorityQueue.top queue) contains subterm from black list)}}{
+		successors $\gets$ successor (PriorityQueue.top queue)\\
+		queue $\gets$ PriorityQueue.pop queue\\
+		\For{all s in successors}{
+			queue $\gets$ PrioriryQueue.push queue s\\
+		}
+	}\Else{
+		queue $\gets$ PriorityQueue.pop queue\\
+	}
+}
+\KwOut{PriorityQueue.top queue}
+\end{algorithm}
+
 
 \section{Templates}
-  Top-down type-driven synthesis, aka stupid queue
-  \subsection{Successor rules}
-  \note{Do we really need to describe it? Well, I have code to generate templates, but it does not really do what it is meant to do. Yes. You will describe it. Negative results are also results. People will know how not to do it.}
+  Top-down type-driven synthesis.
+
+A template is a program with holes. We are interested in templates where all higher-order components are fixed and there are holes for the first-order components.
+The search space is thus similar to the search space described in \ref{Search space}, with the exception that $\Delta$ contains only the higher-order components.
+One of the new things are \emph{closed holes} $\underline{?x}$. Those are holes that are supposed to be filled in later with first-order components.
+
+The idea behind the templates is that once the higher-order components are fixed, it should be easy and fast to find a first-order assignment to get the right program. So we could do a limited search from a template and if we do not find a program satisfying all of the I/O-examples we can move quickly to the next template.
   
-  cite Type Systems book.
+  \subsection{Successor rules}
+
+The successor rules are very similar to the ones defined in \ref{Search space}, apart from little modifications. That is, now we have a successor rule to close a hole, and we can not instantiate a hole with an input variable any more, because that is supposed to be done in the next step.
+
+So we can \emph{close} a hole.
+\begin{prooftree}
+\AxiomC{$T$ is a type a first-order component can have}
+	\RightLabel{D-VarClose}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi, \Phi, \Delta \vdash {\underline{?x}} :: T$}
+\end{prooftree}
+
+We can instantiate a hole with a (higher-order) library component.
+\begin{prooftree}
+\AxiomC{$c : T_c \in \Delta$}
+\AxiomC{$\sigma$ unifies $T$ with fresh($T_c$)}
+	\RightLabel{D-VarLib}
+	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash c :: \sigma(T) $
+	}
+\end{prooftree}
+
+We can instantiate a hole with a function application of two fresh holes.
+\begin{prooftree}
+\AxiomC{$?X$ is a fresh type variable}
+\AxiomC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
+	\RightLabel{D-VarApp}
+	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
+\end{prooftree}
+
+We can expand one of the holes of the program according to one of the three rules above.
+\begin{prooftree}
+\AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
+	\RightLabel{D-App}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: T[T_1/T_1']$}
+\end{prooftree}
+
+\TODO{just cite the rules, don't copy-paste them, they are exactly the same}
   
 
 

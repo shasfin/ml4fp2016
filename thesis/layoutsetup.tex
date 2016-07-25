@@ -105,13 +105,18 @@
 
 %% This defines how your lstlistings look like
 \lstdefinestyle{plain}{%
+    language=ML,
+    basicstyle={\normalfont\ttfamily},
 	tabsize=2,
 }
 
 \lstdefinestyle{algorithm}{%
+    mathescape,
+    basicstyle={\normalfont\small},
 	tabsize=2,
-	keywordstyle=\color{blue},
-	otherkeywords={while,if,else,for,end}
+	keywordstyle=\textbf,
+	otherkeywords={while,if,else,for,end,Input,Output},
+	literate={:=}{{$\gets$}}1 {=<}{{$\leq$}}1 {>=}{{$\geq$}}1 {<>}{{$\neq$}}1{->}{$\rightarrow$}1,
 }
 
 %%% Local Variables:
