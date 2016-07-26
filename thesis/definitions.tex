@@ -27,9 +27,9 @@ The exposition will closely follow  Pierce \note{cite the book properly}.
 
 Real System F
  \begin{plstx}
-(terms): t ::= x | \lambda x : T. t | t\;t | \Lambda X. t | t\;[T]\\
-(types): T ::= X | T \rightarrow T | \forall X. T\\
-(variable bindings): \Gamma ::= \emptyset | \Gamma \cup x : T\\
+(terms): t ::= x | \lambda x : T.\; t | t\;t | \Lambda X.\; t | t\;[T]\\
+(types): T ::= X | T \rightarrow T | \forall X.\; T\\
+(variable bindings): \Gamma ::= \emptyset | \Gamma \cup \{x : T\} | \Gamma \cup \{X\}\\
 \end{plstx}
 
 We use an extension of System F featuring holes $?x$, input variables $i$ as well as named library components $c$ and named types $C$. The use of the names enables recursion in the definition of library components and types. Named types also support type parameters. The number of type parameters supported by a named type is denoted as $K$ in its definition.
@@ -37,22 +37,22 @@ We use an extension of System F featuring holes $?x$, input variables $i$ as wel
 Question: where is the output? Can you define input and output pairs?
 Our system
  \begin{plstx}
-(terms): t ::= x | \lambda x : T. t | t\;t | \Lambda X. t | t\;[T] | c | {?x} | i\\
-(types): T ::= X | T \rightarrow T | \forall X. T | ?X | I | C\;[T,\ldots, T]\\
-(variable bindings): \Gamma ::= \emptyset | \Gamma \cup x : T | \Gamma \cup X\\
-(hole bindings): \Xi ::= \emptyset | \Xi \cup {?x : T} | \Xi \cup {?X}\\
-(input variable bindings): \Phi ::= \emptyset | \Phi \cup i = t : T | \Phi \cup I = T : K\\
-(library components): \Delta ::= \emptyset | \Delta \cup c = t : T | \Delta \cup C = T : K\\
+(terms): t ::= x | \lambda x : T.\; t | t\;t | \Lambda X.\; t | t\;[T] | c | {?x} | i\\
+(types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\;[T,\ldots, T]\\
+(variable bindings): \Gamma ::= \emptyset | \Gamma \cup \{x : T\} | \Gamma \cup \{X\}\\
+(hole bindings): \Xi ::= \emptyset | \Xi \cup \{{?x} : T\} | \Xi \cup \{{?X}\}\\
+(input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
+(library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
 
 Question: do we need the definitions of library components for synthesis? We use them only for evaluation, but we always evaluate programs during synthesis. Same for the input variables. Actually, for each I/O-example we get the pair $(\Phi,o)$, where $\Phi$ instantiates all input variables and input types of a program and $o$ is the expected output.
 Subset of our system that builds the search space
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
-(types): T ::= X | T \rightarrow T | \forall X. T | ?X | I | C\;[T,\ldots, T]\\
-(hole bindings): \Xi ::= \emptyset | \Xi \cup {?x : T} | \Xi \cup {?X}\\
-(input variable bindings): \Phi ::= \emptyset | \Phi \cup i = t : T | \Phi \cup I = T : K\\
-(library components): \Delta ::= \emptyset | \Delta \cup c = t : T | \Delta \cup C = T : K\\
+(types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\;[T,\ldots, T]\\
+(hole bindings): \Xi ::= \emptyset | \Xi \cup \{{?x} : T\} | \Xi \cup \{{?X}\}\\
+(input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
+(library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
 
 
@@ -63,8 +63,45 @@ A program is closed, if $\Xi$ is empty and $t$ and $T$ do not contain holes.
  
   \subsection{Evaluation semantics}
 
-We usually evaluate only closed programs. Eager evaluation. Rules.
-  
+We usually evaluate only closed programs. Eager evaluation. Rules. Judgement $\Phi, \Delta \vdash t \longrightarrow t'$.
+
+Define \emph{value} $v$ to be a term to which no evaluation rule apply.
+
+\begin{prooftree}
+\AxiomC{$c = t : T \in \Delta$}
+	\RightLabel{E-Lib}
+	\UnaryInfC{$\Phi, \Delta \vdash c \longrightarrow t$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$i = t : T \in \Phi$}
+	\RightLabel{E-Inp}
+	\UnaryInfC{$\Phi, \Delta \vdash i \longrightarrow t$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Phi, \Delta \vdash t_1 \longrightarrow t_1'$}
+	\RightLabel{E-App1}
+	\UnaryInfC{$\Phi, \Delta \vdash t_1\; t_2 \longrightarrow t_1'\; t_2$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Phi, \Delta \vdash t_2 \longrightarrow t_2'$}
+	\RightLabel{E-App2}
+	\UnaryInfC{$\Phi, \Delta \vdash v_1\; t_2 \longrightarrow v_1\; t_2'$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{}
+	\RightLabel{E-AppAbs}
+	\UnaryInfC{$\Phi, \Delta \vdash (\lambda x:T_{11}.\; t_{12})\; v_2 \longrightarrow [x \mapsto v_2]t_{12}$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{}
+	\RightLabel{E-APPABS}
+	\UnaryInfC{$\Phi, \Delta \vdash (\Lambda X.\; t_2)\; [T_2] \longrightarrow [X \mapsto T_2]t_2$}
+\end{prooftree}  
   
   \subsection{Encodings}
 Note that in the definition of types we do not see familiar types such as booleans, integers, lists or trees. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it's more efficient in our case.
@@ -101,20 +138,106 @@ case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\r
      : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
 \end{lstlisting}
 
- 
- 
-  \subsection{Type unification}
+\subsection{Type checking}
+Question: why do I mathematically need that many contexts? How can I summarize T-Var, T-Hol, T-Inp, T-Lib in one rule?\\
+Question: Should I type System F or only "programs"? Answer: System F, of course. In the code you type library components as well.  
+  
+I moved this section because type checking does not need unification.
+  
+The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$. Based on the book of Pierce.  
+  
+\begin{prooftree}
+\AxiomC{$x : T \in \Gamma$}
+	\RightLabel{T-Var}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash x : T$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{${?x} : T \in \Xi$}
+	\RightLabel{T-Hol}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash {?x} : T$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$i = t : T \in \Phi$}
+	\RightLabel{T-Inp}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash i : T$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$c = t : T \in \Delta$}
+	\RightLabel{T-Lib}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash c : T$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \cup \{x : T_1\}, \Xi, \Phi, \Delta \vdash t_2 : T_2$}
+	\RightLabel{T-Abs}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash \lambda x : T_1.\; t_2 : T_1 \rightarrow T_2$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1 : T_1 \rightarrow T_2$}
+\AxiomC{$\Gamma, \Xi, \Phi, \Delta \vdash t_2 : T_1$}
+	\RightLabel{T-App}
+	\BinaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1\;t_2 : T_2$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma \cup \{X\}, \Xi, \Phi, \Delta \vdash t_2 : T_2$}
+	\RightLabel{T-ABS}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash \Lambda X.\; t_2 : \forall X.\; T_2$}
+\end{prooftree}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1 : \forall X.\; T_{12}$}
+	\RightLabel{T-APP}
+	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1\;[T_2] : [X \mapsto T_2]T_{12}$}
+\end{prooftree}
+
+\subsection{Type unification}
 The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
   
-  
-  \subsection{Type checking}
-  
+How did you do type unification?
+Unification of universal types is not implemented. If you need to unify to universal types, you should transform all bound variables into holes and remove the universal quantifier.
+
+A set of constraints is a set of types that should be equal under a substitution. The unification algorithm is supposed to output a substitution $\sigma$ so that $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$.
+
+\begin{algorithm}
+\caption{Type unification}
+\KwIn{Set of constraints $\C = \{T_{11} = T_{12}, T_{21} = T_{22}, \ldots\}$}
+\KwOut{Substitution $\sigma$ so that $\sigma(T_{i1}) = \sigma(T_{i2})$ for every constraint $T_{i1} = T_{i2}$ in $\C$}
+
+\SetKwProg{Fn}{Function}{ is}{end}
+\Fn{unify($\C$)}{
+	\DontPrintSemicolon
+	\lIf{$\C = \emptyset$}{
+		[]
+	}\Else{let $\{T_1 = T_2\} \cup \C' = \C$ in\\
+		\uIf{$T_1 = T_2$}{
+			\textit{unify}$(\C')$
+		}\uElseIf{$T_1 = {?X}$ and ${?X}$ does not occur in $T_2$}{
+			\textit{unify}$([X \mapsto T_2]\C') \circ [X \mapsto T_2]$
+		}\uElseIf{$T_2 = {?X}$ and ${?X}$ does not occur in $T_1$}{
+			\textit{unify}$([X \mapsto T_1]\C') \circ [X \mapsto T_1]$
+		}\uElseIf{$T_1 = T_{11} \rightarrow T_{12}$ and $T_2 = T_{21} \rightarrow T_{22}$}{
+			\textit{unify}$(\C' \cup \{T_{11} = T_{21}, T_{12} = T_{22}\})$
+		}\uElseIf{$T_1 = C\;[T_{11}, T_{12}, \ldots, T_{1k}]$ and $T_2 = C\;[T_{21}, T_{22}, \ldots, T_{2k}]$}{
+			\textit{unify}$(\C' \cup \{T_{11} = T_{21}, T_{12} = T_{22}, \ldots, T_{1k} = T_{2k}\})$
+		}\Else{
+			\textit{fail}
+		}
+	}
+}
+\end{algorithm} 
 
 \section{Search}
 how do we explore the search space (best-first search).
  (only priority queue)
-\subsection{Search space}\label{Search space} (the successor rules)
+\subsection{Search space}\label{Search space}
 Use only third system presented in Section System F.
+
+Formal problem definition. Given a library $\Delta$, a goal type $T$ and a list of I/O-examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ so that $\emptyset, \emptyset, \Phi_1, \Delta \vdash t : T$ (that is, $t$ has the goal type under an empty variable binding context and an empty hole binding context) and $t$ satisfies all I/O-examples, that is $\Phi_n, \Delta \vdash t \longrightarrow^* \vdash t'$ and $\Phi_n, \Delta \vdash o_n \longrightarrow^* \vdash t'$ for all $n = 1, \ldots, N$.
 
 We see the search space as a graph of programs with holes (see third syntax presented in Section System F) where there is an edge between two terms $t_1$ and $t_2$ if and only if the judgement \emph{derive} defined below $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
 
@@ -151,21 +274,24 @@ In all other cases we just choose a hole and expand it according to the three ru
 \begin{prooftree}
 \AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
 	\RightLabel{D-App}
-	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: T[T_1/T_1']$}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
 
-Note that the types of all successor programs unify with the types of their ancestors. Thus, the search is type directed.
+Note that the types of all successor programs unify with the types of their ancestors. Thus, the search is type directed. Only programs of the right type are generated.
 
 
-\subsection{Exploration}
+\subsection{Exploration}\label{Exploration}
   \note{Write also about stack vs queue of open holes}
 
 We explore the search graph using a best first search.
 We can play with the algorithm in two points (marked in blue): first, we can define which hole to expand first, second, we can choose the compare function of the priority queue.
+Different approaches to define the \lstinline?compare? function are discussed in the next session.
+Concerning the order of expansion of the holes, we tried two strategies: the first one was maintaining a stack of holes ($\Xi$ implemented as a stack), which leads to the expansion of the deepest hole first, the second one was maintaining a queue of holes ($\Xi$ implemented as a queue), which leads to the expansion of the oldest hole first.
 
 \begin{algorithm}
 \caption{Best first search}
 \KwIn{goal type $T$, library components $\Delta$, list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$}
+\KwOut{closed program $\{\Xi, \Phi_1, \Delta \vdash t :: T\}$ that satisfies all I/O-examples}
 
 queue $\gets$ PriorityQueue.empty {\color{blue}compare}\\
 queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}$\\
@@ -177,14 +303,104 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 		queue $\gets$ PrioriryQueue.push queue s\\
 	}
 }
-\KwOut{PriorityQueue.top queue}
+\Return{PriorityQueue.top queue}
 \end{algorithm}
 
 \section{Cost functions}
-  \subsection{nof-nodes}
-  \subsection{nof-nodes-simple-type}
-  \subsection{no-same-component}
-  \subsection{length of the string}
+
+The compare function in the best first search algorithm is \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to implement this cost function. We will present four alternatives.
+
+  \paragraph{number of nodes}
+The first cost function is based only on the number of nodes of the term. Longer and more complicated terms are disadvantaged.
+%
+\begin{algorithm}
+\caption{Cost function based on the number of nodes}
+\KwIn{term $t$}
+\KwOut{weighted number of nodes in $t$}
+
+\textit{nof-nodes}$(c) = 1$\\
+\textit{nof-nodes}$({?x}) = 2$\\
+\textit{nof-nodes}$(i) = 0$\\
+\textit{nof-nodes}$(x) = 1$\\
+\textit{nof-nodes}$(\lambda x : T.\; t) = 1 + \textit{nof-nodes}(t)$\\
+\textit{nof-nodes}$(t_1\; t_2) = 1 + \textit{nof-nodes}(t_1) + \textit{nof-nodes}(t_2)$\\
+\textit{nof-nodes}$(\Lambda X.\; t) = 1 + \textit{nof-nodes}(t)$\\
+\textit{nof-nodes}$(t\; [T]) = 1 + \textit{nof-nodes}(t)$\\
+
+\end{algorithm} 
+%
+  \paragraph{number of nodes and types}
+The second cost function also adds a factor based on the types appearing in the term, thus penalizing terms with type application and very complicated types.
+%
+\begin{algorithm}
+\caption{Cost function based on the number of nodes and types}
+\KwIn{term $t$}
+\KwOut{sum of weighted number of nodes in term $t$ and weighted number of nodes in the types appearing in $t$}
+
+\textit{nof-nodes-type}$(X) = 1$\\
+\textit{nof-nodes-type}$({?X}) = 0$\\
+\textit{nof-nodes-type}$(I) = 0$\\
+\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k]) = 0$\\
+\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
+\textit{nof-nodes-type}$(\forall X.\; T) = 1 + \textit{nof-nodes-type}(T)$\\
+
+\BlankLine
+
+\textit{nof-nodes-term}$(c) = 1$\\
+\textit{nof-nodes-term}$({?x}) = 2$\\
+\textit{nof-nodes-term}$(i) = 0$\\
+\textit{nof-nodes-term}$(x) = 1$\\
+\textit{nof-nodes-term}$(\lambda x : T.\; t) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+\textit{nof-nodes-term}$(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
+\textit{nof-nodes-term}$(\Lambda X.\; t) = 1 + \textit{nof-nodes-term}(t)$\\
+\textit{nof-nodes-term}$(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+
+\BlankLine
+
+\textit{nof-nodes-and-types}$(t) = \textit{nof-nodes-term}(t)$
+\end{algorithm} 
+%
+
+  \paragraph{no same component}
+In the third function we additionally penalize terms using the same component more than once.
+%
+\begin{algorithm}[h]
+\caption{Cost function based on the number of nodes and types penalizing the use of a library component more than once}
+\KwIn{term $t$}
+\KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
+
+\textit{nof-nodes-type}$(X) = 5$\\
+\textit{nof-nodes-type}$({?X}) = 1$\\
+\textit{nof-nodes-type}$(I) = 0$\\
+\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k])$= $1 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
+\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
+\textit{nof-nodes-type}$(\forall X.\; T) = 5 + \textit{nof-nodes-type}(T)$\\
+
+\BlankLine
+
+\textit{nof-nodes-term}$(c) = 1$\\
+\textit{nof-nodes-term}$({?x}) = 1$\\
+\textit{nof-nodes-term}$(i) = 0$\\
+\textit{nof-nodes-term}$(x) = 5$\\
+\textit{nof-nodes-term}$(\lambda x : T.\; t) = 2 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+\textit{nof-nodes-term}$(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
+\textit{nof-nodes-term}$(\Lambda X.\; t) = 5 + \textit{nof-nodes-term}(t)$\\
+\textit{nof-nodes-term}$(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+
+\BlankLine
+
+\textit{count}$(t) = \displaystyle \sum_{c_i \text{ appears in } t} \text{(occurrences of $c_1$ in $t$)} - 1$\\
+%sum of the number of times minus one a component $c_i$ appears in $t$ for each component $c_i$ appearing in $t$.\\
+%number of all occurrences of library components in $t$ minus the number of different components appearing in $t$.
+
+\BlankLine
+
+\textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 2\; \textit{count}(t)$
+\end{algorithm} 
+%
+
+  \paragraph{length of the string}
+The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term is taking the length of the string of that term.
 
 \section{Black list}
   \note{automatic generation of black list discussed in evaluation}
@@ -211,6 +427,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \KwOut{PriorityQueue.top queue}
 \end{algorithm}
 
+One could use the synthesis algorithm presented in Section \ref{Exploration} to automatically synthesise black lists. For example,  one could synthesise many programs corresponding to the identity function or to the empty list or to any other term, and add all those programs but one to the black list.
 
 \section{Templates}
   Top-down type-driven synthesis.
@@ -220,43 +437,54 @@ The search space is thus similar to the search space described in \ref{Search sp
 One of the new things are \emph{closed holes} $\underline{?x}$. Those are holes that are supposed to be filled in later with first-order components.
 
 The idea behind the templates is that once the higher-order components are fixed, it should be easy and fast to find a first-order assignment to get the right program. So we could do a limited search from a template and if we do not find a program satisfying all of the I/O-examples we can move quickly to the next template.
-  
+
+We additionally restrict the space by requiring a template to have no more than $M$ higher-order components and no more than $P$ closed holes.
+
   \subsection{Successor rules}
 
-The successor rules are very similar to the ones defined in \ref{Search space}, apart from little modifications. That is, now we have a successor rule to close a hole, and we can not instantiate a hole with an input variable any more, because that is supposed to be done in the next step.
+The successor rules are very similar to the ones defined in \ref{Search space}, apart from little modifications. That is, now we have a successor rule to close a hole, and we can not instantiate a hole with an input variable any more, because that is supposed to be done in the next step. All the rules are modified to take into account the restriction on the number of components and the number of closed holes. In order to do this, we need to pass along $m$, the number of higher-order components in the term whose subterms we are traversing.
+
 
 So we can \emph{close} a hole.
 \begin{prooftree}
-\AxiomC{$T$ is a type a first-order component can have}
-	\RightLabel{D-VarClose}
-	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi, \Phi, \Delta \vdash {\underline{?x}} :: T$}
+\AxiomC{$|\Xi| \leq P$ and $m \leq M$}
+\noLine
+\UnaryInfC{$T$ is a type a first-order component can have}
+	\RightLabel{G-VarClose}
+	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T \Mapsto \Xi, \Phi, \Delta, m \vdash {\underline{?x}} :: T$}
 \end{prooftree}
 
 We can instantiate a hole with a (higher-order) library component.
 \begin{prooftree}
-\AxiomC{$c : T_c \in \Delta$}
-\AxiomC{$\sigma$ unifies $T$ with fresh($T_c$)}
-	\RightLabel{D-VarLib}
-	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash c :: \sigma(T) $
+\AxiomC{$|\Xi| \leq P$ and $m < M$}
+\noLine
+\UnaryInfC{$c = t_c : T_c \in \Delta$}
+\noLine
+\UnaryInfC{$\sigma$ unifies $T$ with fresh($T_c$)}
+	\RightLabel{G-VarLib}
+	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta, m+1 \vdash c :: \sigma(T) $
 	}
 \end{prooftree}
 
 We can instantiate a hole with a function application of two fresh holes.
 \begin{prooftree}
-\AxiomC{$?X$ is a fresh type variable}
-\AxiomC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
-	\RightLabel{D-VarApp}
-	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
+\AxiomC{$|\Xi| < P$ and $m \leq M$}
+\noLine
+\UnaryInfC{$?X$ is a fresh type hole, $?x_1$ and $?x_2$ are fresh term holes}
+\noLine
+\UnaryInfC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
+	\RightLabel{G-VarApp}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
 \end{prooftree}
 
 We can expand one of the holes of the program according to one of the three rules above.
 \begin{prooftree}
-\AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
-	\RightLabel{D-App}
-	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: T[T_1/T_1']$}
+\AxiomC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta, m' \vdash t_1' :: T_1'$}
+	\RightLabel{G-App}
+	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta, m' \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
 
-\TODO{just cite the rules, don't copy-paste them, they are exactly the same}
+
   
 
 
