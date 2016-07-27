@@ -60,6 +60,41 @@ A program is the quadriplet $\{\Xi, \Phi, \Delta \vdash t :: T\}$.
 A term is called \emph{closed} if it does not contain holes.
 A program is closed, if $\Xi$ is empty and $t$ and $T$ do not contain holes.
 
+
+  \subsection{Encodings}
+Note that in the definition of types we do not see familiar types such as booleans, integers, lists or trees. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it's more efficient in our case.
+Scott's booleans coincide with Church's booleans and are encoded as follows.
+\begin{lstlisting}[style=plain, mathescape]
+Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
+true  = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_1$
+      : Bool
+false = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_2$
+      : Bool
+if-then-else = $\Lambda$X. $\lambda$b:Bool. $\lambda$t:X. $\lambda$f:X. b [X] t f
+             : $\forall$X. Bool $\rightarrow$ X $\rightarrow$ X $\rightarrow$ X
+\end{lstlisting}
+
+Scott's integers differ from Church's integers as they are more suitable for pattern matching. \note{because they don't unwrap the whole integer every time.}
+\begin{lstlisting}[style=plain, mathescape]
+Int = $\forall$R. R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
+zero = $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. z
+     : Int
+succ = $\lambda$ n:Int. $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. s n
+     : Int $\rightarrow$ Int
+case = $\Lambda$R. $\lambda$n:Int. $\lambda$a:R. $\lambda$f:Int $\rightarrow$ R. n [R] a f
+     : $\forall$R. Int $\rightarrow$ R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
+\end{lstlisting}
+
+Analogously, Scott's lists are a recursive type and naturally support pattern matching.
+\begin{lstlisting}[style=plain, mathescape]
+List X = $\forall$R. R $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ R) $\rightarrow$ R
+nil = $\Lambda$X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. n
+    : $\forall$X. List X
+con = $\Lambda$X. $\lambda$x:X. $\lambda$xs:List X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. c x xs
+    : $\forall$X. X $\rightarrow$ List X $\rightarrow$ List X
+case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ Y. l [Y] n c
+     : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
+\end{lstlisting}
  
   \subsection{Evaluation semantics}
 
@@ -103,40 +138,7 @@ Define \emph{value} $v$ to be a term to which no evaluation rule apply.
 	\UnaryInfC{$\Phi, \Delta \vdash (\Lambda X.\; t_2)\; [T_2] \longrightarrow [X \mapsto T_2]t_2$}
 \end{prooftree}  
   
-  \subsection{Encodings}
-Note that in the definition of types we do not see familiar types such as booleans, integers, lists or trees. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it's more efficient in our case.
-Scott's booleans coincide with Church's booleans and are encoded as follows.
-\begin{lstlisting}[style=plain, mathescape]
-Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
-true  = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_1$
-      : Bool
-false = $\Lambda$R. $\lambda x_1$:R. $\lambda x_2$:R. $x_2$
-      : Bool
-if-then-else = $\Lambda$X. $\lambda$b:Bool. $\lambda$t:X. $\lambda$f:X. b [X] t f
-             : $\forall$X. Bool $\rightarrow$ X $\rightarrow$ X $\rightarrow$ X
-\end{lstlisting}
 
-Scott's integers differ from Church's integers as they are more suitable for pattern matching. \note{because they don't unwrap the whole integer every time.}
-\begin{lstlisting}[style=plain, mathescape]
-Int = $\forall$R. R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
-zero = $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. z
-     : Int
-succ = $\lambda$ n:Int. $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. s n
-     : Int $\rightarrow$ Int
-case = $\Lambda$R. $\lambda$n:Int. $\lambda$a:R. $\lambda$f:Int $\rightarrow$ R. n [R] a f
-     : $\forall$R. Int $\rightarrow$ R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
-\end{lstlisting}
-
-Analogously, Scott's lists are a recursive type and naturally support pattern matching.
-\begin{lstlisting}[style=plain, mathescape]
-List X = $\forall$R. R $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ R) $\rightarrow$ R
-nil = $\Lambda$X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. n
-    : $\forall$X. List X
-con = $\Lambda$X. $\lambda$x:X. $\lambda$xs:List X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. c x xs
-    : $\forall$X. X $\rightarrow$ List X $\rightarrow$ List X
-case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ Y. l [Y] n c
-     : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
-\end{lstlisting}
 
 \subsection{Type checking}
 Question: why do I mathematically need that many contexts? How can I summarize T-Var, T-Hol, T-Inp, T-Lib in one rule?\\
