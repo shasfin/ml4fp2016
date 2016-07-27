@@ -262,23 +262,23 @@ let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~bla
 (* as always, sym_def is used only for evaluation *)
 let enumerate_with_templates ?debug:(debug=false) queue ~higher_order_lib ~first_order_lib ~free_lib ~black_list ~sym_def ?examples:(examples=[]) ~nof_hoc ~nof_hol ~nof_cal =
 
-  let rec is_first_order_type a = match a with
+  (*let rec is_first_order_type a = match a with
     | Type.All b -> false (* assume no universal types should be present *)
     | Type.Arr (a, b) -> (match a with
       | Type.All b -> false (* assume no universal types should be present *)
       | Type.Arr (a, b) -> false
       | _ -> is_first_order_type b)
-    | _ -> true in
+    | _ -> true in*)
 
   let template_successor ?debug:(debug=false) (prog, n) =
     let succ_close prog =
-      if (is_first_order_type (Program.current_type prog)) then
+      if (n <= nof_hoc && (Program.nof_holes prog) <= nof_hol) then
         [(Program.close_current_hol prog, n)]
       else [] in
 
     (* n = number of higher-order components in prog *)
     let succ_hoc prog n =
-      if (n < nof_hoc) then
+      if (n < nof_hoc && (Program.nof_holes prog) <= nof_hol) then
         List.map
         ~f:(fun (i, a, subst, args) ->
           let new_type = universalise a args in
