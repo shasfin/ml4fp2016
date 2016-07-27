@@ -7,6 +7,7 @@ In this chapter we will present and formally define all concepts and algorithms 
 \section{Problem}
 introductory example
 consider we want to generate 
+
 \begin{lstlisting}[style=plain, mathescape]
 replicate :: $\forall$ X. Int $\rightarrow$ X $\rightarrow$ List X
 \end{lstlisting}
@@ -15,13 +16,23 @@ replicate :: $\forall$ X. Int $\rightarrow$ X $\rightarrow$ List X
 replicate n x = map Int X (const X Int x) (enumTo n)
 \end{lstlisting}
 
-\section{System F}
-The exposition will closely follow  Pierce \note{cite the book properly}.
+\section{Calculus}
+The exposition will closely follow  Pierce \cite{pierce2002types}.
+
+Our calculus is based on System F. A subset of our calculus is used for generation.
+
+\begin{itemize}
+\item generate programs from restricted calculus
+\item calculus itself is still powerful, because we use it to define the library components as well.
+\end{itemize}
+
 
   \subsection{Terms and Types}
 \begin{itemize}
 \item similar to Pierce
 \item except holes, components and free variables
+\item recursion
+\item recursive types that can take parameters
 \item the search space is not the whole language but only a subset of it
 \end{itemize}
 
