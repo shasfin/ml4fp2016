@@ -51,11 +51,11 @@ let droplast =
 
 let dropmax =
   let dropmax xs =
-    List.filter
-      ~f:(fun x -> x =
-        (match (List.max_elt ~cmp:compare xs) with
+    let max = (match (List.max_elt ~cmp:compare xs) with
          | Some m -> m
-         | None -> invalid_arg "max of empty list"))
+         | None -> invalid_arg "max of empty list") in 
+    List.filter
+      ~f:(fun x -> not (x = max))
       xs in
 
   let example xs = (([list_to_intlist xs],[]), list_to_intlist (dropmax xs)) in
@@ -64,8 +64,8 @@ let dropmax =
    name = "dropmax";
    goal_type = parse_type "List Int -> List Int";
    examples = List.map ~f:example
-                 [[1;2;3];
-                  [4;2]];
+                 [[1;4;3];
+                  [5;2]];
   }
 
 
@@ -267,8 +267,8 @@ let sum =
    name = "sum";
    goal_type = parse_type "List Int -> Int";
    examples = List.map ~f:example
-                [[2;5];
-                  [4;2;1]];
+                [[1;5];
+                 [4;2;1]];
   }
 
 

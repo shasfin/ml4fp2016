@@ -181,6 +181,29 @@ let enumerate_satisfying ?debug:(debug=false) queue ~sym_lib ~free_lib ?sym_def:
  
   in enumerate_aux [] n
 
+
+(* version with timeout *)
+let enumerate_satisfying_timeout ?debug:(debug=false) queue ~sym_lib ~free_lib ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) max_lines =
+  let lines = ref 0 in
+  let rec find_first_satisfying queue =
+
+    let top = Heap.pop_exn queue in
+
+    (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
+     then (Some top)
+     else
+       (if !lines >= max_lines then None
+       else
+        let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
+        let () = lines := !lines + 4 * (List.length s) in
+        let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
+        let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x)) falses) in
+        (match trues with
+        | [] -> find_first_satisfying queue
+        | (p::_) -> Some p))) in
+
+find_first_satisfying queue
+
 (******************************************************************************)
 (* Enumerate satisfying programs (caution, could loop forever) *)
 (* prune branches of the form App (o, m, ??) where m belongs to black_list *)
@@ -252,6 +275,29 @@ let enumerate_with_black_list ?debug:(debug=false) queue ~sym_lib ~free_lib ~bla
         enumerate_aux ((find_first_satisfying queue)::acc) (i-1))
  
   in enumerate_aux [] n
+
+
+(* version with timeout *)
+let enumerate_with_black_list_timeout ?debug:(debug=false) queue ~sym_lib ~free_lib ~black_list ?sym_def:(sym_def=Library.get_lib_def sym_lib) ?examples:(examples=[]) max_lines =
+  let lines = ref 0 in
+  let rec find_first_satisfying queue =
+
+    let top = Heap.pop_exn queue in
+
+    (if ((Program.is_closed top) && (satisfies_all ~sym_def:sym_def top examples))
+    then (Some top)
+    else
+      (if !lines >= max_lines then None
+      else
+        (let s = successor ~debug top  ~sym_lib:sym_lib ~free_lib:free_lib in
+        let () = lines := !lines + 4 * (List.length s) in
+        let (trues, falses) = List.partition_tf ~f:(fun x -> (Program.is_closed x) && (satisfies_all ~sym_def:sym_def x examples)) s in
+        let () = List.iter ~f:(fun x -> Heap.add queue x) (List.filter ~f:(fun x -> not (Program.is_closed x) && not (black_prog black_list x))  falses) in
+        (match trues with
+        | [] -> find_first_satisfying queue
+        | (p::_) -> Some p)))) in
+
+find_first_satisfying queue
 
 (******************************************************************************)
 (* Enumeration with templates (does not loop forever, but can fail to find a satisfying program) *)

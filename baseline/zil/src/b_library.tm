@@ -118,3 +118,5 @@ enumFromTo | { [Int] [Int] : con Int $1 (map Int Int (b_add $1) (enumTo (b_sub $
 
 member | { [Int] [List Int] : not (is_nil Int (filter Int (b_eq $1) $0)) } | Int -> List Int -> Bool
 
+maximum | { [List Int] : foldr Int Int b_max b_zero $0 } | List Int -> Int
+

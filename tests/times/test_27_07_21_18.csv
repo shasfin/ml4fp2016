@@ -1,0 +1,23 @@
+# test_everything
+# cost function: original nof_nodes
+# exploration: stack
+# timeout: 20000 for plain and black_list, (2,4,10) for templates
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.124812, "foldr &0 (List &0) (con &0) _1 _0", 0.082916, "foldr &0 (List &0) (con &0) _1 _0", 2.241283, "foldr &0 (List &0) (con &0) _1 _0", 33
+concat, 0.100902, "foldr (List &0) (List &0) (append &0) (nil &0) _0", 0.037961, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 2.154024, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 33
+droplast, 0.115523, "rev &0 (tail &0 (rev &0 _0))", 0.050802, "rev &0 (tail &0 (rev &0 _0))", 19.958365, "Not found", 34
+enumFromTo, 0.336182, "Not found", 0.549511, "Not found", 19.658200, "Not found", 33
+enumTo, 0.020807, "enumFromTo (b_succ b_zero) _0", 0.074908, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 0.788289, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 33
+factorial, 0.003628, "prod (enumTo _0)", 0.004101, "prod (enumTo _0)", 17.327083, "Not found", 34
+last, 0.001699, "head &0 (rev &0 _0)", 0.001961, "head &0 (rev &0 _0)", 0.001702, "head &0 (rev &0 _0)", 34
+length, 0.307958, "Not found", 0.199685, "head &0 (tail &0 (tail &0 (append &0 _0 _0)))", 17.162944, "Not found", 33
+map_add, 0.328346, "map Int Int (b_add _0) _1", 0.416534, "map Int Int (b_add _0) _1", 2.044918, "map Int Int (b_add _0) _1", 34
+map_double, 0.368336, "Not found", 0.586347, "Not found", 19.723375, "Not found", 34
+maximum, 0.342634, "Not found", 0.250038, "foldl Int Int b_max b_zero _0", 16.934411, "Not found", 33
+member, 0.326747, "Not found", 0.559464, "Not found", 17.258645, "Not found", 33
+multfirst, 0.117989, "replicate &0 (length &0 _0) (head &0 _0)", 0.070021, "replicate &0 (length &0 _0) (head &0 _0)", 19.939361, "Not found", 34
+multlast, 0.340086, "Not found", 0.516282, "replicate &0 (length &0 _0) (head &0 (rev &0 _0))", 19.943310, "Not found", 34
+replicate, 0.303627, "Not found", 0.282399, "b_foldNat (List &0) (con &0 _0) (nil &0) _1", 5.710194, "b_foldNat (List &0) (con &0 _0) (nil &0) _1", 33
+rev, 0.338433, "Not found", 0.780833, "Not found", 20.039540, "Not found", 33
+stutter, 0.330666, "Not found", 0.779156, "Not found", 19.921490, "Not found", 34
+sum, 0.336890, "Not found", 0.427737, "foldl Int Int b_add b_zero _0", 1.630802, "foldl Int Int b_add b_zero _0", 33

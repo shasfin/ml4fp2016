@@ -51,8 +51,8 @@ let components = [
   "b_mul";
   "b_div";
   "b_max";
-  "b_eq";
-  (*"b_neq";*)
+  (*"b_eq";*)
+  "b_neq";
   (*"b_leq";
   "b_geq";*)
   "length";
@@ -63,7 +63,8 @@ let components = [
   "concat";
   "enumTo";
   "enumFromTo";
-  "member"
+  "member";
+  "maximum"
 ]
 
 (* Utility function to recognize higher-order types *)
@@ -148,11 +149,11 @@ let black_list = List.map ~f:parse_term
 ]
 
 let benchmarks = [
-  Benchmark.append;
+  (*Benchmark.append;
   Benchmark.concat;
-  Benchmark.droplast;
+  Benchmark.droplast;*)
   Benchmark.dropmax;
-  Benchmark.enumFromTo;
+  (*Benchmark.enumFromTo;
   Benchmark.enumTo;
   Benchmark.factorial;
   Benchmark.last;
@@ -166,11 +167,11 @@ let benchmarks = [
   Benchmark.replicate;
   Benchmark.rev;
   Benchmark.stutter;
-  Benchmark.sum;
+  Benchmark.sum;*)
 ]
 
 
-
+let max_lines = 3000
 
 let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
 
@@ -233,17 +234,20 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue prog in
 
   let start = Unix.gettimeofday () in
-  let satisfying =
-    Synthesiser.enumerate_satisfying
+  let satisfying = Some prog
+    (*Synthesiser.enumerate_satisfying_timeout
+      ~debug:true
       queue
       ~sym_lib:sym_lib_comp
       ~free_lib:free_lib
       ~sym_def:sym_def
       ~examples:examples
-      1 in
+      max_lines*) in
   let stop = Unix.gettimeofday () in
   let time_plain = stop -. start in
-  let solution_plain = Program.to_string (List.hd_exn satisfying) in
+  let solution_plain = (match satisfying with
+    | Some p -> Program.to_string p
+    | None -> "Not found") in
 
   (* Time enumeration with blacklist *)
   let prog = Program.reset first_prog (goal_type) in
@@ -251,18 +255,21 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue prog in
 
   let start = Unix.gettimeofday () in
-  let satisfying =
-    Synthesiser.enumerate_with_black_list
+  let satisfying = (*Some prog*)
+    Synthesiser.enumerate_with_black_list_timeout
+      ~debug:true
       queue
       ~sym_lib:sym_lib_comp
       ~free_lib
       ~black_list
       ~sym_def
       ~examples
-      1 in
+      max_lines in
   let stop = Unix.gettimeofday () in
   let time_blacklist = stop -. start in
-  let solution_blacklist = Program.to_string (List.hd_exn satisfying) in
+  let solution_blacklist = (match satisfying with
+    | Some p -> Program.to_string p
+    | None -> "Not found") in
 
   (* Time enumeration with templates *)
   let compare (prog1, n1) (prog2, n2) = Program.compare prog1 prog2 in
@@ -271,8 +278,8 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue (prog,0) in
 
   let start = Unix.gettimeofday () in
-  let satisfying =
-    Synthesiser.enumerate_with_templates
+  let satisfying = Some prog
+    (*Synthesiser.enumerate_with_templates
       queue
       ~higher_order_lib:(snd (compute_sym_lib_comp ho_components))
       ~first_order_lib:(snd (compute_sym_lib_comp fo_components))
@@ -281,8 +288,8 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
       ~black_list
       ~examples
       ~nof_hoc:2
-      ~nof_hol:5
-      ~nof_cal:10 in
+      ~nof_hol:4
+      ~nof_cal:10*) in
   let stop = Unix.gettimeofday () in
   let time_templates = stop -. start in
   let solution_templates = (match satisfying with
