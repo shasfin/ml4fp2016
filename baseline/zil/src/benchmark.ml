@@ -64,7 +64,7 @@ let dropmax =
    name = "dropmax";
    goal_type = parse_type "List Int -> List Int";
    examples = List.map ~f:example
-                 [[1;4;3];
+                 [[1;4;0];
                   [5;2]];
   }
 
@@ -76,7 +76,8 @@ let enumFromTo =
    name = "enumFromTo";
    goal_type = parse_type "Int -> Int -> List Int";
    examples = List.map ~f:example
-                 [(1,3);
+                 [(0,1);
+                  (1,3);
                   (2,5)];
   }
 
@@ -117,7 +118,7 @@ let last =
    name = "last";
    goal_type = parse_type "@ List #0 -> #0";
    examples = List.map ~f:example
-                [[1;2;3];
+                [[1;0;3];
                  [2;4]];
   }
 
@@ -129,8 +130,9 @@ let length =
    name = "length";
    goal_type = parse_type "@ List #0 -> #0";
    examples = List.map ~f:example
-                [[1;2;3];
-                 [2;4]];
+                [[0;2];
+                 [2];
+                 [3;1;2]];
   }
 
 
@@ -154,15 +156,15 @@ let map_double =
    name = "map_double";
    goal_type = parse_type "List Int -> List Int";
    examples = List.map ~f:example
-                [[1;2;3];
+                [[1;0];
                  [1;1];
-                 [1;2;1]];
+                 [1;2;3]];
   }
 
 
 let maximum =
   let maximum xs = match List.max_elt ~cmp:compare xs with
-      |Some m -> m
+      | Some m -> m
       | None -> invalid_arg "empty list" in 
   let example xs = (([list_to_intlist xs],[]),  number_to_int (maximum xs)) in
 
@@ -170,9 +172,9 @@ let maximum =
    name = "maximum";
    goal_type = parse_type "List Int -> Int";
    examples = List.map ~f:example
-                [[2;4;3];
-                 [5;1];
-                 [2;1;1]];
+                [[0;1];
+                 [2;1];
+                 [2;3;1]];
   }
 
     
@@ -198,7 +200,7 @@ let multfirst =
    name = "multfirst";
    goal_type = parse_type "@ List #0 -> List #0";
    examples = List.map ~f:example
-                [[1;2;3];
+                [[0;2;3];
                  [4;2]];
   }
 
@@ -210,7 +212,7 @@ let multlast =
    name = "multlast";
    goal_type = parse_type "@ List #0 -> List #0";
    examples = List.map ~f:example
-                [[1;2;3];
+                [[1;0;3];
                  [4;2]];
   }
 
@@ -233,14 +235,14 @@ let replicate =
   }
 
 
-let rev =
+let reverse =
   let example xs = (([list_to_intlist xs],["Int"]), list_to_intlist (List.rev xs)) in
 
   {
-   name = "rev";
+   name = "reverse";
    goal_type = parse_type "@ List #0 -> List #0";
    examples = List.map ~f:example
-                [[1;2;3];
+                [[0;2;3];
                  [2;5;1]];
   }
 
@@ -267,7 +269,7 @@ let sum =
    name = "sum";
    goal_type = parse_type "List Int -> Int";
    examples = List.map ~f:example
-                [[1;5];
+                [[1;5;0];
                  [4;2;1]];
   }
 

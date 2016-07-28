@@ -17,9 +17,9 @@ let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 
 
 let components = [
-  (*"const";
+  "const";
   "flip";
-  "curry";
+  (*"curry";
   "uncurry";
   "fanout";
   "ignore";*)
@@ -51,7 +51,7 @@ let components = [
   "b_mul";
   "b_div";
   "b_max";
-  (*"b_eq";*)
+  "b_eq";
   "b_neq";
   (*"b_leq";
   "b_geq";*)
@@ -59,7 +59,7 @@ let components = [
   (*"factorial";*)
   "replicate";
   "append";
-  "rev";
+  "reverse";
   "concat";
   "enumTo";
   "enumFromTo";
@@ -109,12 +109,12 @@ let black_list = List.map ~f:parse_term
   "const ^0 ^0 ?0 ?0";
   "enumFromTo (b_succ b_zero)";
   "enumTo b_zero";
-  "enumTo (prod ?0 ?0)";
+  "enumTo (prod ?0)";
   "flip ^0 ^0 ^0 ?0 ?0 ?0";
   "foldl ^0 ^0 ?0 ?0 (nil ^0)";
   "foldr ^0 ^0 (con ^0) (nil ^0)";
   "foldr ^0 ^0 ?0 ?0 (nil ^0)";
-  "fst ^0 ^0 (pair ^0 ^0 ?0 ?0)";
+  (*"fst ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
   "head ^0 (con ^0 ?0 ?0)";
   "head ^0 (enumFromTo ?0 ?0)";
   "head ^0 (enumTo ?0)";
@@ -126,22 +126,22 @@ let black_list = List.map ~f:parse_term
   "length ^0 (enumTo ?0)";
   "length ^0 (map ^0 ^0 ?0 ?0)";
   "length ^0 (nil ^0)";
-  "length ^0 (rev ^0 ?0)";
+  "length ^0 (reverse ^0 ?0)";
   "map ^0 ^0 ?0 (nil ^0)";
   "not (not ?0)";
   "prod (con ^0 ?0 (nil))";
   "prod (con ^0 b_zero ?0)";
   "prod (nil ^0)";
-  "prod (rev ^0 ?0)";
+  "prod (reverse ^0 ?0)";
   "replicate ^0 b_zero";
-  "rev ^0 (con ^0 ?0 (nil ^0))";
-  "rev ^0 (map ^0 ^0 ?0 (rev ^0 ?0))";
-  "rev ^0 (nil ^0)";
-  "rev ^0 (rev ^0 ?0)";
-  "snd ^0 ^0 (pair ^0 ^0 ?0 ?0)";
+  "reverse ^0 (con ^0 ?0 (nil ^0))";
+  "reverse ^0 (map ^0 ^0 ?0 (reverse ^0 ?0))";
+  "reverse ^0 (nil ^0)";
+  "reverse ^0 (reverse ^0 ?0)";
+  (*"snd ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
   "sum (con ^0 ?0 (nil ^0))";
   "sum (nil ^0)";
-  "sum (rev ^0 ?0)";
+  "sum (reverse ^0 ?0)";
   "tail ^0 (con ^0 ?0 (nil))";
   "tail ^0 (enumFromTo ?0 ?0)";
   "tail ^0 (nil ^0)";
@@ -151,27 +151,27 @@ let black_list = List.map ~f:parse_term
 let benchmarks = [
   (*Benchmark.append;
   Benchmark.concat;
-  Benchmark.droplast;*)
+  Benchmark.droplast;
   Benchmark.dropmax;
-  (*Benchmark.enumFromTo;
+  Benchmark.enumFromTo;
   Benchmark.enumTo;
   Benchmark.factorial;
-  Benchmark.last;
+  Benchmark.last;*)
   Benchmark.length;
-  Benchmark.map_add;
+  (*Benchmark.map_add;
   Benchmark.map_double;
   Benchmark.maximum;
   Benchmark.member;
   Benchmark.multfirst;
   Benchmark.multlast;
   Benchmark.replicate;
-  Benchmark.rev;
+  Benchmark.reverse;
   Benchmark.stutter;
   Benchmark.sum;*)
 ]
 
 
-let max_lines = 3000
+let max_lines = 10000000
 
 let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
 
@@ -234,15 +234,15 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue prog in
 
   let start = Unix.gettimeofday () in
-  let satisfying = Some prog
-    (*Synthesiser.enumerate_satisfying_timeout
-      ~debug:true
+  let satisfying = (*Some prog*)
+    Synthesiser.enumerate_satisfying_timeout
+      ~debug:false
       queue
       ~sym_lib:sym_lib_comp
       ~free_lib:free_lib
       ~sym_def:sym_def
       ~examples:examples
-      max_lines*) in
+      max_lines in
   let stop = Unix.gettimeofday () in
   let time_plain = stop -. start in
   let solution_plain = (match satisfying with
@@ -257,7 +257,7 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let start = Unix.gettimeofday () in
   let satisfying = (*Some prog*)
     Synthesiser.enumerate_with_black_list_timeout
-      ~debug:true
+      ~debug:false
       queue
       ~sym_lib:sym_lib_comp
       ~free_lib
@@ -278,8 +278,9 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue (prog,0) in
 
   let start = Unix.gettimeofday () in
-  let satisfying = Some prog
-    (*Synthesiser.enumerate_with_templates
+  let satisfying = (*Some prog*)
+    Synthesiser.enumerate_with_templates
+      ~debug:false
       queue
       ~higher_order_lib:(snd (compute_sym_lib_comp ho_components))
       ~first_order_lib:(snd (compute_sym_lib_comp fo_components))
@@ -288,8 +289,8 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
       ~black_list
       ~examples
       ~nof_hoc:2
-      ~nof_hol:4
-      ~nof_cal:10*) in
+      ~nof_hol:5
+      ~nof_cal:10 in
   let stop = Unix.gettimeofday () in
   let time_templates = stop -. start in
   let solution_templates = (match satisfying with

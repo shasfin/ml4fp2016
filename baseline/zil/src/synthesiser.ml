@@ -120,6 +120,7 @@ let satisfies_one ~sym_def m (free_def, output) =
 
 (* Does the given program satisfy all given I/O-examples? *)
 let satisfies_all ~sym_def prog examples =
+  (*let () = print_endline (sprintf "m = %s" (Program.to_string prog)) in*)
   List.for_all
     ~f:(fun (free_def, output) ->
       satisfies_one
