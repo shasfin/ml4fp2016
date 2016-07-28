@@ -1,10 +1,15 @@
 % Some commands used in this file
 \newcommand{\package}{\emph}
 
-\chapter{Introduction}
+\chapter{Introduction}\label{ch:introduction}
 
 \section{About program synthesis in general}
   \note{put in some context, link \ref{relatedwork}}
+
+
+for motivation you could write something about the extremely restricted list library in ocaml :)\\
+Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
+
 
 \section{Problem definition}
   \note{have many components, put them together into a program, no lambdas, no if-then-else, no recursion}

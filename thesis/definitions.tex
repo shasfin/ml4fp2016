@@ -1,12 +1,31 @@
-\chapter{Top down type driven synthesis} \label{definitions}
+\chapter{Top down type driven synthesis} \label{ch:definitions}
 
 \TODO{starting words}
-In this chapter we will present and formally define all concepts and algorithms used by the synthesis system \textsc{Tamandu}.
 
+In this chapter we will formally define our type-directed top-down synthesis procedure. We will start with an intuitive description of the problem and move on to the formal definitions of the target programming language and the search space. Finally, we will define the synthesis procedure and present some enhancements.
 
 \section{Problem}
-introductory example
-consider we want to generate 
+Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise \lstinline?replicate?. As our synthesis is type-driven, the type of \lstinline?replicate?, along with the I/O-examples, is part of the specification of the program. 
+\begin{itemize}
+\item recall example
+\item Let us specify the target program by giving its type and two I/O-examples.
+\begin{lstlisting}[style=plain]
+replicate :: $\forall$X. Int -> X -> List X
+replicate 3 1 = [1,1,1]
+replicate 2 [] = [[],[]]
+\end{lstlisting}
+\item We also need a library of components, from which we are going to synthesise our program. Let us assume we have the standard list combinators \lstinline?map, foldr, foldl?, \lstinline?enumTo? and the higher-order function \lstinline?const? that always returns the first input.
+\item Try to put components together in order to get a list.
+\begin{lstlisting}[style=plain]
+replicate n x = ...
+\end{lstlisting}
+We see that in order to get something of type \lstinline?List X?, we cannot use \lstinline?enumTo?, because it has type \lstinline?Int -> List Int?
+\begin{lstlisting}[style=plain]
+replicate n x =
+\end{lstlisting}
+\end{itemize}
+
+Let us look at the example from Chapter~\ref{ch:introduction} more in detail. \lstinline?replicate?
 
 \begin{lstlisting}[style=plain, mathescape]
 replicate :: $\forall$ X. Int $\rightarrow$ X $\rightarrow$ List X

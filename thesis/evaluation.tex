@@ -20,6 +20,9 @@ What I want to see in this chapter:
   \note{Compare the different cost functions with each other, explain why are they good for some programs and bad for other. Table.}
 
 \section{Black lists}
+
+In the presence of "useless" functions with a high branching factor like \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? black list pruning is a must. But it can also be useful in other cases as well. The important thing is to find a reasonable trade off between the length of the black list (don't forget that every subterm of every open program is matched against every item of the black list) and the degree of pruning. A longer black list prunes more of the search space, but the synthesis procedure also takes longer.
+
   \subsection{Benefits of black lists}
   \note{Table of your super manual black list. Figure that for each cost function compares time with and without black list. Trivial words about pruning search space and useless branches.}
   \subsection{Shortcomes of automatically generated black lists}
@@ -29,6 +32,10 @@ What I want to see in this chapter:
   \note{Short section explaining that the templates you generate are not the templates you expect and why}
 I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
 (Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type).
+
+It is very important to choose the examples well, because many generated programs are bad and will take forever to evaluate. And as we evaluate each closed program on the examples... We should really try to keep them small and simple.
+For example, I had a problem when I tried to generate \lstinline?dropmax? using the example \lstinline?[1,4,3]?, because one of the generated programs was \lstinline?enumTo (prod (enumTo (prod _0)))?. It tried to construct a list with 479001600 elements and ran out of memory.
+At the same time, they should give enough information, otherwise a simpler program will be generated that, although it satisfies all given I/O-examples, it not what the user had in mind when writing the specification.
 
 %%% Local Variables:
 %%% mode: latex

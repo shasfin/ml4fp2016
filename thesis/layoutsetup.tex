@@ -105,9 +105,12 @@
 
 %% This defines how your lstlistings look like
 \lstdefinestyle{plain}{%
+    mathescape,
     language=ML,
     basicstyle={\normalfont\ttfamily},
 	tabsize=2,
+	keywordstyle=\textbf,
+	literate={:=}{{$\gets$}}1 {=<}{{$\leq$}}1 {>=}{{$\geq$}}1 {<>}{{$\neq$}}1{->}{$\rightarrow$}1,
 }
 
 \lstdefinestyle{algorithm}{%
