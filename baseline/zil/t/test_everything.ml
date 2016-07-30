@@ -255,8 +255,8 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue prog in
 
   let start = Unix.gettimeofday () in
-  let satisfying = (*Some prog*)
-    Synthesiser.enumerate_with_black_list_timeout
+  let satisfying = Some prog
+    (*Synthesiser.enumerate_with_black_list_timeout
       ~debug:false
       queue
       ~sym_lib:sym_lib_comp
@@ -264,7 +264,7 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
       ~black_list
       ~sym_def
       ~examples
-      max_lines in
+      max_lines*) in
   let stop = Unix.gettimeofday () in
   let time_blacklist = stop -. start in
   let solution_blacklist = (match satisfying with
@@ -278,8 +278,8 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
   let () = Heap.add queue (prog,0) in
 
   let start = Unix.gettimeofday () in
-  let satisfying = (*Some prog*)
-    Synthesiser.enumerate_with_templates
+  let satisfying = Some prog
+    (*Synthesiser.enumerate_with_templates
       ~debug:false
       queue
       ~higher_order_lib:(snd (compute_sym_lib_comp ho_components))
@@ -290,7 +290,7 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
       ~examples
       ~nof_hoc:2
       ~nof_hol:5
-      ~nof_cal:10 in
+      ~nof_cal:10*) in
   let stop = Unix.gettimeofday () in
   let time_templates = stop -. start in
   let solution_templates = (match satisfying with

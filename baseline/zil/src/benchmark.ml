@@ -128,11 +128,10 @@ let length =
 
   {
    name = "length";
-   goal_type = parse_type "@ List #0 -> #0";
+   goal_type = parse_type "@ List #0 -> Int";
    examples = List.map ~f:example
                 [[0;2];
-                 [2];
-                 [3;1;2]];
+                 [1;1;0]]
   }
 
 
@@ -174,7 +173,7 @@ let maximum =
    examples = List.map ~f:example
                 [[0;1];
                  [2;1];
-                 [2;3;1]];
+                 [2;5;1]];
   }
 
     
@@ -185,11 +184,13 @@ let member =
    name = "member";
    goal_type = parse_type "Int -> List Int -> Bool";
    examples = List.map ~f:example
-                [(5, [1;2;3]);
-                 (1, [1;2;3]);
-                 (2, [4;1;3;5]);
-                 (4, [3;1;4;5]);
-                 (1, [0])];
+                [(0, []); 
+                 (1, []); 
+                 (0, [0]); 
+                 (1, [0;0]);
+                 (1, [2;1]);
+                 (2, [2;0;3]);
+                 (2, [0;3;1])]
   }
 
 
