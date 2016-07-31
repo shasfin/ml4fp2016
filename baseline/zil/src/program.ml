@@ -212,7 +212,8 @@ let nof_nodes_simple_type prog =
 (* count holes double and don't count input variables, same for types, add the cost of the type to APP and Abs *)
 
 
-let no_same_component prog =
+(* original no_same_component *)
+(*let no_same_component prog =
   let rec nof_type a = match a with
   | Type.Var _ -> 5
   | Type.Arr (a, b) -> 3 + (nof_type a) + (nof_type b)
@@ -237,21 +238,75 @@ let no_same_component prog =
   | Term.BuiltinFun _ -> 1
   | _ -> 2 in
 
-  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)
+  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
 
+(* no_same_component with bigger constants *)
+(*let no_same_component prog =
+  let rec nof_type a = match a with
+  | Type.Var _ -> 5
+  | Type.Arr (a, b) -> 4 + (nof_type a) + (nof_type b)
+  | Type.All a -> 5 + (nof_type a)
+  | Type.Sym (_, l) -> 3 + List.fold_left (+) 0 (List.map nof_type l)
+  | Type.Hol _ -> 1
+  | Type.Int -> 0
+  | Type.Free _ -> 0 in
+
+  let rec nof_term m = match m with
+  | Term.Var _ -> 10
+  | Term.App (_, m, n) -> 5 + (nof_term m) + (nof_term n)
+  | Term.Abs (_, a, m) -> 7 + (nof_term m) + (nof_type a)
+  | Term.APP (_, m, a) -> 5 + (nof_term m) + (nof_type a)
+  | Term.ABS (_, m) -> 10 + (nof_term m)
+  | Term.Int _ -> 3
+  | Term.Sym _ -> 3
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.FUN (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.BuiltinFun _ -> 10
+  | _ -> 10 in
+
+  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
+
+let no_same_component prog =
+  let rec nof_type a = match a with
+  | Type.Var _ -> 10
+  | Type.Arr (a, b) -> 5 + (nof_type a) + (nof_type b)
+  | Type.All a -> 10 + (nof_type a)
+  | Type.Sym (_, l) -> 4 + List.fold_left (+) 0 (List.map nof_type l)
+  | Type.Hol _ -> 3
+  | Type.Int -> 0
+  | Type.Free _ -> 0 in
+
+  let rec nof_term m = match m with
+  | Term.Var _ -> 10
+  | Term.App (_, m, n) -> 6 + (nof_term m) + (nof_term n)
+  | Term.Abs (_, a, m) -> 10 + (nof_term m) + (nof_type a)
+  | Term.APP (_, m, a) -> 5 + (nof_term m) + (nof_type a)
+  | Term.ABS (_, m) -> 10 + (nof_term m)
+  | Term.Int _ -> 5
+  | Term.Sym _ -> 3
+  | Term.Hol _ -> 2
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.FUN (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.BuiltinFun _ -> 10
+  | _ -> 10 in
+
+  nof_term (to_term prog) + 3 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)
 
 
 let compare p1 p2 =
   (*p1.current_term_hol - p2.current_term_hol*)
   (* "Stupid queue" *)
 
-  (nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)
+  (*(nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)*)
   (* Take also the size of types into account *)
 
   (*(nof_nodes p1) - (nof_nodes p2)*)
   (* Based on the number of nodes *)
 
-  (*(no_same_component p1) - (no_same_component p2)*)
+  (no_same_component p1) - (no_same_component p2)
   (* Penalty for using the same component twice *)
 
   (*(p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)*)

@@ -77,7 +77,7 @@ let enumFromTo =
    goal_type = parse_type "Int -> Int -> List Int";
    examples = List.map ~f:example
                  [(0,1);
-                  (1,3);
+                  (1,2);
                   (2,5)];
   }
 

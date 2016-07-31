@@ -7,11 +7,11 @@ append,0.098015,foldr &0 (List &0) (con &0) _1 _0,0.065243,foldr &0 (List &0) (c
 concat,0.04393,foldr (List &0) (List &0) (append &0) (nil &0) _0,0.037926,foldl (List &0) (List &0) (append &0) (nil &0) _0,2.381061,foldl (List &0) (List &0) (append &0) (nil &0) _0,36
 droplast,0.063349,reverse &0 (tail &0 (reverse &0 _0)),0.056306,reverse &0 (tail &0 (reverse &0 _0)),1.395752,reverse &0 (tail &0 (reverse &0 _0)),37
 dropmax,0.890224,filter Int (b_neq (maximum _0)) _0,0.598337,filter Int (b_neq (maximum _0)) _0,4.983711,filter Int (b_neq (maximum _0)) _0,37
-enumFromTo,243.571358,Not found,164.625517,con Int _0 (map Int Int (b_add _0) (enumTo (b_succ _0))),235.986214,Not found,36
+enumFromTo,243.571358,Not found,242.807528,con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),235.986214,Not found,36
 enumTo,0.022667,enumFromTo (b_succ b_zero) _0,0.08253,b_foldNatNat (List Int) (con Int) (nil Int) _0,1.035583,b_foldNatNat (List Int) (con Int) (nil Int) _0,36
 factorial,0.003909,prod (enumTo _0),0.004344,prod (enumTo _0),168.065262,prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int))),37
 last,0.00168,head &0 (reverse &0 _0),0.001472,head &0 (reverse &0 _0),0.00123,head &0 (reverse &0 _0),37
-length,74.947134,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),28.436183,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),15.363144,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,
+length,74.947134,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),28.436183,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),15.363144,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,36
 map_add,0.26598,map Int Int (b_add _0) _1,0.251108,map Int Int (b_add _0) _1,1.935279,map Int Int (b_add _0) _1,37
 map_double,20.445935,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,13.115011,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,236.168972,Not found,37
 maximum,0.499187,foldl Int Int b_max b_zero _0,0.240157,foldl Int Int b_max b_zero _0,213.99367,Not found,36
@@ -22,3 +22,9 @@ replicate,0.107373,map Int &0 (const &0 Int _0) (enumTo _1),0.08463,map Int &0 (
 reverse,5.039891,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,0.985767,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,33.587046,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,36
 stutter,82.817662,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),15.230707,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),239.321587,Not found,37
 sum,0.36598,foldl Int Int b_add b_zero _0,0.318571,foldl Int Int b_add b_zero _0,2.113417,foldl Int Int b_add b_zero _0,36
+,,,,,,,
+average time,24.170736053,,17.139069,,66.8235898947,,
+found,,18/19,,19/19,,15/19,
+average time (if found),11.981812611,,17.139069,,22.9451843333,,
+median,0.36598,,0.251108,,4.983711,,
+minimum,0.00168,,0.001472,,0.00123,,

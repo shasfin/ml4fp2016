@@ -21,3 +21,9 @@ replicate,3.346158,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.091653,map Int 
 reverse,38.437115,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,1.709445,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,42.567221,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,36
 stutter,167.700734,Not found,31.91194,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),249.216784,Not found,37
 sum,0.686694,foldr Int Int b_add b_zero _0,0.343281,foldl Int Int b_add b_zero _0,1.905027,foldr Int Int b_add b_zero _0,36
+,,,,,,,
+average time,31.115401895,,15.0767966842,,80.1172738421,,
+found,,17/19,,19/19,,15/19,
+average time (if found),12.992647471,,15.0767966842,,36.2449304,,
+median,0.774533,,0.315456,,13.353665,,
+minimum,0.001303,,0.001448,,0.001245,,
