@@ -6,6 +6,13 @@
 \section{About program synthesis in general}
   \note{put in some context, link \ref{relatedwork}}
 
+\begin{itemize}
+\item What is program synthesis
+\item Problem too general, needs to be restricted. In Chapter 2 we will see how other restrict the search space. Restrict to components.
+\item Motivate why it is still interesting to have such a synthesiser (thin interfaces and so on?)
+\item List of contributions
+\item Explain the structure of the thesis. (maybe merge with the contributions?)
+\end{itemize}
 
 for motivation you could write something about the extremely restricted list library in ocaml :)\\
 Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
