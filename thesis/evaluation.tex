@@ -13,6 +13,13 @@ What I want to see in this chapter:
 \item Stack versus queue expanding $\rightarrow$ mention it in the definitions
 \end{itemize}
 
+
+\begin{itemize}
+\item sensible to the choice of examples: for speed (enumTo prod enumTo prod...), examples must be small and there must be only a few of them. But then it is very likely, that another program is generated. It is very tricky to choose the right examples for enumFromTo and for member.
+\item runtime highly dependent on the number of components used in the solution \TODO{make a graph relating number of components to runtime}
+\item runtime also dependent on the number of components given. The less components are given, the faster the synthesiser can find the right program (search space grows exponentially also in the components, higher branching factor).
+\end{itemize}
+
 \section{Set up}
   \note{Describe the machine and the testing set up, which components were used, what information did you give to the synthesizer, how many examples were given. What else?}
   
