@@ -7,22 +7,22 @@ name, time plain (s), solution plain, time with blacklist (s), solution with bla
 append,0.031403,foldr &0 (List &0) (con &0) _1 _0,0.041258,foldr &0 (List &0) (con &0) _1 _0,0.984004,foldr &0 (List &0) (con &0) _1 _0,18
 concat,0.1551,foldr (List &0) (List &0) (append &0) (nil &0) _0,0.195074,foldl (List &0) (List &0) (append &0) (nil &0) _0,0.995802,foldl (List &0) (List &0) (append &0) (nil &0) _0,19
 droplast,0.0537,reverse &0 (tail &0 (reverse &0 _0)),0.057033,reverse &0 (tail &0 (reverse &0 _0)),83.22727,Not found,19
-enumTo,0.390397,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.421418,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.324409,b_foldNatNat (List Int) (con Int) (nil Int) _0,19
-last,0.002255,head &0 (reverse &0 _0),0.003347,head &0 (reverse &0 _0),0.004153,head &0 (reverse &0 _0),19
-map_add,0.038774,map Int Int (b_add _0) _1,0.045645,map Int Int (b_add _0) _1,0.302391,map Int Int (b_add _0) _1,19
-maximum,0.185733,foldr Int Int b_max b_zero _0,0.160815,foldr Int Int b_max b_zero _0,1.003901,foldl Int Int b_max b_zero _0,19
-replicate,0.074687,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.094596,b_foldNat (List &0) (con &0 _0) (nil &0) _1,1.070959,b_foldNat (List &0) (con &0 _0) (nil &0) _1,18
-sum,0.087835,foldl Int Int b_add b_zero _0,0.082758,foldl Int Int b_add b_zero _0,0.964171,foldl Int Int b_add b_zero _0,18
 dropmax,0.042456,filter Int (b_neq (maximum _0)) _0,0.044441,filter Int (b_neq (maximum _0)) _0,0.290062,filter Int (b_neq (maximum _0)) _0,19
 enumFromTo,29.383193,b_foldNat (List Int) (tail Int) (con Int _0 (enumTo _1)) _0,21.710284,con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),59.836701,Not found,19
+enumTo,0.390397,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.421418,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.324409,b_foldNatNat (List Int) (con Int) (nil Int) _0,19
 factorial,0.00258,prod (enumTo _0),0.00271,prod (enumTo _0),0.006643,prod (enumTo _0),19
+last,0.002255,head &0 (reverse &0 _0),0.003347,head &0 (reverse &0 _0),0.004153,head &0 (reverse &0 _0),19
+length,3.258789,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,1.776223,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,2.215685,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,19
+map_add,0.038774,map Int Int (b_add _0) _1,0.045645,map Int Int (b_add _0) _1,0.302391,map Int Int (b_add _0) _1,19
 map_double,1.30687,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,1.041052,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,57.736686,Not found,19
+maximum,0.185733,foldr Int Int b_max b_zero _0,0.160815,foldr Int Int b_max b_zero _0,1.003901,foldl Int Int b_max b_zero _0,19
 member,4.45412,not (is_nil Int (filter Int (b_eq _0) _1)),3.666386,not (is_nil Int (filter Int (b_eq _0) _1)),51.439311,Not found,19
 multfirst,0.315716,map &0 &0 (const &0 &0 (head &0 _0)) _0,0.21742,map &0 &0 (const &0 &0 (head &0 _0)) _0,1.273248,map &0 &0 (const &0 &0 (head &0 _0)) _0,19
 multlast,2.01591,map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,1.088024,map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,57.627156,Not found,19
-length,3.258789,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,1.776223,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,2.215685,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,19
+replicate,0.074687,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.094596,b_foldNat (List &0) (con &0 _0) (nil &0) _1,1.070959,b_foldNat (List &0) (con &0 _0) (nil &0) _1,18
 reverse,6.442474,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,2.943672,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,48.628601,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,18
 stutter,6.476007,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),5.149249,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),94.875343,Not found,19
+sum,0.087835,foldl Int Int b_add b_zero _0,0.082758,foldl Int Int b_add b_zero _0,0.964171,foldl Int Int b_add b_zero _0,18
 ,,,,,,,
 average time,2.8798946842,,2.0390213158,,24.3582366316,,
 found,,19/19,,19/19,,13/19,
