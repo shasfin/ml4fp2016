@@ -10,7 +10,19 @@
 
 Let's start. My 6 papers (don't you want to take less? how much should you describe each paper?)
 \begin{itemize}
-\item Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting.
+\item Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting. It is possible to download the tool (put link), try it online and there is even an emacs-mode for it.
+\begin{enumerate}
+\item What is the specification?
+The refinement type of the desired program, that is a type decorated with logical predicates. Can bring the replicate example.
+\item What is the target language?
+Haskell, I think. I saw lambda abstractions and recursion. You can specify own datatypes and own components.
+\item What can it do well and fast? How fast?
+Generate various sorting algorithms.
+\item What is the difficulty? What can they not generate (or take a long time to generate)? How much time do they need?
+It is not always easy to specify a program and to find the right 'measure' function for a datatype.
+\item What do they do?
+Refinement types with SMT solvers stuff, you have already written it up quite well.
+\end{enumerate}
 \item Lambda square (Feser). How would you specify replicate? Give an idea of how it is generated. User friendly, as only I/O-examples need to be specified, type is reconstructed automatically.
 \item (?) maybe Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
 \item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
