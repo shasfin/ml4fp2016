@@ -33,8 +33,8 @@ let components = [
   "head";
   "tail";
   "is_nil";
-  "true";
-  "false";
+  (*"true";
+  "false";*)
   "not";
   (*"pair";
   "fst";
@@ -42,33 +42,33 @@ let components = [
   "map";
   "foldr";
   "foldl";
-  "filter";
+  (*"filter";*)
   "sum";
-  "prod";
+  (*"prod";*)
   "b_zero";
   "b_succ";
-  "b_is_zero";
+  (*"b_is_zero";*)
   "b_foldNat";
-  "b_foldNatNat";
+  (*"b_foldNatNat";*)
   "b_add";
-  "b_sub";
-  "b_mul";
-  "b_div";
-  "b_max";
+  (*"b_sub";
+  "b_mul";*)
+  (*"b_div";*)
+  (*"b_max";
   "b_eq";
-  "b_neq";
+  "b_neq";*)
   (*"b_leq";
   "b_geq";*)
-  "length";
+  (*"length";*)
   (*"factorial";*)
   "replicate";
-  "append";
+  (*"append";*)
   "reverse";
   "concat";
-  "enumTo";
-  "enumFromTo";
-  "member";
-  "maximum"
+  (*"enumTo";
+  (*"enumFromTo";*)
+  (*"member";*)
+  "maximum"*)
 ]
 
 (* Utility function to recognize higher-order types *)
@@ -162,18 +162,18 @@ let benchmarks = [
   Benchmark.enumFromTo;
   Benchmark.enumTo;
   Benchmark.factorial;
-  Benchmark.last;
+  Benchmark.last;*)
   Benchmark.length;
-  Benchmark.map_add;
+  (*Benchmark.map_add;
   Benchmark.map_double;
-  Benchmark.maximum;*)
+  Benchmark.maximum;
   Benchmark.member;
   Benchmark.multfirst;
   Benchmark.multlast;
-  Benchmark.replicate;
+  Benchmark.replicate;*)
   Benchmark.reverse;
   Benchmark.stutter;
-  Benchmark.sum;
+  (*Benchmark.sum;*)
 ]
 
 
