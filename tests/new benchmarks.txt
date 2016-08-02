@@ -4,3 +4,6 @@ take n: something with foldnat head and con?
 drop n: you already have it in enumFromTo: something with foldnat tail
 is_nil: is_zero (length xs)
 delete x xs: filter (neq x) xs
+is_even: you already had it, foldnat with not, starting with true or false gives is_even or is_odd
+evens: filter with is_even
+dropmaxes: map dropmax

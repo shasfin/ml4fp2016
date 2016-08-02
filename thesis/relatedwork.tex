@@ -1,14 +1,9 @@
 \chapter{Related Work} \label{relatedwork}
 
-
-\begin{itemize}
-\item choose the papers you want to describe
-\item Put all work you want to describe into the chart on the two axis "user friendly" (how much programming knowledge is needed to specify a program, how difficult is it for a "normal programmer" to specify a program and so on) and "powerful" (does it have recursion, lambdas, specially treated pattern matching or conditionals, loops, library components, how many components can it handle, and so on), at least mentally.
-\item I have no idea what to write :(
-\end{itemize}
+Here discuss only synthesis of functional programs. Input-output examples are an intuitive and easy way to specify programs. Types are good to prune the search space, but simple types are not enough to specify a program. So the research went in two directions: on one side, there was the need to do something to the I/O-examples to make the search more efficient, on the other side more complex and expressive types that can act as a specification, for example the \emph{refinement types} from \cite{SynquidPaper}. Lately, there was the idea that one can automatically generate those ty[pes from I/O-examples, to have both the advantages of an intuitive and easy specification and the research done on type systems, liquid types and something like that.
 
 
-Let's start. My 6 papers (don't you want to take less? how much should you describe each paper?)
+Let's start. My 5 papers, organize some information about them.
 \begin{itemize}
 \item Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting. It is possible to download the tool (put link), try it online and there is even an emacs-mode for it.
 \begin{enumerate}
@@ -16,48 +11,49 @@ Let's start. My 6 papers (don't you want to take less? how much should you descr
 The refinement type of the desired program, that is a type decorated with logical predicates. Can bring the replicate example.
 \item What is the target language?
 Haskell, I think. I saw lambda abstractions and recursion. Can generate and use higher-order components. You can specify own datatypes and own components.
-Pattern matching, structural recursion, ability to use and generate polymorphic higher-order functions, reasoning about universal and recursive properties of dta structures.
+Pattern matching, structural recursion, ability to use and generate polymorphic higher-order functions, reasoning about universal and recursive properties of data structures.\\
+The Synquid language has lambda expressions, pattern matching, conditional and fixpoint.
 \item What can it do well and fast? How fast?
 Most advanced benchmark: generate various sorting algorithms for data structures with complex invariants (search trees, heaps, balanced trees). This is out of scope of my synthesis procedure.
+For the "easy" benchmarks (what I have) everything under 0.4~s. For more complicated stuff like sorting and tree insertion under 5 seconds. For most complicated stuff (red-black trees) under 20~s.
 \item What is the difficulty? What can they not generate (or take a long time to generate)? How much time do they need?
-It is not always easy to specify a program and to find the right 'measure' function for a datatype.
+It is not always easy for an inexperienced user to specify a program and to find the right 'measure' function for a datatype.\\
+They need up to 20~s to generate balance over red-black trees. They usually don't give more than 5 components and 6 measure functions over the needed data types.\\
+The specification is quite big compared to the synthesised program, half of the programs the specification is one third of the generated program or more.
 \item What do they do?
-Refinement types with SMT solvers stuff, you have already written it up quite well.
+In \cite{SynquidPaper} \textsc{Synquid} is proposed.
+Refinement types (types decorated with logical predicates) are used to prune the search space. SMT-solvers are used to satisfy the logical predicates. The key is the new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
 \end{enumerate}
 \item Lambda square (Feser). How would you specify replicate? Give an idea of how it is generated. User friendly, as only I/O-examples need to be specified, type is reconstructed automatically.
-\item (?) maybe Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
-\item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
-\item Magichaskeller? Does pretty much the same. Only needs I/O-examples.
-\item Leon (
-\end{itemize}
-
-\note{Try to answer the following three question for each paper read:
 \begin{enumerate}
-\item What is new in this approach? Or better, what is the approach. Describe technically the approach, so that you can answer technical questions.
-\item What is the trick? (Why are they better than others?)
-\item Which examples they can do really well? What kind of examples do they target? What is the most complicated thing they can generate?
-\end{enumerate}
-}
-
-\note{Nadia Polikarpova 2015\\
-here is a talk: \url{http://research.microsoft.com/apps/video/default.aspx?id=255528&l=i} \\
-and here is the code: \url{https://bitbucket.org/nadiapolikarpova/synquid}\\}
-In \cite{DBLP:journals/corr/PolikarpovaS15} \textsc{Synquid} is proposed.
-Refinement types (types decorated with logical predicates) are used to prune the search space. SMT-solvers are used to satisfy the logical predicates. The key is the new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
-Examples that this tool is able to synthesize include several sorting algorithms,
-binary-search tree manipulations, red-black tree rotation as well as other benchmarks also used by other tools (\TODO{read about these benchmarks and write if there is something interesting}).
-The user specifies the desired program by providing a goal refinement type.
-
-\note{Feser 2015\\}
-The tool proposed in \cite{Feser:2015:SDS:2737924.2737977} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion.
+\item What is the specification?
+I/O-examples
+\item What is the target language?
+Their synthesis algorithm targets a functional programming language that permits higher-order functions, combinators like map, fold and filter, pattern-matching, recursion, and a flexible set of primitive operators and constants. Actually, lambda calculus with algebraid data types and recursion.
+\item What can it do well and fast? How fast?
+Generating programs over nested structures like trees of lists, lists of lists and lists of trees. They generate the half of the benchmarks in under 0.43~s.
+\item What is the difficulty? What can they not generate (or take a long time)? How much time do they need?
+Only 7 higher-order combinators and not much more first-order components.\\
+They use relatively many examples (between 3 and 12, mostly 4 to 6).\\
+They need up to 320~s to generate \lstinline?droplast?. Other benchmarks that take more than 100~s to synthesise are removing duplicates from a list, inserting a tree under each leaf of another tree and dropping the smallest number in a list of lists.
+\item What do they do?
+Inductive generalization, deduction, enumerative search.
+First, generate \emph{hypotheses} (that is, programs with free variables like \lstinline!$\lambda$x. map ?f x! where \lstinline!?f! is a placeholder for an unknown program that needs to be generated) in a type-aware manner (the type is inferred from the I/O-examples). Then deduction based on the semantics of the higher-order combinators is used either to quickly refute a hypothesis or infer new I/O-examples to guide the synthesis of missing functions. Best-first enumerative search is used to enumerate candidate programs to fill in the missing parts of hypotheses.\\
+The tool proposed in \cite{LambdaSquarePaper} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion.
 %If the tool does not time out on a set of input-output examples, it generates the least-cost program.
 The user specifies the desired program providing input-output examples.  
-\note{No particular knowledge is required from the user, as was demonstrated using random input-output examples}
+No particular knowledge is required from the user, as was demonstrated using random input-output examples.
 The examples are inductively generalized in a type-aware manner to a set of hypotheses (programs that possibly have free variables).
 The key idea are the hard-coded deduction rules used to prune the search space depending on the semantics of some of the higher-order combinators (map, fold, filter and a few others).
 Deduction is also used to infer new input-output examples in order to generate the programs needed to fill in the holes in the hypotheses.
 This tool is able to synthesize programs manipulating recursive data structures like lists, trees and nested data structures such as lists of lists and trees of lists.
-\note{The examples that require much more time to be synthesized than the others are dedup (remove duplicate elements from a list), droplast (drop the last element in a list), tconcat (insert a tree under each leaf of another tree), cprod (return the Cartesian product of a list of lists), dropmins (drop the smallest number in a list of lists), but all of them are synthesized under 7 minutes.}
+The tool is able to synthesise all benchmark programs in under 7~minutes.
+\end{enumerate}
+\item Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
+\item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
+\item Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs.)
+\end{itemize}
+
 
 \note{Kincaid 2013\\}
 In \cite{Albarghouthi:2013:RPS:2526861.2526942} \textsc{Escher} is presented, an inductive synthesis algorithm that learns a recursive procedure from input-output examples provided by the user. \note{The user must provide a "closed" set of examples, otherwise recursion cannot be handled properly} The target language is untyped, first-order and purely functional.
