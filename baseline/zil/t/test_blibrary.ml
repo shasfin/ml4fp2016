@@ -95,13 +95,13 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
-let test_enumFromTo =
+(*let test_enumFromTo =
   let n = 2 in
   let m = 7 in
   test
     (sprintf "con Int %d (b_foldNat (List Int) (tail Int) (enumTo %d) %d)" n m n)
     (list_to_intlist (List.range ~stop:`inclusive n m))
-    "I don't think it's enumFromTo..."
+    "I don't think it's enumFromTo..."*)
 
 (*let test_dropmax =
   let xs = [1;3;0;2] in
@@ -326,3 +326,47 @@ let rec to_string_ignore_types = function
   and par_to_string a = sprintf "[%s]" (Type.to_string a);;
 
 (*let () = print_endline (to_string_ignore_types (parse_term "head (List Int) (nil (List Int))"));;*)
+
+(******************************************************************************)
+(* Compute number of nodes of some programs *)
+let rec nof_nodes m = match m with
+  | Term.Var _ -> 1
+  | Term.Int _ -> 1
+  | Term.App (_, m, n) -> 1 + (nof_nodes m) + (nof_nodes n)
+  | Term.Abs (_, _, m) -> 1 + (nof_nodes m)
+  | Term.APP (_, m, _) -> 1 + (nof_nodes m)
+  | Term.ABS (_, m) -> 1 + (nof_nodes m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 1
+  | Term.Fun (_, def, _, _) -> 1
+  | Term.FUN (_, def, _, _) -> 1
+  | Term.BuiltinFun _ -> 1
+
+
+let print_size =
+  let ms = [
+      "foldr &0 (List &0) (con &0) _1 _0";
+      "foldl (List &0) (List &0) (append &0) (nil &0) _0";
+      "reverse &0 (tail &0 (reverse &0 _0))";
+      "filter Int (b_neq (maximum _0)) _0";
+      "b_foldNat (List Int) (tail Int) (con Int _0 (enumTo _1)) _0";
+      "b_foldNatNat (List Int) (con Int) (nil Int) _0";
+      "prod (enumTo _0)";
+      "head &0 (reverse &0 _0)";
+      "foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+      "map Int Int (b_add _0) _1";
+      "map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+      "foldl Int Int b_max b_zero _0";
+      "not (is_nil Int (filter Int (b_eq _0) _1))";
+      "map &0 &0 (const &0 &0 (head &0 _0)) _0";
+      "map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0";
+      "b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+      "foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+      "concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+      "foldl Int Int b_add b_zero _0";
+  ] in
+  
+  List.iter
+    ~f:(fun m -> print_endline (string_of_int (nof_nodes (parse_term m))))
+    ms
