@@ -1,0 +1,24 @@
+# test_everything
+# cost function: original nof_nodes
+# const, flip and b_eq added
+# timeout: 200 000 for plain and blacklist, (2,4,10) for templates
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.323791, "foldr &0 (List &0) (con &0) _1 _0", 0.082661, "foldr &0 (List &0) (con &0) _1 _0", 1.823248, "foldr &0 (List &0) (con &0) _1 _0", 36
+concat, 0.190400, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 0.044042, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.777607, "foldr (List &0) (List &0) (append &0) (nil &0) _0", 36
+droplast, 0.089008, "reverse &0 (tail &0 (reverse &0 _0))", 0.064485, "reverse &0 (tail &0 (reverse &0 _0))", 0.756787, "reverse &0 (tail &0 (reverse &0 _0))", 37
+dropmax, 1.630155, "filter Int (b_neq (maximum _0)) _0", 0.466334, "filter Int (b_neq (maximum _0)) _0", 7.332778, "filter Int (b_neq (maximum _0)) _0", 37
+enumFromTo, 3.562322, "Not found", 6.053621, "Not found", 32.011003, "Not found", 36
+enumTo, 0.023901, "enumFromTo (b_succ b_zero) _0", 0.078292, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 1.634297, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 36
+factorial, 0.003811, "prod (enumTo _0)", 0.004353, "prod (enumTo _0)", 28.711121, "Not found", 37
+last, 0.001311, "head &0 (reverse &0 _0)", 0.001555, "head &0 (reverse &0 _0)", 0.001244, "head &0 (reverse &0 _0)", 37
+length, 0.066342, "head &0 (tail &0 (reverse &0 _0))", 0.016000, "head &0 (tail &0 (reverse &0 _0))", 0.920925, "head &0 (tail &0 (reverse &0 _0))", 36
+map_add, 0.420575, "map Int Int (b_add _0) _1", 0.598272, "map Int Int (b_add _0) _1", 3.188426, "map Int Int (b_add _0) _1", 37
+map_double, 3.816901, "Not found", 6.542611, "Not found", 31.841009, "Not found", 37
+maximum, 0.418082, "b_succ (b_sub (sum _0) (length Int _0))", 0.289861, "foldl Int Int b_max b_zero _0", 28.126841, "Not found", 36
+member, 3.981536, "Not found", 6.110265, "Not found", 28.947853, "Not found", 36
+multfirst, 0.170368, "replicate &0 (length &0 _0) (head &0 _0)", 0.073508, "replicate &0 (length &0 _0) (head &0 _0)", 9.272321, "map &0 &0 (const &0 &0 (head &0 _0)) _0", 37
+multlast, 3.049056, "Not found", 0.997398, "replicate &0 (length &0 _0) (head &0 (reverse &0 _0))", 32.156649, "Not found", 37
+replicate, 2.502986, "Not found", 0.103212, "map Int &0 (const &0 Int _0) (enumTo _1)", 3.145094, "map Int &0 (const &0 Int _0) (enumTo _1)", 36
+reverse, 2.484688, "Not found", 1.753156, "foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0", 19.080973, "foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0", 36
+stutter, 3.020348, "Not found", 5.661718, "Not found", 32.240492, "Not found", 37
+sum, 0.685929, "foldr Int Int b_add b_zero _0", 0.344351, "foldl Int Int b_add b_zero _0", 1.729256, "foldl Int Int b_add b_zero _0", 36

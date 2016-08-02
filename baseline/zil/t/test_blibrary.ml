@@ -95,6 +95,36 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
+let test_enumFromTo =
+  let n = 2 in
+  let m = 7 in
+  test
+    (sprintf "con Int %d (b_foldNat (List Int) (tail Int) (enumTo %d) %d)" n m n)
+    (list_to_intlist (List.range ~stop:`inclusive n m))
+    "I don't think it's enumFromTo..."
+
+(*let test_dropmax =
+  let xs = [1;3;0;2] in
+  test
+    (sprintf "enumFromTo (maximum (%s)) b_zero" (list_to_intlist xs))
+    (list_to_intlist [1;0;2])
+    "enumFromTo something 0"*)
+
+(*let test_dropmax =
+  let xs = [1;4;2;1] in
+  test
+    (sprintf "head (List Int) (filter (List Int) (is_nil Int) (nil (List Int)))")
+    "something"
+    "head concat nil bla"*)
+
+(*let test_dropmax =
+  let xs = [1;4;3] in
+  test
+    (sprintf "enumTo (prod (enumTo (prod (%s))))" (list_to_intlist xs))
+    ("enumTo prod enumTo prod")
+    "enumTo prod enumTo prod"*)
+
+
 (*let test_filter =
   let xs = [1;3;0;4;1] in
   test

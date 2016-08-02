@@ -108,7 +108,7 @@ replicate | * { [Int] [#0] : b_foldNat (List #0) (con #0 $0) (nil #0) $1 } | @ I
 
 append | * { [List #0] [List #0] : foldr #0 (List #0) (con #0) $0 $1 } | @ List #0 -> List #0 -> List #0
 
-rev | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) (nil #0) $0 } | @ List #0 -> List #0
+reverse | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) (nil #0) $0 } | @ List #0 -> List #0
 
 concat | * { [List (List #0)] : foldr (List #0) (List #0) (append #0) (nil #0) $0 } | @ List (List #0) -> List #0
 
@@ -117,4 +117,6 @@ enumTo | { [Int] : b_foldNatNat (List Int) (con Int) (nil Int) $0 } | Int -> Lis
 enumFromTo | { [Int] [Int] : con Int $1 (map Int Int (b_add $1) (enumTo (b_sub $0 $1))) } | Int -> Int -> List Int
 
 member | { [Int] [List Int] : not (is_nil Int (filter Int (b_eq $1) $0)) } | Int -> List Int -> Bool
+
+maximum | { [List Int] : foldr Int Int b_max b_zero $0 } | List Int -> Int
 

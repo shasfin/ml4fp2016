@@ -1,0 +1,24 @@
+# test_everything
+# cost function: original nof_nodes
+# exploration: stack
+# timeout: 5000 for plain and black_list, (2,3,10) for templates
+# dropmax not in the list because it takes too long to reach the 5000 lines
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.062584, "Not found", 0.084252, "foldr &0 (List &0) (con &0) _1 _0", 1.810107, "Not found", 33
+concat, 0.044977, "Not found", 0.037865, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.840721, "Not found", 33
+droplast, 0.064052, "Not found", 0.050978, "rev &0 (tail &0 (rev &0 _0))", 1.822135, "Not found", 34
+enumFromTo, 0.096759, "Not found", 0.129378, "Not found", 1.784634, "Not found", 33
+enumTo, 0.021266, "enumFromTo (b_succ b_zero) _0", 0.075373, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 1.746142, "Not found", 33
+factorial, 0.003490, "prod (enumTo _0)", 0.004066, "prod (enumTo _0)", 1.521568, "Not found", 34
+last, 0.001697, "head &0 (rev &0 _0)", 0.001969, "head &0 (rev &0 _0)", 0.001743, "head &0 (rev &0 _0)", 34
+length, 0.043529, "Not found", 0.189721, "Not found", 1.510295, "Not found", 33
+map_add, 0.090728, "Not found", 0.126445, "Not found", 0.880883, "map Int Int (b_add _0) _1", 34
+map_double, 0.084502, "Not found", 0.137378, "Not found", 1.795650, "Not found", 34
+maximum, 0.098277, "Not found", 0.132826, "Not found", 1.480300, "Not found", 33
+member, 0.093693, "Not found", 0.123872, "Not found", 1.506322, "Not found", 33
+multfirst, 0.063784, "Not found", 0.077883, "replicate &0 (length &0 _0) (head &0 _0)", 1.811777, "Not found", 34
+multlast, 0.064228, "Not found", 0.181842, "Not found", 1.812947, "Not found", 34
+replicate, 0.049855, "Not found", 0.196769, "Not found", 1.802895, "Not found", 33
+rev, 0.045584, "Not found", 0.186293, "Not found", 1.840968, "Not found", 33
+stutter, 0.062022, "Not found", 0.175338, "Not found", 1.821909, "Not found", 34
+sum, 0.069911, "b_add (maximum _0) (length Int _0)", 0.063435, "b_add (maximum _0) (length Int _0)", 1.482219, "Not found", 33

@@ -3,7 +3,9 @@ src/Lambda
 src/Parser
 src/Lexer
 src/Parse
+src/SyntaxSugar
 src/Synthesiser
 src/Library
 src/Program
 src/Builtin
+src/Benchmark

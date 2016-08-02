@@ -1,0 +1,5 @@
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.143829, "foldr &0 (List &0) (con &0) _1 _0", 0.081821, "foldr &0 (List &0) (con &0) _1 _0", 2.250517, "foldr &0 (List &0) (con &0) _1 _0", 32
+concat, 0.084845, "foldr (List &0) (List &0) (append &0) (nil &0) _0", 0.036051, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.913219, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 32
+
+#cost function: original nof_nodes

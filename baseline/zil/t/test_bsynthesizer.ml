@@ -1647,7 +1647,7 @@ let dedup_test =
                   [1;2;1]]);;*)
 
 
-(*(* Try to generate dropmax with an accurate manual black_list *)
+(* Try to generate dropmax with an accurate manual black_list *)
 let dropmax_test =
     let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = (match (List.max_elt ~cmp:compare xs) with Some m -> m | None -> invalid_arg "max of empty list")) xs)) in
   test_black_list
@@ -1708,9 +1708,9 @@ let dropmax_test =
     ~examples:(List.map ~f:example
                  [[1;2;3];
                   [1;1];
-                  [1;2;1]]);;*)
+                  [1;2;1]]);;
 
-(* Try to generate map_double with an accurate manual black_list *)
+(*(* Try to generate map_double with an accurate manual black_list *)
 let map_double_test =
     let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.map ~f:(fun x -> x * 2) xs)) in
   test_black_list
@@ -1771,6 +1771,6 @@ let map_double_test =
     ~examples:(List.map ~f:example
                  [[1;2;3];
                   [1;1];
-                  [1;2;1]]);;
+                  [1;2;1]]);;*)
 
 

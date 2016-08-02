@@ -1,0 +1,24 @@
+# test_everything,,,,,,,,
+# cost function: original nof_nodes,,,,,,,,
+# exploration: stack,,,,,,,,
+# timeout: 100 000 for plain and blacklist, (2,4,10) for templates,,,,,
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components,
+append,0.123627,foldr &0 (List &0) (con &0) _1 _0,0.082586,foldr &0 (List &0) (con &0) _1 _0,2.22801,foldr &0 (List &0) (con &0) _1 _0,33,
+concat,0.10079,foldr (List &0) (List &0) (append &0) (nil &0) _0,0.037682,foldl (List &0) (List &0) (append &0) (nil &0) _0,2.133634,foldl (List &0) (List &0) (append &0) (nil &0) _0,33,
+droplast,0.117208,rev &0 (tail &0 (rev &0 _0)),0.050751,rev &0 (tail &0 (rev &0 _0)),19.75224,Not found,34,
+dropmax,1.038365,filter Int (b_neq (maximum _0)) _0,0.631405,filter Int (b_neq (maximum _0)) _0,4.20053,filter Int (b_neq (maximum _0)) _0,34,
+enumFromTo,1.911742,Not found,2.900688,Not found,19.458168,Not found,33,probably too long
+enumTo,0.020832,enumFromTo (b_succ b_zero) _0,0.074733,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.771037,b_foldNatNat (List Int) (con Int) (nil Int) _0,33,
+factorial,0.003552,prod (enumTo _0),0.004059,prod (enumTo _0),17.119471,Not found,34,
+last,0.001701,head &0 (rev &0 _0),0.001945,head &0 (rev &0 _0),0.001687,head &0 (rev &0 _0),34,
+length,1.127069,Not found,0.198551,head &0 (tail &0 (tail &0 (append &0 _0 _0))),16.972127,Not found,33,const was not given
+map_add,0.325994,map Int Int (b_add _0) _1,0.349944,map Int Int (b_add _0) _1,2.023029,map Int Int (b_add _0) _1,34,
+map_double,1.892103,Not found,3.128711,Not found,19.497848,Not found,34,???
+maximum,0.350895,b_succ (b_sub (sum _0) (length Int _0)),0.236067,b_succ (b_sub (sum _0) (length Int _0)),16.792787,Not found,33,
+member,1.872904,Not found,2.894505,Not found,17.134811,Not found,33,equality was not given
+multfirst,0.11423,replicate &0 (length &0 _0) (head &0 _0),0.069397,replicate &0 (length &0 _0) (head &0 _0),19.762302,Not found,34,
+multlast,1.353298,Not found,0.50814,replicate &0 (length &0 _0) (head &0 (rev &0 _0)),19.786775,Not found,34,last was not given
+replicate,0.807329,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.258373,b_foldNat (List &0) (con &0 _0) (nil &0) _1,5.661503,b_foldNat (List &0) (con &0 _0) (nil &0) _1,33,
+rev,1.27788,Not found,4.15942,Not found,19.90333,Not found,33,flip was not given as a component
+stutter,1.368037,Not found,4.071087,Not found,19.792935,Not found,34,
+sum,0.418382,foldl Int Int b_add b_zero _0,0.418506,foldl Int Int b_add b_zero _0,1.580881,foldl Int Int b_add b_zero _0,33,

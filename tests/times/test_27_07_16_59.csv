@@ -1,0 +1,7 @@
+# cost function: original nof_nodes
+# 2 hoc, 5 hol, 10 depth for templates
+# not averaged
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.145666, "foldr &0 (List &0) (con &0) _1 _0", 0.079889, "foldr &0 (List &0) (con &0) _1 _0", 2.214159, "foldr &0 (List &0) (con &0) _1 _0", 32
+concat, 0.083749, "foldr (List &0) (List &0) (append &0) (nil &0) _0", 0.035927, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.910126, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 32
+droplast, 0.112384, "rev &0 (tail &0 (rev &0 _0))", 0.049673, "rev &0 (tail &0 (rev &0 _0))", 143.161026, "Not found", 33
