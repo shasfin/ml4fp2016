@@ -50,28 +50,40 @@ This tool is able to synthesize programs manipulating recursive data structures 
 The tool is able to synthesise all benchmark programs in under 7~minutes.
 \end{enumerate}
 \item Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
-\item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
-\item Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs.)
-\end{itemize}
-
-
-\note{Kincaid 2013\\}
-In \cite{Albarghouthi:2013:RPS:2526861.2526942} \textsc{Escher} is presented, an inductive synthesis algorithm that learns a recursive procedure from input-output examples provided by the user. \note{The user must provide a "closed" set of examples, otherwise recursion cannot be handled properly} The target language is untyped, first-order and purely functional.
+\begin{enumerate}
+\item What is the specification?
+I/O-examples. Oracle simulating interaction with the user.
+\item What is the target language?
+Recursion, special treatment for conditionals, components. That's really all they have: either apply a component to its arguments (including component \lstinline?self? referring to the program being generated for recursion), a constant, an input variable or a conditional. Programming language is untyped. Components may be higher-order.
+\item What can they do well and fast? How fast?
+Synthesise recursive programs (tail recursive, divide-and-conque, mutually recursive). In the evaluation, they give 23 components to all benchmarks, none of them is higher-order. Can generate all benchmarks in under 11~s, most of them in under 1~s.
+\item What is the difficulty? What can they not generate (or take a long time)? How much time do they need?
+The user must give a \emph{closed} example set, that is for each example, there must be another example that can be used for a recursive call.
+\item What do they do?
+Forward search: inductive enumeration, add a new component to an already synthesised program.
+Conditional inference: use the goal graph to see if you can join to synthesised programs by a conditional statement.
+A heuristic guides the alternation between forward search and conditional inference.
+Programs are associated with value vectors. Search space is also pruned based on \emph{observational equivalence}, that is programs with equivalent value vectors are treated as equivalent programs.\\
+Can be formalised as a non-deterministic transition system over configurations (triples consisting of a set of synthesised programs, a goal graph and a list of input-output examples) with six transition rules: an initial rule to start the search, a terminate rule to terminate the search and four synthesis rules (one for forward search, two for conditional split and one to ask for new input-output examples to evaluate a recursive call). The recursive calls are answered by the oracle.\\
+Rule scheduling is added to turn this into a practical system (different heuristics).\\
+In \cite{EscherPaper} \textsc{Escher} is presented, an inductive synthesis algorithm that learns a recursive procedure from input-output examples provided by the user. \note{The user must provide a "closed" set of examples, otherwise recursion cannot be handled properly} The target language is untyped, first-order and purely functional.
 The algorithm is parametrized by components that can be instantiated differently to suit different domains.
 The approach combines enumerative search and conditional inference. The key idea is to use a special data structure, a \emph{goal graph}, to infer conditional branches instead of treating \texttt{if-then-else} as a component.
 Observational equivalence is also used to prune the search space. Programs with the same value vectors (output of the program when applied to the inputs of the input-output examples) are considered equivalent and only one of them is synthesized.
 An implementation of the tool was tested on a benchmark consisting of recursive programs \note{(including tail-recursive, divide-and-conquer and mutually recursive programs)} drawn from functional programming assignments and standard list and tree manipulation programs.
 For all examples the same fixed set of components was used.
 The tool is able to synthesize all of them quickly. \note{There is very little information on how many input-output examples were needed to synthesize the benchmarks and how difficult it is for a non-experienced user to come up with a "closed" set of examples.}
-
-\note{Osera 2015\\}
-The tool in \cite{Osera:2015:TPS:2737924.2738007} is called \textsc{Myth} and uses not only type information but also input-output examples to restrict the search space. The special data structure used to hold this information is the \emph{refinement tree}. This system can synthesize higher-order functions, programs that use higher order functions and work with large algebraic data types.\\
+\end{enumerate}
+\item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
+\item What do they do?
+The tool in \cite{MythPaper} is called \textsc{Myth} and uses not only type information but also input-output examples to restrict the search space. The special data structure used to hold this information is the \emph{refinement tree}. This system can synthesize higher-order functions, programs that use higher order functions and work with large algebraic data types.\\
 There is an ML-like type system that incorporates input-output examples. Two pieces: a \emph{refinement tree} and an enumerative search.\\
 Two major operations: refine the goal type and the examples and guess a term of the right type that matches the examples.\\
 A small example to show what does the procedure. The user specifies a goal type incorporating input-output examples as well as the "background": the types and functions that can be used.
-\begin{lstlisting}
-stutter : 
-\end{lstlisting}
+\item Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs.) \cite{LeonPaper}
+\end{itemize}
+
+
 
 
 
