@@ -1,0 +1,6 @@
+benchmarks you could generate (if you had time...)
+
+take n: something with foldnat head and con?
+drop n: you already have it in enumFromTo: something with foldnat tail
+is_nil: is_zero (length xs)
+delete x xs: filter (neq x) xs
