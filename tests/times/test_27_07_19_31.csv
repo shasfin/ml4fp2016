@@ -1,0 +1,8 @@
+# test_everything
+# cost function: original nof_nodes
+# exploration: stack
+# timeout: nothing for plain and blacklist, (2,5,10) for templates
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.124120, "foldr &0 (List &0) (con &0) _1 _0", 0.085118, "foldr &0 (List &0) (con &0) _1 _0", 2.257166, "foldr &0 (List &0) (con &0) _1 _0", 33
+concat, 0.094280, "foldr (List &0) (List &0) (append &0) (nil &0) _0", 0.037864, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.946739, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 33
+droplast, 0.114958, "rev &0 (tail &0 (rev &0 _0))", 0.059094, "rev &0 (tail &0 (rev &0 _0))", 144.307685, "Not found", 34

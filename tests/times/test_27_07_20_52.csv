@@ -1,0 +1,26 @@
+# test_everything
+# test_everything
+# cost function: original nof_nodes
+# exploration: stack
+# timeout: 5000 for plain and black_list, (2,3,10) for templates
+# dropmax takes too long
+# changed examples for sum so that the wrong solution is not generated any more
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.064282, "Not found", 0.083601, "foldr &0 (List &0) (con &0) _1 _0", 1.796550, "Not found", 33
+concat, 0.045148, "Not found", 0.037720, "foldl (List &0) (List &0) (append &0) (nil &0) _0", 1.830349, "Not found", 33
+droplast, 0.063845, "Not found", 0.050787, "rev &0 (tail &0 (rev &0 _0))", 1.807012, "Not found", 34
+enumFromTo, 0.095663, "Not found", 0.128945, "Not found", 1.777091, "Not found", 33
+enumTo, 0.021270, "enumFromTo (b_succ b_zero) _0", 0.075193, "b_foldNatNat (List Int) (con Int) (nil Int) _0", 1.736815, "Not found", 33
+factorial, 0.003509, "prod (enumTo _0)", 0.004049, "prod (enumTo _0)", 1.516333, "Not found", 34
+last, 0.001751, "head &0 (rev &0 _0)", 0.002026, "head &0 (rev &0 _0)", 0.001785, "head &0 (rev &0 _0)", 34
+length, 0.043881, "Not found", 0.189313, "Not found", 1.506167, "Not found", 33
+map_add, 0.090644, "Not found", 0.125090, "Not found", 0.881450, "map Int Int (b_add _0) _1", 34
+map_double, 0.083169, "Not found", 0.138822, "Not found", 1.790469, "Not found", 34
+maximum, 0.096730, "Not found", 0.134583, "Not found", 1.483001, "Not found", 33
+member, 0.092015, "Not found", 0.123682, "Not found", 1.504545, "Not found", 33
+multfirst, 0.063587, "Not found", 0.077721, "replicate &0 (length &0 _0) (head &0 _0)", 1.808872, "Not found", 34
+multlast, 0.064217, "Not found", 0.181407, "Not found", 1.811410, "Not found", 34
+replicate, 0.049828, "Not found", 0.197402, "Not found", 1.800831, "Not found", 33
+rev, 0.045620, "Not found", 0.188692, "Not found", 1.833804, "Not found", 33
+stutter, 0.061945, "Not found", 0.177508, "Not found", 1.815574, "Not found", 34
+sum, 0.098367, "Not found", 0.132414, "Not found", 1.468251, "Not found", 33

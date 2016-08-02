@@ -1,0 +1,23 @@
+# cost function: original nof_nodes
+# exploration: stack
+# timeout: 1000 for plain and black_list, (2,2,5) for templates
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append, 0.016296, "Not found", 0.031953, "Not found", 0.017367, "Not found", 33
+concat, 0.014052, "Not found", 0.030953, "Not found", 0.016844, "Not found", 33
+droplast, 0.018926, "Not found", 0.031256, "Not found", 0.018348, "Not found", 34
+dropmax, 0.019483, "Not found", 0.025315, "Not found", 0.017129, "Not found", 34
+enumFromTo, 0.018399, "Not found", 0.024923, "Not found", 0.017081, "Not found", 33
+enumTo, 0.019581, "Not found", 0.026645, "Not found", 0.016447, "Not found", 33
+factorial, 0.003481, "prod (enumTo _0)", 0.004133, "prod (enumTo _0)", 0.015727, "Not found", 34
+last, 0.001694, "head &0 (rev &0 _0)", 0.001950, "head &0 (rev &0 _0)", 0.016548, "Not found", 34
+length, 0.013432, "Not found", 0.034462, "Not found", 0.016337, "Not found", 33
+map_add, 0.018294, "Not found", 0.023306, "Not found", 0.017098, "Not found", 34
+map_double, 0.019045, "Not found", 0.025175, "Not found", 0.017052, "Not found", 34
+maximum, 0.017578, "Not found", 0.022996, "Not found", 0.015719, "Not found", 33
+member, 0.017490, "Not found", 0.022575, "Not found", 0.015756, "Not found", 33
+multfirst, 0.018750, "Not found", 0.031331, "Not found", 0.017311, "Not found", 34
+multlast, 0.018991, "Not found", 0.031746, "Not found", 0.017498, "Not found", 34
+replicate, 0.018485, "Not found", 0.032809, "Not found", 0.017400, "Not found", 33
+rev, 0.016123, "Not found", 0.032398, "Not found", 0.016633, "Not found", 33
+stutter, 0.018763, "Not found", 0.031689, "Not found", 0.017469, "Not found", 34
+sum, 0.017453, "Not found", 0.022864, "Not found", 0.015618, "Not found", 33

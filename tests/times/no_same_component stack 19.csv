@@ -1,0 +1,32 @@
+# test_everything,,,,,,,
+# test_everything,,,,,,,
+# cost function: original no_same_component,,,,,,,
+# exploration: stack,,,,,,,
+# timeout: 10 000 000 for plain and blacklist, (2,5,10) for templates,,,,
+# ~19 components,,,,,,,
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append,0.021925,foldr &0 (List &0) (con &0) _1 _0,0.02078,foldr &0 (List &0) (con &0) _1 _0,0.935925,foldr &0 (List &0) (con &0) _1 _0,18
+concat,0.067102,foldl (List &0) (List &0) (append &0) (nil &0) _0,0.058098,foldl (List &0) (List &0) (append &0) (nil &0) _0,0.557553,foldl (List &0) (List &0) (append &0) (nil &0) _0,19
+droplast,0.070502,reverse &0 (tail &0 (reverse &0 _0)),0.064836,reverse &0 (tail &0 (reverse &0 _0)),83.8805,Not found,19
+dropmax,0.043705,filter Int (b_neq (maximum _0)) _0,0.052244,filter Int (b_neq (maximum _0)) _0,0.142433,filter Int (b_neq (maximum _0)) _0,19
+enumFromTo,10.307361,con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),10.133649,b_foldNat (List Int) (tail Int) (con Int _0 (enumTo _1)) _0,60.512267,Not found,19
+enumTo,0.257409,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.2759,b_foldNatNat (List Int) (con Int) (nil Int) _0,0.312245,b_foldNatNat (List Int) (con Int) (nil Int) _0,19
+factorial,0.000914,prod (enumTo _0),0.001221,prod (enumTo _0),0.001448,prod (enumTo _0),19
+last,0.000967,head &0 (reverse &0 _0),0.001225,head &0 (reverse &0 _0),0.001038,head &0 (reverse &0 _0),18
+length,2.149805,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),1.38304,sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),1.228571,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,18
+map_add,0.027367,map Int Int (b_add _0) _1,0.049916,map Int Int (b_add _0) _1,0.088952,map Int Int (b_add _0) _1,19
+map_double,1.026287,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,0.888343,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,58.756699,Not found,19
+maximum,0.052104,foldl Int Int b_max b_zero _0,0.107734,foldl Int Int b_max b_zero _0,0.863197,foldr Int Int b_max b_zero _0,19
+member,3.821841,not (is_nil Int (filter Int (b_eq _0) _1)),2.303882,not (is_nil Int (filter Int (b_eq _0) _1)),1.221033,not (is_nil Int (filter Int (b_eq _0) _1)),19
+multfirst,0.225541,map &0 &0 (const &0 &0 (head &0 _0)) _0,0.166823,map &0 &0 (const &0 &0 (head &0 _0)) _0,0.343008,map &0 &0 (const &0 &0 (head &0 _0)) _0,19
+multlast,1.368978,map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,0.702932,map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,4.574752,map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,19
+replicate,0.03966,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.035631,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.237007,b_foldNat (List &0) (con &0 _0) (nil &0) _1,19
+reverse,1.254063,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,0.740099,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,33.053304,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,19
+stutter,4.352798,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),2.491215,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),95.81899,Not found,18
+sum,0.029597,foldr Int Int b_add b_zero _0,0.029754,foldr Int Int b_add b_zero _0,0.812001,foldr Int Int b_add b_zero _0,19
+,,,,,,,
+average time,1.3219961053,,1.0267011579,,18.0705748947,,
+found,,19/19,,19/19,,15/19,
+average time (if found),1.3219961053,,1.0267011579,,2.9581644667,,
+median,0.070502,,0.107734,,0.863197,,
+minimum,0.000914,,0.001221,,0.001038,,

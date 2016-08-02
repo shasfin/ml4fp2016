@@ -6,12 +6,18 @@ module IntMap : sig
   type 'a t
 end
 
+module StringMap : sig
+  type 'a t
+end
+
   (** Type of generated partial programs *)
 
   type t = {
     max_term_hol : idx_hol; (* first fresh term hole index *)
     max_type_hol : idx_hol; (* first fresh type hole index *)
     open_holes : idx_hol list; (* stack of open holes *)
+    closed_holes : idx_hol list; (* stack of closed holes *)
+    components : int StringMap.t; (* association list of used components *)
     prog : (Type.t Term.t option * Type.t) IntMap.t;
     (** A program is a mapping from holes to the corresponding terms, if present, and to their types. The starting point is ?0 *)
   }
@@ -34,6 +40,15 @@ end
 
   val expand_current_hol : Type.t Term.t -> t -> t
   (** Expand current hole with a term *)
+
+  val close_current_hol : t -> t
+  (** Make current hole non-expandable *)
+
+  val open_all_closed_holes : t -> t
+  (** Transform all non-expandable holes into expandable holes *)
+
+  val nof_holes : t -> int
+  (** Number of holes *)
 
   val apply_subst : Type.substitution -> t -> t
   (** Apply substitution to all types of the program *)

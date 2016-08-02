@@ -2,11 +2,14 @@ open Printf
 open Lambda
 
 module IntMap = Map.Make(struct type t = int let compare = compare end)
+module StringMap = Map.Make(String)
 
 type t = {
     max_term_hol: idx_hol; (* first fresh hole index *)
     max_type_hol: idx_hol; (* firse fresh type hole index *)
     open_holes: idx_hol list; (* stack of open holes *)
+    closed_holes: idx_hol list; (* stack of closed holes *)
+    components: int StringMap.t; (* association list of components used *)
     prog: (Type.t Term.t option * Type.t) IntMap.t; (* mapping from term holes to terms and types *)
 }
 
@@ -15,6 +18,8 @@ let create () = {
     max_term_hol = 0;
     max_type_hol = 0;
     open_holes = [];
+    closed_holes = [];
+    components = StringMap.empty;
     prog = IntMap.empty;
 }
 
@@ -23,20 +28,24 @@ let reset prog a = {
     max_term_hol = 1;
     max_type_hol = prog.max_type_hol;
     open_holes = [0];
+    closed_holes = [];
+    components = StringMap.empty;
     prog = IntMap.add 0 (None, a) IntMap.empty;
 }
 
-let is_closed ctxt = (ctxt.open_holes = []) (* if there are no more holes to expand, the program is closed *)
+let is_closed prog = (prog.open_holes = []) (* if there are no more holes to expand, the program is closed *)
 
-let current_hol ctxt = List.hd ctxt.open_holes
+let current_hol prog = List.hd prog.open_holes
 
-let current_type ctxt = snd (IntMap.find (current_hol ctxt) ctxt.prog)
+let current_type prog = snd (IntMap.find (current_hol prog) prog.prog)
 
 let get_fresh_term_hol a prog =
     (Term.Hol (a, prog.max_term_hol),
     {max_term_hol = prog.max_term_hol + 1;
      max_type_hol = prog.max_type_hol;
      open_holes = (List.hd prog.open_holes)::(prog.max_term_hol)::(List.tl prog.open_holes);
+     closed_holes = prog.closed_holes;
+     components = prog.components;
      prog = IntMap.add prog.max_term_hol (None, a) prog.prog}
     )
 
@@ -45,14 +54,62 @@ let get_fresh_type_hol prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol + 1;
      open_holes = prog.open_holes;
+     closed_holes = prog.closed_holes;
+     components = prog.components;
      prog = prog.prog}
     )
 
 let expand_current_hol m prog =
+  let increase_count i map =
+    try
+      let count = StringMap.find i map in
+      StringMap.add i (count + 1) map
+    with
+      | Not_found -> StringMap.add i 1 map in
+
+  let rec add_components m map = match m with
+    | Term.Sym (_, i) -> increase_count i map
+    | Term.App (_, m, n) -> add_components n (add_components m map)
+    | Term.ABS (_, m) -> add_components m map
+    | Term.APP (_, m, _) -> add_components m map
+    | Term.Abs (_, _, m) -> add_components m map
+    | _ -> map in
+
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
      open_holes = List.tl prog.open_holes;
+     closed_holes = prog.closed_holes;
+     components = add_components m prog.components;
      prog = IntMap.add (current_hol prog) (Some m, Term.extract_label m) prog.prog}
+
+let close_current_hol prog =
+    {max_term_hol = prog.max_term_hol;
+     max_type_hol = prog.max_type_hol;
+     open_holes = List.tl prog.open_holes;
+     closed_holes = (List.hd prog.open_holes)::prog.closed_holes;
+     components = prog.components;
+     prog = prog.prog;
+    }
+
+let open_all_closed_holes prog =
+    let rec transfer_holes closed_holes open_holes =
+      match closed_holes with
+      | [] -> open_holes
+      | (c::cs) -> transfer_holes cs (c::open_holes) in
+
+    {max_term_hol = prog.max_term_hol;
+     max_type_hol = prog.max_type_hol;
+     open_holes = transfer_holes prog.closed_holes prog.open_holes;
+     closed_holes = [];
+     components = prog.components;
+     prog = prog.prog;
+    }
+
+let nof_open_holes prog = List.length prog.open_holes
+
+let nof_closed_holes prog = List.length prog.closed_holes
+
+let nof_holes prog = (nof_open_holes prog) + (nof_closed_holes prog)
 
 (* TODO find a better name to avoid conflict with Lambda.apply_subst *)
 let apply_subst subst prog =
@@ -63,6 +120,8 @@ let apply_subst subst prog =
     {max_term_hol = prog.max_term_hol;
      max_type_hol = prog.max_type_hol;
      open_holes = prog.open_holes;
+     closed_holes = prog.closed_holes;
+     components = prog.components;
      prog = IntMap.map (apply_subst_to_pair subst) prog.prog}
 
 let to_term prog =
@@ -153,15 +212,103 @@ let nof_nodes_simple_type prog =
 (* count holes double and don't count input variables, same for types, add the cost of the type to APP and Abs *)
 
 
+(* original no_same_component *)
+let no_same_component prog =
+  let rec nof_type a = match a with
+  | Type.Var _ -> 5
+  | Type.Arr (a, b) -> 3 + (nof_type a) + (nof_type b)
+  | Type.All a -> 5 + (nof_type a)
+  | Type.Sym (_, l) -> 1 + List.fold_left (+) 0 (List.map nof_type l)
+  | Type.Hol _ -> 1
+  | Type.Int -> 0
+  | Type.Free _ -> 0 in
+
+  let rec nof_term m = match m with
+  | Term.Var _ -> 5
+  | Term.App (_, m, n) -> 1 + (nof_term m) + (nof_term n)
+  | Term.Abs (_, a, m) -> 2 + (nof_term m) + (nof_type a)
+  | Term.APP (_, m, a) -> 1 + (nof_term m) + (nof_type a)
+  | Term.ABS (_, m) -> 5 + (nof_term m)
+  | Term.Int _ -> 1
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, Some m) -> 2 + (nof_term m)
+  | Term.FUN (_, def, env, Some m) -> 2 + (nof_term m)
+  | Term.BuiltinFun _ -> 1
+  | _ -> 2 in
+
+  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)
+
+(* no_same_component with bigger constants *)
+(*let no_same_component prog =
+  let rec nof_type a = match a with
+  | Type.Var _ -> 5
+  | Type.Arr (a, b) -> 4 + (nof_type a) + (nof_type b)
+  | Type.All a -> 5 + (nof_type a)
+  | Type.Sym (_, l) -> 3 + List.fold_left (+) 0 (List.map nof_type l)
+  | Type.Hol _ -> 1
+  | Type.Int -> 0
+  | Type.Free _ -> 0 in
+
+  let rec nof_term m = match m with
+  | Term.Var _ -> 10
+  | Term.App (_, m, n) -> 5 + (nof_term m) + (nof_term n)
+  | Term.Abs (_, a, m) -> 7 + (nof_term m) + (nof_type a)
+  | Term.APP (_, m, a) -> 5 + (nof_term m) + (nof_type a)
+  | Term.ABS (_, m) -> 10 + (nof_term m)
+  | Term.Int _ -> 3
+  | Term.Sym _ -> 3
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.FUN (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.BuiltinFun _ -> 10
+  | _ -> 10 in
+
+  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
+
+(* no_same_component (even bigger constants) *)
+(*let no_same_component prog =
+  let rec nof_type a = match a with
+  | Type.Var _ -> 10
+  | Type.Arr (a, b) -> 5 + (nof_type a) + (nof_type b)
+  | Type.All a -> 10 + (nof_type a)
+  | Type.Sym (_, l) -> 4 + List.fold_left (+) 0 (List.map nof_type l)
+  | Type.Hol _ -> 3
+  | Type.Int -> 0
+  | Type.Free _ -> 0 in
+
+  let rec nof_term m = match m with
+  | Term.Var _ -> 10
+  | Term.App (_, m, n) -> 6 + (nof_term m) + (nof_term n)
+  | Term.Abs (_, a, m) -> 10 + (nof_term m) + (nof_type a)
+  | Term.APP (_, m, a) -> 5 + (nof_term m) + (nof_type a)
+  | Term.ABS (_, m) -> 10 + (nof_term m)
+  | Term.Int _ -> 5
+  | Term.Sym _ -> 3
+  | Term.Hol _ -> 2
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.FUN (_, def, env, Some m) -> 10 + (nof_term m)
+  | Term.BuiltinFun _ -> 10
+  | _ -> 10 in
+
+  nof_term (to_term prog) + 3 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
+
+
 let compare p1 p2 =
   (*p1.current_term_hol - p2.current_term_hol*)
   (* "Stupid queue" *)
 
-  (nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)
+  (*(nof_nodes_simple_type p1) - (nof_nodes_simple_type p2)*)
   (* Take also the size of types into account *)
 
-  (*(nof_nodes p1) - (nof_nodes p2)*)
+  (nof_nodes p1) - (nof_nodes p2)
   (* Based on the number of nodes *)
+
+  (*(no_same_component p1) - (no_same_component p2)*)
+  (* Penalty for using the same component twice *)
 
   (*(p1.max_term_hol - p1.current_term_hol) - (p2.max_term_hol - p2.current_term_hol)*)
   (* Programs with less holes first *)

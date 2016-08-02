@@ -1,0 +1,29 @@
+# test_everything,,,,,,,
+# cost function: original nof_nodes,,,,,,,
+# timeout: 10 000 000 for plain and blacklist, (2,5,10) for templates,,,,
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+append,0.323932,foldr &0 (List &0) (con &0) _1 _0,0.082738,foldr &0 (List &0) (con &0) _1 _0,1.901665,foldr &0 (List &0) (con &0) _1 _0,36
+concat,0.189901,foldl (List &0) (List &0) (append &0) (nil &0) _0,0.038328,foldl (List &0) (List &0) (append &0) (nil &0) _0,1.856576,foldr (List &0) (List &0) (append &0) (nil &0) _0,36
+droplast,0.090604,reverse &0 (tail &0 (reverse &0 _0)),0.060962,reverse &0 (tail &0 (reverse &0 _0)),0.755002,reverse &0 (tail &0 (reverse &0 _0)),37
+dropmax,1.640785,filter Int (b_neq (maximum _0)) _0,0.717853,filter Int (b_neq (maximum _0)) _0,7.575971,filter Int (b_neq (maximum _0)) _0,37
+enumFromTo,202.616895,Not found,204.043585,con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),252.596242,Not found,36
+enumTo,0.024734,enumFromTo (b_succ b_zero) _0,0.074567,b_foldNatNat (List Int) (con Int) (nil Int) _0,1.670464,b_foldNatNat (List Int) (con Int) (nil Int) _0,36
+factorial,0.003793,prod (enumTo _0),0.004313,prod (enumTo _0),209.970833,prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int))),37
+last,0.001303,head &0 (reverse &0 _0),0.001448,head &0 (reverse &0 _0),0.001245,head &0 (reverse &0 _0),37
+length,49.002493,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,4.933901,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,16.400734,foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,36
+map_add,0.418818,map Int Int (b_add _0) _1,0.283222,map Int Int (b_add _0) _1,2.934753,map Int Int (b_add _0) _1,37
+map_double,55.898972,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,14.118063,map Int Int (b_mul (b_succ (b_succ b_zero))) _0,250.442258,Not found,37
+maximum,0.774533,foldr Int Int b_max b_zero _0,0.315456,foldl Int Int b_max b_zero _0,226.298963,Not found,36
+member,62.063914,b_is_zero (prod (map Int Int (b_sub _0) _1)),26.953049,b_is_zero (prod (map Int Int (b_sub _0) _1)),38.074737,not (is_nil Int (filter Int (b_eq _0) _1)),36
+multfirst,0.181516,replicate &0 (length &0 _0) (head &0 _0),0.068386,replicate &0 (length &0 _0) (head &0 _0),13.353665,map &0 &0 (const &0 &0 (head &0 _0)) _0,37
+multlast,7.789742,replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),0.706947,replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),201.811945,map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0,37
+replicate,3.346158,b_foldNat (List &0) (con &0 _0) (nil &0) _1,0.091653,map Int &0 (const &0 Int _0) (enumTo _1),2.894118,map Int &0 (const &0 Int _0) (enumTo _1),36
+reverse,38.437115,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,1.709445,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,42.567221,foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,36
+stutter,167.700734,Not found,31.91194,concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),249.216784,Not found,37
+sum,0.686694,foldr Int Int b_add b_zero _0,0.343281,foldl Int Int b_add b_zero _0,1.905027,foldr Int Int b_add b_zero _0,36
+,,,,,,,
+average time,31.115401895,,15.0767966842,,80.1172738421,,
+found,,17/19,,19/19,,15/19,
+average time (if found),12.992647471,,15.0767966842,,36.2449304,,
+median,0.774533,,0.315456,,13.353665,,
+minimum,0.001303,,0.001448,,0.001245,,

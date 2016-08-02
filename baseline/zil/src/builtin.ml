@@ -70,17 +70,42 @@ let def_int_binop name op =
     | (_, _) -> invalid_arg "Please reduce before evaluation" in
   (name, def2_ignore name f, parse_type "Int -> Int -> Int")
 
+(* op : int -> int -> bool *)
+let def_int_binop_bool name op =
+  let impl m_i m_j =
+    match (m_i, m_j) with
+    | (Term.Int (_, i), Term.Int (_, j)) ->
+      (if (op i j) then Term.Sym ((), "true") else Term.Sym ((), "false"))
+    | _ -> invalid_arg "Please reduce before evaluation" in
+
+  (name, def2_ignore name impl, parse_type "Int -> Int -> Bool")
+
 
 (* Definitions of built-in functions *)
 
 let zero = ("b_zero", Term.Int ((), 0), parse_type "Int")
 let succ = def_int_unop "b_succ" (fun x -> x + 1)
 
+let is_zero =
+  let name = "b_is_zero" in
+  let impl m_i =
+    match m_i with
+    | Term.Int (_, 0) -> Term.Sym ((), "true")
+    | Term.Int _ -> Term.Sym ((), "false")
+    | _ -> invalid_arg "Please reduce before evaluation" in
+
+  (name, def1_ignore name impl, parse_type "Int -> Bool")
+
 let add = def_int_binop "b_add" (+)
 let sub = def_int_binop "b_sub" (-)
 let mul = def_int_binop "b_mul" (fun x y -> x * y)
 let div = def_int_binop "b_div" (fun x y -> x / y)
 let max = def_int_binop "b_max" max
+
+let eq = def_int_binop_bool "b_eq" (=)
+let neq = def_int_binop_bool "b_neq" (<>)
+let leq = def_int_binop_bool "b_leq" (<=)
+let geq = def_int_binop_bool "b_geq" (>=)
 
 let foldNat =
   let name = "b_foldNat" in
@@ -138,5 +163,6 @@ let foldNatNat =
   
   let m = Term.FUN ((), def3 name (impl (Type.Var 0)), empty_env, Some (Term.Sym ((), name))) in
   (name, m, parse_type "@ (Int -> #0 -> #0) -> #0 -> Int -> #0")
+
 
 

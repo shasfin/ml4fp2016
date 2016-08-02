@@ -44,6 +44,7 @@ head | * { [List #0] : $0 #0 (undefined #0) { [#0] [List #0] : $1 } } | @ List #
 
 tail | * { [List #0] : $0 (List #0) (undefined (List #0)) { [#0] [List #0] : $0 } } | @ List #0 -> List #0
 
+is_nil | * { [List #0] : $0 Bool true { [#0] [List #0] : false } } | @ List #0 -> Bool
 
 -- bool constants
 true | * { [#0] [#0] : $1 } | Bool
@@ -58,6 +59,8 @@ fst | * * { [Pair #1 #0] : $0 #1 { [#1] [#0] : $1 } } | @ @ Pair #1 #0 -> #1
 
 snd | * * { [Pair #1 #0] : $0 #0 { [#1] [#0] : $0 } } | @ @ Pair #1 #0 -> #0
 
+-- bool functions
+not | { [Bool] : $0 Bool false true } | Bool -> Bool
 
 -- list functions
 map | * * {[#1 -> #0] [List #1] : $0 (List #0) (nil #0) {[#1] [List #1] : con #0 ($3 $1) (map #1 #0 $3 $0) } } | @ @ (#1 -> #0) -> List #1 -> List #0
@@ -66,9 +69,9 @@ foldr | * * { [#1 -> #0 -> #0] [#0] [List #1] : $0 #0 $1 { [#1] [List #1] : $4 $
 
 foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : foldl #1 #0 $4 ($4 $3 $1) $0 } } | @ @ (#1 -> #0 -> #1) -> #1 -> List #0 -> #1
 
+filter | * { [#0 -> Bool] [List #0] : $0 (List #0) (nil #0) { [#0] [List #0] : (($3 $1) (List #0 -> List #0) { [List #0] : con #0 $2 $0 } { [List #0] : $0 }) (filter #0 $3 $0) } } | @ (#0 -> Bool) -> List #0 -> List #0
 
 -- list of int functions
-
 
 sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
 
@@ -80,6 +83,8 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 --b_zero | <<Built-in>> | Int
 --b_succ | <<Built-in>> | Int -> Int
 
+--b_is_zero | <<Built-in>> | Int -> Bool
+
 --b_foldNat | <<Built-in>> | @ (#0 -> #0) -> #0 -> Int -> #0
 --b_foldNatNat | <<Built-in>> | @ (Int -> #0 -> #0) -> #0 -> Int -> #0
 
@@ -89,6 +94,10 @@ prod | { [List Int] : $0 Int 1 { [Int] [List Int] : b_mul $1 (prod $0) } } | Lis
 --b_div | <<Built-in>> | Int -> Int -> Int
 --b_max | <<Built-in>> | Int -> Int -> Int
 
+--b_eq | <<Built-in>> | Int -> Int -> Bool
+--b_neq | <<Built-in>> | Int -> Int -> Bool
+--b_leq | <<Built-in>> | Int -> Int -> Bool
+--b_geq | <<Built-in>> | Int -> Int -> Bool
 
 -- derived (synthesized) functions using built-in int
 length | * { [List #0] : foldr #0 Int (const (Int -> Int) #0 b_succ) b_zero $0 } | @ List #0 -> Int
@@ -99,7 +108,7 @@ replicate | * { [Int] [#0] : b_foldNat (List #0) (con #0 $0) (nil #0) $1 } | @ I
 
 append | * { [List #0] [List #0] : foldr #0 (List #0) (con #0) $0 $1 } | @ List #0 -> List #0 -> List #0
 
-rev | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) (nil #0) $0 } | @ List #0 -> List #0
+reverse | * { [List #0] : foldl (List #0) #0 (flip #0 (List #0) (List #0) (con #0)) (nil #0) $0 } | @ List #0 -> List #0
 
 concat | * { [List (List #0)] : foldr (List #0) (List #0) (append #0) (nil #0) $0 } | @ List (List #0) -> List #0
 
@@ -107,4 +116,7 @@ enumTo | { [Int] : b_foldNatNat (List Int) (con Int) (nil Int) $0 } | Int -> Lis
 
 enumFromTo | { [Int] [Int] : con Int $1 (map Int Int (b_add $1) (enumTo (b_sub $0 $1))) } | Int -> Int -> List Int
 
+member | { [Int] [List Int] : not (is_nil Int (filter Int (b_eq $1) $0)) } | Int -> List Int -> Bool
+
+maximum | { [List Int] : foldr Int Int b_max b_zero $0 } | List Int -> Int
 
