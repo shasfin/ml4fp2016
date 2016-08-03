@@ -1,0 +1,26 @@
+# test_blibrary
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+b_foldNatNat (List Int) (con Int) (nil Int) _0,7,3,4
+prod (b_foldNat (List Int) (map Int Int b_succ) (enumTo _0) b_zero),13,6,7
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+foldl Int Int b_max b_zero _0,7,3,4
+not (is_nil Int (filter Int (b_eq _0) _1)),11,4,6
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0,13,5,7
+not found,3,2,2
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldl Int Int b_add b_zero _0,7,3,4
+1..14
+# Looks like you planned 14 tests but only ran 0.

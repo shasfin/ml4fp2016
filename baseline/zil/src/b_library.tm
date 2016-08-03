@@ -71,6 +71,8 @@ foldl | * * { [#1 -> #0 -> #1] [#1] [List #0] : $0 #1 $1 { [#0] [List #0] : fold
 
 filter | * { [#0 -> Bool] [List #0] : $0 (List #0) (nil #0) { [#0] [List #0] : (($3 $1) (List #0 -> List #0) { [List #0] : con #0 $2 $0 } { [List #0] : $0 }) (filter #0 $3 $0) } } | @ (#0 -> Bool) -> List #0 -> List #0
 
+take_one | * { [List #0] : $0 (List #0) (undefined (List #0)) { [#0] [List #0] : con #0 $1 (nil #0) } } | @ List #0 -> List #0
+
 -- list of int functions
 
 sum | { [List Int] : $0 Int b_zero { [Int] [List Int] : b_add $1 (sum $0) } } | List Int -> Int
@@ -120,3 +122,4 @@ member | { [Int] [List Int] : not (is_nil Int (filter Int (b_eq $1) $0)) } | Int
 
 maximum | { [List Int] : foldr Int Int b_max b_zero $0 } | List Int -> Int
 
+drop | * { [Int] [List #0] : b_foldNat (List #0) (tail #0) $0 $1 } | @ Int -> List #0 -> List #0

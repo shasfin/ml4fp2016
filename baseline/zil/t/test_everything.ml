@@ -21,9 +21,9 @@ let b_blacklist = true;;
 let b_template = true;;
 
 let components = [
-  "const";
+  (*"const";
   "flip";
-  (*"curry";
+  "curry";
   "uncurry";
   "fanout";
   "ignore";*)
@@ -33,8 +33,8 @@ let components = [
   "head";
   "tail";
   "is_nil";
-  (*"true";
-  "false";*)
+  "true";
+  "false";
   "not";
   (*"pair";
   "fst";
@@ -42,33 +42,34 @@ let components = [
   "map";
   "foldr";
   "foldl";
-  (*"filter";*)
+  "filter";
   "sum";
-  (*"prod";*)
+  "prod";
   "b_zero";
   "b_succ";
-  (*"b_is_zero";*)
+  "b_is_zero";
   "b_foldNat";
-  (*"b_foldNatNat";*)
+  "b_foldNatNat";
   "b_add";
-  (*"b_sub";
-  "b_mul";*)
-  (*"b_div";*)
-  (*"b_max";
+  "b_sub";
+  "b_mul";
+  "b_div";
+  "b_max";
   "b_eq";
-  "b_neq";*)
-  (*"b_leq";
-  "b_geq";*)
-  (*"length";*)
+  "b_neq";
+  "b_leq";
+  (*"b_geq";*)
+  "length";
   (*"factorial";*)
   "replicate";
-  (*"append";*)
+  "append";
   "reverse";
   "concat";
-  (*"enumTo";
-  (*"enumFromTo";*)
-  (*"member";*)
-  "maximum"*)
+  "enumTo";
+  "enumFromTo";
+  "member";
+  "maximum";
+  "drop";
 ]
 
 (* Utility function to recognize higher-order types *)
@@ -156,24 +157,28 @@ let black_list = List.map ~f:parse_term
 
 let benchmarks = [
   (*Benchmark.append;
-  Benchmark.concat;
-  Benchmark.droplast;
+  Benchmark.concat;*)
+  Benchmark.drop;
+  (*Benchmark.droplast;
   Benchmark.dropmax;
   Benchmark.enumFromTo;
   Benchmark.enumTo;
-  Benchmark.factorial;
-  Benchmark.last;*)
+  Benchmark.factorial;*)
+  Benchmark.is_even;
+  Benchmark.is_nil;
+  (*Benchmark.last;
   Benchmark.length;
-  (*Benchmark.map_add;
+  Benchmark.map_add;
   Benchmark.map_double;
   Benchmark.maximum;
   Benchmark.member;
   Benchmark.multfirst;
-  Benchmark.multlast;
-  Benchmark.replicate;*)
+  Benchmark.multlast;*)
+  Benchmark.nth;
+  (*Benchmark.replicate;
   Benchmark.reverse;
   Benchmark.stutter;
-  (*Benchmark.sum;*)
+  Benchmark.sum;*)
 ]
 
 
