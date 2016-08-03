@@ -1,10 +1,10 @@
 benchmarks you could generate (if you had time...)
 
-take n: something with foldnat head and con?
-drop n: you already have it in enumFromTo: something with foldnat tail
+take n: something with foldnat head and con? No, does not work.
+drop n: you already have it in enumFromTo: something with foldnat tail, yep.
 is_nil: is_zero (length xs)
-delete x xs: filter (neq x) xs
+delete x xs: filter (neq x) xs, nope, not going to do this one
 is_even: you already had it, foldnat with not, starting with true or false gives is_even or is_odd
 evens: filter with is_even
 dropmaxes: map dropmax
-nth n xs = head (drop n xs)
+nth n xs = head (drop n xs) let's see.
