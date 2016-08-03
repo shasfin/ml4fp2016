@@ -7,3 +7,4 @@ delete x xs: filter (neq x) xs
 is_even: you already had it, foldnat with not, starting with true or false gives is_even or is_odd
 evens: filter with is_even
 dropmaxes: map dropmax
+nth n xs = head (drop n xs)

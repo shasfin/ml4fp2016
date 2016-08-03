@@ -75,11 +75,23 @@ For all examples the same fixed set of components was used.
 The tool is able to synthesize all of them quickly. \note{There is very little information on how many input-output examples were needed to synthesize the benchmarks and how difficult it is for a non-experienced user to come up with a "closed" set of examples.}
 \end{enumerate}
 \item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
+\begin{enumerate}
+\item What is the specification?
+A type signature, the components and a list of input-output examples.
+\item What is the target language?
+pattern matching, recursion, higher-order functions in typed programming languages. Can synthesise higher-order functions, programs using higher-order functions and work with large algebraic datatypes.
+ML-like language with algebraic data types, match, top-level function definitions and explicitly recursive functions.
+\item What can they do well and fast? How fast?
+Recursive programs with pattern matching. It's very fast, many programs are synthesised in around 0.1~s. It can also generate larger programs (75 AST nodes) in reasonable time (3~s for calculating the set of free variables in an untyped lambda-calculus).
+\item What is the difficulty? What can they not generate (or take a long time)? How much time do they need?
+To generate recursive functions, they also need a closed set of examples, so that a recursive call to the function being synthesised can be answered by an input-output example. They also require relatively many examples. They use a relatively large context, but they do not say how big it is.
+Lacks support richer types like products and polymorphic types.
 \item What do they do?
 The tool in \cite{MythPaper} is called \textsc{Myth} and uses not only type information but also input-output examples to restrict the search space. The special data structure used to hold this information is the \emph{refinement tree}. This system can synthesize higher-order functions, programs that use higher order functions and work with large algebraic data types.\\
 There is an ML-like type system that incorporates input-output examples. Two pieces: a \emph{refinement tree} and an enumerative search.\\
-Two major operations: refine the goal type and the examples and guess a term of the right type that matches the examples.\\
-A small example to show what does the procedure. The user specifies a goal type incorporating input-output examples as well as the "background": the types and functions that can be used.
+Two major operations: refine the goal type and the examples (push them down in the refinement tree) and guess a term of the right type that matches the examples (for one of the nodes of the refinement tree).\\
+\end{enumerate}
+
 \item Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs.) \cite{LeonPaper}
 \end{itemize}
 
