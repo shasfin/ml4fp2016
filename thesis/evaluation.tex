@@ -1,28 +1,48 @@
 \chapter{Evaluation} \label{evaluation}
 
+
 What I want to see in this chapter:
 \begin{itemize}
-\item Table of all components
-\item Table of synthesized programs with synthesis times for the different algorithms
-\item Figure of the synthesis times of synthesized programs
-\item Comparison to Feser
-\item Explain why automatic black list and templates perform so poorly
-\item Show advantages of using black lists (I know it's trivial)
-\item Talk about the trivial thing that if you have more functions with the same time you will need much more time to find the program you are looking for.
-\item Talk about the constants in the cost functions and how they affect the search space???
-\item Stack versus queue expanding $\rightarrow$ mention it in the definitions
-\end{itemize}
-
-\TODO{ size of specification and size of synthesised program!!!}
-
-\begin{itemize}
-\item sensible to the choice of examples: for speed (enumTo prod enumTo prod...), examples must be small and there must be only a few of them. But then it is very likely, that another program is generated. It is very tricky to choose the right examples for enumFromTo and for member.
 \item runtime highly dependent on the number of components used in the solution \TODO{make a graph relating number of components to runtime}
-\item runtime also dependent on the number of components given. The less components are given, the faster the synthesiser can find the right program (search space grows exponentially also in the components, higher branching factor).
+\item difficult to find examples (small but enough)
+Sensible to the choice of examples: for speed (enumTo prod enumTo prod...), examples must be small and there must be only a few of them. But then it is very likely, that another program is generated. It is very tricky to choose the right examples for enumFromTo and for member.
+\item blacklist tradeoff: Show advantages of using black lists and explain why we do not see them in the data. (we do see them. Compare plain nof-nodes with blacklist nof-nodes. The benefit is comparable with the introduction of the nof-nodes-simple-types cost function. Which is reasonable, because they both fight against \lstinline?head nil?.)
+\item Table of all components (no, this should go to implementation)
+\item Table of synthesized programs with synthesis times for the different algorithms (aka giant-table-19 and giant-table-37)
+\item Figure of the synthesis times of synthesized programs (nope)
+\item Comparison to Feser, to Nadia, to Escher and to Myth (yes, we have their running times for some of the benchmarks. Say that you cannot really compare the numbers because they weren't run on the same machine).
+\item Explain why automatic black list generation did not worked out as you wished
+\begin{itemize}
+\item only identity function (but you could also generate something else)
+\item many "useless" programs already ruled out by other programs (but you could incrementally use the blacklist as a blacklist, you know?)
+\item (maybe) show it?
+\end{itemize}
+\item Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
+\item How number of components affects synthesis time
+\begin{itemize}
+\item In particular, not only the number but also the number of components of the same type. If you have more functions with the same type you will need much more time to find the program you are looking for (more possible successors).
+\end{itemize} 
+\item Talk about the constants in the cost functions and how they affect the search space.
+How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
+\begin{itemize}
+\item Idea behind nof-nodes: smaller programs generalize better to the examples
+\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
+\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
+\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
+\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
+\end{itemize}
+\item Stack versus queue expanding $\rightarrow$ mention it in the definitions (argument why stack is better. Intuitively it makes sense to construct a program from top-down or bottom-up, but it does not make any sense to put in some components in the middle. \lstinline!?1 ?2! gets transformed to \lstinline!(?3 ?4) ?2! and then we get programs like \lstinline!(?3 ?4) sum! and \lstinline!(?3 ?4) foldr! for all possible components. The leftmost strategy makes much more sense, because then we put constraint on the type of the next hole to be expanded.
 \end{itemize}
 
 \section{Set up}
   \note{Describe the machine and the testing set up, which components were used, what information did you give to the synthesizer, how many examples were given. What else?}
+All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the code is sequential, the performance could not benefit from the number of cores.
+
+We refer to Table~\ref{giant_table_19} and Table~\ref{giant_table_37} for the experimental results. All performance numbers are averages from 1 to 3 different executions all sharing the same specification. The goal type and the given examples do not change between different executions. In Table~\ref{giant_table_37} all benchmarks share the same set of components.
+
+\section{Specification size}
+
+\section{Solution size}
   
 \section{Cost functions}
   \note{Compare the different cost functions with each other, explain why are they good for some programs and bad for other. Table.}
