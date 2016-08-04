@@ -511,6 +511,7 @@ In the third function we additionally penalize terms using the same component mo
 \textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 2\; \textit{count}(t)$
 \end{algorithm} 
 %
+\TODO{describe the other two no-same-component}
 
   \paragraph{length of the string}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term is taking the length of the string of that term.
@@ -542,7 +543,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 
 One could use the synthesis algorithm presented in Section \ref{Exploration} to automatically synthesise black lists. For example,  one could synthesise many programs corresponding to the identity function or to the empty list or to any other term, and add all those programs but one to the black list.
 
-\section{Templates}
+\section{Templates}\label{Templates}
   Top-down type-driven synthesis.
 
 A template is a program with holes. We are interested in templates where all higher-order components are fixed and there are holes for the first-order components.

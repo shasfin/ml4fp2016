@@ -1,5 +1,27 @@
 \chapter{Evaluation} \label{evaluation}
 
+The main goal of this chapter is to give some insights about the factors that affect performance and compare different variations of the synthesis procedure described in Chapter~\ref{ch:definitions}. The chapter also puts our synthesis procedure in relation with the related work discussed in Chapter~\ref{ch:relatedwork}.
+
+
+\section{Experimental set up}
+We evaluated the following three variants of our synthesis procedure.
+\begin{description}
+\item[plain] implements the basic synthesis procedure based on best first search described in Section~\ref{Exploration}.
+\item[blacklist] implements the pruning of the search space based on a manually compiled black list provided in Table~\ref{fig:manual_black_list}. We refer to Section~\ref{Black list} for more details.
+\item[template] implements the double best first search introduced in Section~\ref{Templates}. As you probably recall, the procedure first looks for a \emph{template} featuring at most \lstinline?nof_comp? higher-order components and at most \lstinline?nof_hol? holes and as soon as such a template is found the procedure falls back on the \lstinline?plain? variant up to a certain depth using only the first-order components.
+\end{description}
+For each variant, we instantiated the cost function with $5$ of the cost functions described in Section~\ref{Cost functions}, that is with \textit{nof-nodes}, \textit{nof-nodes-simple-type}, \textit{no-same-component}, \textit{no-same-component-big-constants} and \textit{no-same-component-even-bigger-constants}.
+
+We exercised the $15$ different variations of our synthesis procedure on a benchmark of $23$ small programs over lists, mostly taken from related work or standard functional programming assignments.
+
+For every benchmark we also report the specification size, that is the number of examples we used to generate them.
+
+\begin{itemize}
+\item machine, average
+\item solution size
+\item components (for 37 the same set of components for all except nth, for 19 four different sets of components to meet the needs of every benchmark)
+\end{itemize}
+
 
 \begin{figure}[p]
     \centering
@@ -7,9 +29,13 @@
     \caption{Average running time of the synthesis procedure without blacklist and without templates depending on the size of the solution measured in components appearing in the solution.}
     \label{fig:nof_comp_vs_runtime}
 \end{figure}
+
+
+
+----------------------------------------
 What I want to see in this chapter:
 \begin{itemize}
-\item runtime highly dependent on the number of components used in the solution \TODO{make a graph relating number of components to runtime}
+\item runtime highly dependent on the number of components used in the solution \TODO{if you have time, redo the graph relating number of components to runtime in latex}
 \item difficult to find examples (small but enough)
 Sensible to the choice of examples: for speed (enumTo prod enumTo prod...), examples must be small and there must be only a few of them. But then it is very likely, that another program is generated. It is very tricky to choose the right examples for enumFromTo and for member.
 \item blacklist tradeoff: Show advantages of using black lists and explain why we do not see them in the data. (we do see them. Compare plain nof-nodes with blacklist nof-nodes. The benefit is comparable with the introduction of the nof-nodes-simple-types cost function. Which is reasonable, because they both fight against \lstinline?head nil?.)
