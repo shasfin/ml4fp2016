@@ -16,9 +16,9 @@ let first_prog = Program.create ();;
 let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 
 (* Select what you want to time *)
-let b_plain = true;;
+let b_plain = false;;
 let b_blacklist = true;;
-let b_template = true;;
+let b_template = false;;
 
 let components = [
   (*"const";
@@ -32,44 +32,44 @@ let components = [
   "con";
   "head";
   "tail";
-  "is_nil";
-  "true";
+  (*"is_nil";*)
+  (*"true";
   "false";
-  "not";
+  "not";*)
   (*"pair";
   "fst";
   "snd";*)
   "map";
   "foldr";
   "foldl";
-  "filter";
+  (*"filter";
   "sum";
-  "prod";
-  "b_zero";
-  "b_succ";
-  "b_is_zero";
+  "prod";*)
+  (*"b_zero";
+  "b_succ";*)
+  (*"b_is_zero";*)
   "b_foldNat";
   "b_foldNatNat";
-  "b_add";
-  "b_sub";
-  "b_mul";
+  (*"b_add";
+  "b_sub";*)
+  (*"b_mul";
   "b_div";
   "b_max";
   "b_eq";
   "b_neq";
-  "b_leq";
+  "b_leq";*)
   (*"b_geq";*)
-  "length";
+  (*"length";*)
   (*"factorial";*)
-  "replicate";
+  (*"replicate";
   "append";
   "reverse";
-  "concat";
-  "enumTo";
-  "enumFromTo";
+  "concat";*)
+  (*"enumTo";*)
+  (*"enumFromTo";
   "member";
   "maximum";
-  "drop";
+  "drop";*)
 ]
 
 (* Utility function to recognize higher-order types *)
@@ -94,61 +94,61 @@ let black_list = List.map ~f:parse_term
   "append ^0 ?0 (nil ^0)";
   "b_add ?0 b_zero";
   "b_add b_zero";
-  "b_div ?0 b_zero";
+  (*"b_div ?0 b_zero";
   "b_div ?0 (b_succ b_zero)";
   "b_div b_zero";
   "b_div (b_succ b_zero)";
   "b_foldNat ^0 ?0 ?0 b_zero";
-  "b_foldNat ^0 b_succ b_zero";
+  "b_foldNat ^0 b_succ b_zero";*)
   "b_foldNatNat ^0 (b_foldNatNat ^0 ?0 ?0 ?0)";
   "b_foldNatNat ^0 ?0 ?0 b_zero";
-  "b_is_zero b_zero";
+  (*"b_is_zero b_zero";
   "b_max b_zero b_zero";
   "b_mul (b_succ b_zero)";
   "b_mul ?0 (b_succ b_zero)";
   "b_mul ?0 b_zero";
-  "b_mul b_zero";
+  "b_mul b_zero";*)
   "b_sub ?0 b_zero";
   "b_sub b_zero";
   "concat ^0 (nil ^0)";
   "const ^0 ^0 ?0 ?0";
-  "enumFromTo (b_succ b_zero)";
+  (*"enumFromTo (b_succ b_zero)";
   "enumTo b_zero";
-  "enumTo (prod ?0)";
+  "enumTo (prod ?0)";*)
   "flip ^0 ^0 ^0 ?0 ?0 ?0";
   "foldl ^0 ^0 ?0 ?0 (nil ^0)";
   "foldr ^0 ^0 (con ^0) (nil ^0)";
   "foldr ^0 ^0 ?0 ?0 (nil ^0)";
   (*"fst ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
   "head ^0 (con ^0 ?0 ?0)";
-  "head ^0 (enumFromTo ?0 ?0)";
-  "head ^0 (enumTo ?0)";
+  (*"head ^0 (enumFromTo ?0 ?0)";
+  "head ^0 (enumTo ?0)";*)
   (*"head ^0 (map ^0 ^0 ?0 ?0)";*)
   "head ^0 (nil ^0)";
   "head ^0 (replicate ^0 ?0 ?0)";
   "is_nil ^0 (nil ^0)";
   (*"length ^0 (con ^0 ?0 ?0)";*)
-  "length ^0 (enumFromTo ?0 ?0)";
+  (*"length ^0 (enumFromTo ?0 ?0)";
   "length ^0 (enumTo ?0)";
   "length ^0 (map ^0 ^0 ?0 ?0)";
   "length ^0 (nil ^0)";
-  "length ^0 (reverse ^0 ?0)";
+  "length ^0 (reverse ^0 ?0)";*)
   "map ^0 ^0 ?0 (nil ^0)";
   "maximum ^0 (nil ^0)";
   "not (not ?0)";
-  "prod (con ^0 ?0 (nil))";
+  (*"prod (con ^0 ?0 (nil))";
   "prod (con ^0 b_zero ?0)";
   "prod (nil ^0)";
-  "prod (reverse ^0 ?0)";
+  "prod (reverse ^0 ?0)";*)
   "replicate ^0 b_zero";
   "reverse ^0 (con ^0 ?0 (nil ^0))";
   "reverse ^0 (map ^0 ^0 ?0 (reverse ^0 ?0))";
   "reverse ^0 (nil ^0)";
   "reverse ^0 (reverse ^0 ?0)";
   (*"snd ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
-  "sum (con ^0 ?0 (nil ^0))";
+  (*"sum (con ^0 ?0 (nil ^0))";
   "sum (nil ^0)";
-  "sum (reverse ^0 ?0)";
+  "sum (reverse ^0 ?0)";*)
   "tail ^0 (con ^0 ?0 (nil))";
   "tail ^0 (enumFromTo ?0 ?0)";
   "tail ^0 (nil ^0)";
@@ -157,25 +157,25 @@ let black_list = List.map ~f:parse_term
 
 let benchmarks = [
   (*Benchmark.append;
-  Benchmark.concat;*)
+  Benchmark.concat;
   Benchmark.drop;
-  (*Benchmark.droplast;
-  Benchmark.dropmax;
+  Benchmark.droplast;
+  Benchmark.dropmax;*)
   Benchmark.enumFromTo;
-  Benchmark.enumTo;
-  Benchmark.factorial;*)
+  (*Benchmark.enumTo;
+  Benchmark.factorial;
   Benchmark.is_even;
   Benchmark.is_nil;
-  (*Benchmark.last;
+  Benchmark.last;
   Benchmark.length;
   Benchmark.map_add;
   Benchmark.map_double;
   Benchmark.maximum;
   Benchmark.member;
   Benchmark.multfirst;
-  Benchmark.multlast;*)
+  Benchmark.multlast;
   Benchmark.nth;
-  (*Benchmark.replicate;
+  Benchmark.replicate;
   Benchmark.reverse;
   Benchmark.stutter;
   Benchmark.sum;*)

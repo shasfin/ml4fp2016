@@ -1,0 +1,3 @@
+# test_everything
+name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components
+enumFromTo, 0.000000, "?0", 0.540599, "b_foldNat (List Int) (tail Int) (con Int _0 (b_foldNatNat (List Int) (con Int) (nil Int) _1)) _0", 0.000000, "?0", 5

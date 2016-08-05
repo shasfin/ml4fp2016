@@ -1,0 +1,212 @@
+# test_bsynthesizer
+append (concat (nil)) _
+append (enumTo (length (nil))) _
+append (enumTo (maximum (nil))) _
+append (enumTo (sum (nil))) _
+append (enumTo b_zero) _
+append (nil) (const _ _)
+append (nil) (drop b_zero _)
+append (nil) (reverse (reverse _))
+append (nil) _
+append (reverse (nil)) _
+append _ (nil)
+append _ (reverse (enumTo b_zero))
+append _ (reverse (nil))
+b_add (b_add b_zero b_zero) _
+b_add (b_mul _ b_zero) _
+b_add (b_mul b_zero _) _
+b_add (b_mul b_zero b_zero) _
+b_add (b_sub _ _) _
+b_add (length (concat (nil))) _
+b_add (length (enumTo b_zero)) _
+b_add (length (nil)) _
+b_add (length (reverse (nil))) _
+b_add (maximum (concat (nil))) _
+b_add (maximum (enumTo _)) b_zero
+b_add (maximum (enumTo b_zero)) _
+b_add (maximum (nil)) _
+b_add (maximum (reverse (nil))) _
+b_add (sum (concat (nil))) _
+b_add (sum (enumTo b_zero)) _
+b_add (sum (nil)) _
+b_add (sum (reverse (nil))) _
+b_add _ b_zero
+b_add b_zero _
+b_div _ (b_succ b_zero)
+b_div _ (factorial b_zero)
+b_foldNat (reverse) _ b_zero
+b_foldNat (tail) _ b_zero
+b_foldNat (take_one) _ b_zero
+b_foldNat b_succ (length (nil)) _
+b_foldNat b_succ (maximum (nil)) _
+b_foldNat b_succ (sum (nil)) _
+b_foldNat b_succ _ b_zero
+b_foldNat b_succ b_zero _
+b_foldNat factorial _ b_zero
+b_foldNatNat (con) _ b_zero
+b_foldNatNat (const) _ b_zero
+b_foldNatNat (drop) _ b_zero
+b_foldNatNat b_add _ b_zero
+b_foldNatNat b_div _ b_zero
+b_foldNatNat b_max (length (nil)) _
+b_foldNatNat b_max (maximum (nil)) _
+b_foldNatNat b_max (sum (nil)) _
+b_foldNatNat b_max _ _
+b_foldNatNat b_max _ b_zero
+b_foldNatNat b_max b_zero _
+b_foldNatNat b_mul _ b_zero
+b_foldNatNat b_sub _ b_zero
+b_max (length (concat (nil))) _
+b_max (length (enumTo _)) _
+b_max (length (enumTo b_zero)) _
+b_max (length (nil)) _
+b_max (length (reverse (nil))) _
+b_max (maximum (concat (nil))) _
+b_max (maximum (enumTo _)) _
+b_max (maximum (enumTo b_zero)) _
+b_max (maximum (nil)) _
+b_max (maximum (reverse (nil))) _
+b_max (sum (concat (nil))) _
+b_max (sum (enumTo b_zero)) _
+b_max (sum (nil)) _
+b_max (sum (reverse (nil))) _
+b_max _ _
+b_max _ b_zero
+b_max b_zero _
+b_mul (b_succ (length (nil))) _
+b_mul (b_succ (maximum (nil))) _
+b_mul (b_succ (sum (nil))) _
+b_mul (b_succ b_zero) _
+b_mul (factorial (b_succ b_zero)) _
+b_mul (factorial (factorial b_zero)) _
+b_mul (factorial (length (nil))) _
+b_mul (factorial (maximum (nil))) _
+b_mul (factorial (prod (nil))) _
+b_mul (factorial (sum (nil))) _
+b_mul (factorial b_zero) _
+b_mul (prod (concat (nil))) _
+b_mul (prod (enumTo b_zero)) _
+b_mul (prod (nil)) _
+b_mul (prod (reverse (nil))) _
+b_mul _ (b_succ b_zero)
+b_mul _ (factorial b_zero)
+b_sub (b_succ _) (factorial b_zero)
+b_sub (maximum (enumTo _)) b_zero
+b_sub _ b_zero
+concat (con _ (concat (nil)))
+concat (con _ (nil))
+concat (con _ (reverse (nil)))
+const _ (append _ _)
+const _ (b_succ (b_succ b_zero))
+const _ (b_succ (maximum _))
+const _ (b_succ (prod _))
+const _ (b_succ (sum _))
+const _ (b_succ _)
+const _ (b_succ b_zero)
+const _ (const _ _)
+const _ (factorial (b_succ b_zero))
+const _ (factorial (factorial b_zero))
+const _ (factorial (length _))
+const _ (factorial (maximum _))
+const _ (factorial (prod _))
+const _ (factorial (sum _))
+const _ (factorial _)
+const _ (factorial b_zero)
+const _ (head)
+const _ (is_nil)
+const _ (nil)
+const _ (not (b_is_zero b_zero))
+const _ (not (is_nil _))
+const _ (not (not true))
+const _ (not (undefined))
+const _ (not false)
+const _ (not true)
+const _ (reverse (undefined))
+const _ (reverse _)
+const _ (reverse)
+const _ (tail (nil))
+const _ (tail (undefined))
+const _ (tail _)
+const _ (take_one (nil))
+const _ (take_one (undefined))
+const _ (take_one _)
+const _ (take_one)
+const _ (undefined)
+const _ _
+const _ b_is_zero
+const _ b_succ
+const _ b_zero
+const _ enumTo
+const _ factorial
+const _ false
+const _ maximum
+const _ not
+const _ prod
+const _ sum
+const _ true
+curry (fst) _ _
+curry (snd) (nil) _
+curry (snd) (undefined) _
+curry (snd) _ _
+curry (snd) b_zero _
+curry (snd) false _
+curry (snd) true _
+drop (length (nil)) _
+drop (maximum (concat (nil))) _
+drop (maximum (enumTo b_zero)) _
+drop (maximum (nil)) _
+drop (maximum (reverse (nil))) _
+drop (sum (concat (nil))) _
+drop (sum (enumTo b_zero)) _
+drop (sum (nil)) _
+drop (sum (reverse (nil))) _
+drop b_zero (const _ _)
+drop b_zero (drop b_zero _)
+drop b_zero (reverse (reverse _))
+drop b_zero _
+filter (b_geq (maximum _)) _
+filter (b_geq (sum _)) _
+filter (b_leq (length (nil))) _
+filter (b_leq (maximum (nil))) _
+filter (b_leq (prod _)) _
+filter (b_leq (sum (nil))) _
+filter (b_leq b_zero) _
+filter (const true) _
+flip (append) (nil) _
+flip (const) (nil) _
+flip (const) (undefined) _
+flip (const) _ _
+flip (const) b_zero _
+flip (const) false _
+flip (const) true _
+flip b_add b_zero _
+flip b_max _ _
+flip b_max b_zero _
+flip b_sub b_zero _
+foldl (append) _ (nil)
+foldl (const) _ _
+foldr (append) _ (nil)
+foldr (con) (nil) _
+foldr (con) _ (nil)
+foldr (drop) _ (nil)
+head (con _ (concat (nil)))
+head (con _ (concat (undefined)))
+head (con _ (head (nil)))
+head (con _ (head (undefined)))
+head (con _ (nil))
+head (con _ (reverse (nil)))
+head (con _ (reverse (undefined)))
+head (con _ (tail (nil)))
+head (con _ (tail (undefined)))
+head (con _ (take_one (undefined)))
+head (con _ (undefined))
+map (append (nil)) _
+map (b_add b_zero) _
+map (b_max b_zero) _
+map (drop b_zero) _
+map (reverse) (const _ _)
+map (reverse) _
+reverse (reverse _)
+tail (con (nil) _)
+tail (con (undefined) _)
+tail (con b_zero _)
