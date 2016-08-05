@@ -482,23 +482,23 @@ In the third function we additionally penalize terms using the same component mo
 \KwIn{term $t$}
 \KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
 
-\textit{nof-nodes-type}$(X) = 5$\\
-\textit{nof-nodes-type}$({?X}) = 1$\\
+\textit{nof-nodes-type}$(X) = 10$\\
+\textit{nof-nodes-type}$({?X}) = 3$\\
 \textit{nof-nodes-type}$(I) = 0$\\
-\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k])$= $1 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
-\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
-\textit{nof-nodes-type}$(\forall X.\; T) = 5 + \textit{nof-nodes-type}(T)$\\
+\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k])$= $4 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
+\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 5 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
+\textit{nof-nodes-type}$(\forall X.\; T) = 10 + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
 
-\textit{nof-nodes-term}$(c) = 1$\\
-\textit{nof-nodes-term}$({?x}) = 1$\\
+\textit{nof-nodes-term}$(c) = 3$\\
+\textit{nof-nodes-term}$({?x}) = 2$\\
 \textit{nof-nodes-term}$(i) = 0$\\
-\textit{nof-nodes-term}$(x) = 5$\\
-\textit{nof-nodes-term}$(\lambda x : T.\; t) = 2 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
-\textit{nof-nodes-term}$(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
-\textit{nof-nodes-term}$(\Lambda X.\; t) = 5 + \textit{nof-nodes-term}(t)$\\
-\textit{nof-nodes-term}$(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+\textit{nof-nodes-term}$(x) = 10$\\
+\textit{nof-nodes-term}$(\lambda x : T.\; t) = 10 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
+\textit{nof-nodes-term}$(t_1\; t_2) = 6 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
+\textit{nof-nodes-term}$(\Lambda X.\; t) = 10 + \textit{nof-nodes-term}(t)$\\
+\textit{nof-nodes-term}$(t\; [T]) = 5 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
 
@@ -508,10 +508,9 @@ In the third function we additionally penalize terms using the same component mo
 
 \BlankLine
 
-\textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 2\; \textit{count}(t)$
+\textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}(t)$
 \end{algorithm} 
 %
-\TODO{describe the other two no-same-component}
 
   \paragraph{length of the string}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term is taking the length of the string of that term.

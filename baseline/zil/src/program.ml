@@ -213,7 +213,7 @@ let nof_nodes_simple_type prog =
 
 
 (* original no_same_component *)
-let no_same_component prog =
+(*let no_same_component prog =
   let rec nof_type a = match a with
   | Type.Var _ -> 5
   | Type.Arr (a, b) -> 3 + (nof_type a) + (nof_type b)
@@ -238,7 +238,7 @@ let no_same_component prog =
   | Term.BuiltinFun _ -> 1
   | _ -> 2 in
 
-  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)
+  nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
 
 (* no_same_component with bigger constants *)
 (*let no_same_component prog =
@@ -269,7 +269,7 @@ let no_same_component prog =
   nof_term (to_term prog) + 2 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
 
 (* no_same_component (even bigger constants) *)
-(*let no_same_component prog =
+let no_same_component prog =
   let rec nof_type a = match a with
   | Type.Var _ -> 10
   | Type.Arr (a, b) -> 5 + (nof_type a) + (nof_type b)
@@ -294,7 +294,7 @@ let no_same_component prog =
   | Term.BuiltinFun _ -> 10
   | _ -> 10 in
 
-  nof_term (to_term prog) + 3 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)*)
+  nof_term (to_term prog) + 3 * (StringMap.fold (fun i count acc -> count - 1 + acc) prog.components 0)
 
 
 let compare p1 p2 =
