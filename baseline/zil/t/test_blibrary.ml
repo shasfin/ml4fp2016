@@ -95,13 +95,13 @@ let test input output msg =
   let got = eval ~debug:true ~sym_def:sym_def (parse_term input) in
   is (Term.to_string got) (Term.to_string (parse_term output)) msg
 
-let test_enumFromTo =
+(*let test_enumFromTo =
   let n = 2 in
   let m = 7 in
   test
     (sprintf "con Int %d (b_foldNat (List Int) (tail Int) (enumTo %d) %d)" n m n)
     (list_to_intlist (List.range ~stop:`inclusive n m))
-    "I don't think it's enumFromTo..."
+    "I don't think it's enumFromTo..."*)
 
 (*let test_dropmax =
   let xs = [1;3;0;2] in
@@ -326,3 +326,417 @@ let rec to_string_ignore_types = function
   and par_to_string a = sprintf "[%s]" (Type.to_string a);;
 
 (*let () = print_endline (to_string_ignore_types (parse_term "head (List Int) (nil (List Int))"));;*)
+
+(******************************************************************************)
+(* Compute number of nodes of some programs *)
+let rec nof_nodes m = match m with
+  | Term.Var _ -> 1
+  | Term.Int _ -> 1
+  | Term.App (_, m, n) -> 1 + (nof_nodes m) + (nof_nodes n)
+  | Term.Abs (_, _, m) -> 1 + (nof_nodes m)
+  | Term.APP (_, m, _) -> 0 + (nof_nodes m)
+  | Term.ABS (_, m) -> 1 + (nof_nodes m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 1
+  | Term.Fun (_, def, _, _) -> 1
+  | Term.FUN (_, def, _, _) -> 1
+  | Term.BuiltinFun _ -> 1
+
+let rec nof_comp m = match m with
+  | Term.Var _ -> 0
+  | Term.Int _ -> 0
+  | Term.App (_, m, n) -> 0 + (nof_comp m) + (nof_comp n)
+  | Term.Abs (_, _, m) -> 0 + (nof_comp m)
+  | Term.APP (_, m, _) -> 0 + (nof_comp m)
+  | Term.ABS (_, m) -> 0 + (nof_comp m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 0
+  | Term.Free _ -> 0
+  | Term.Fun (_, def, _, _) -> 0
+  | Term.FUN (_, def, _, _) -> 0
+  | Term.BuiltinFun _ -> 0
+
+let rec nof_leaves m = match m with
+  | Term.Var _ -> 1
+  | Term.Int _ -> 1
+  | Term.App (_, m, n) -> 0 + (nof_leaves m) + (nof_leaves n)
+  | Term.Abs (_, _, m) -> 0 + (nof_leaves m)
+  | Term.APP (_, m, _) -> 0 + (nof_leaves m)
+  | Term.ABS (_, m) -> 0 + (nof_leaves m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 1
+  | Term.Fun (_, def, _, _) -> 0
+  | Term.FUN (_, def, _, _) -> 0
+  | Term.BuiltinFun _ -> 0
+
+
+let print_size =
+  let ms = [
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_succ b_zero) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldr Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldr Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0)";
+"b_foldNatNat (List Int) (con Int) (nil Int) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldl Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"b_foldNatNat (List Int) (con Int) (nil Int) _0";
+"prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int)))";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"not found";
+"not found";
+"not (is_nil Int (filter Int (b_eq _0) _1))";
+"map &0 &0 (const &0 &0 (head &0 _0)) _0";
+"map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0";
+"not found";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldr Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_succ b_zero) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldl Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0)";
+"b_foldNatNat (List Int) (con Int) (nil Int) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldl Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"b_foldNatNat (List Int) (con Int) (nil Int) _0";
+"prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int)))";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"not found";
+"not found";
+"not (is_nil Int (filter Int (b_eq _0) _1))";
+"map &0 &0 (const &0 &0 (head &0 _0)) _0";
+"map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0";
+"not found";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_succ b_zero) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (prod (nil Int)))) _0";
+"foldl Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (prod (nil Int)))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (head Int _0))) _0";
+"foldr Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"not found";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"not found";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"not found";
+"not found";
+"not found";
+"map &0 &0 (const &0 &0 (head &0 _0)) _0";
+"map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0";
+"not found";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_succ b_zero) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"not found";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldr Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldl Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"not found";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"not found";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"not found";
+"foldr Int Int b_max b_zero _0";
+"not found";
+"map &0 &0 (const &0 &0 (head &0 _0)) _0";
+"not found";
+"not found";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldr Int Int (b_foldNat Int b_succ) b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldr (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_succ b_zero) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldr Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldr Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"reverse &0 (tail &0 (reverse &0 _0))";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"b_is_zero (length &0 _0)";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"map Int Int (b_mul (b_succ (b_succ b_zero))) _0";
+"foldl Int Int b_max b_zero _0";
+"not (is_nil Int (filter Int (b_eq _0) _1))";
+"replicate &0 (length &0 _0) (head &0 _0)";
+"replicate &0 (length &0 _0) (head &0 (reverse &0 _0))";
+"head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1)";
+"b_foldNat (List &0) (con &0 _0) (nil &0) _1";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0)";
+"foldl Int Int b_add b_zero _0";
+"nnn";
+"foldr &0 (List &0) (con &0) _1 _0";
+"foldl (List &0) (List &0) (append &0) (nil &0) _0";
+"b_foldNat (List &0) (tail &0) _1 _0";
+"not found";
+"filter Int (b_neq (maximum _0)) _0";
+"not found";
+"enumFromTo (b_div _0 _0) _0";
+"prod (enumTo _0)";
+"b_is_zero _0";
+"not found";
+"head &0 (reverse &0 _0)";
+"foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0";
+"map Int Int (b_add _0) _1";
+"not found";
+"foldr Int Int b_max b_zero _0";
+"b_is_zero (prod (map Int Int (b_sub _0) _1))";
+"map &0 &0 (const &0 &0 (head &0 _0)) _0";
+"map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0";
+"not found";
+"map Int &0 (const &0 Int _0) (enumTo _1)";
+"foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0";
+"not found";
+"foldl Int Int (b_foldNat Int b_succ) b_zero _0";
+] in
+  
+  List.iter
+    ~f:(fun s -> 
+        let m = parse_term s in
+        print_endline (sprintf "%s,%d,%d,%d" s (nof_nodes m) (nof_comp m) (nof_leaves m)))
+    ms

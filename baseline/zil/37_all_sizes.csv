@@ -1,0 +1,362 @@
+# test_blibrary
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_succ b_zero) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldr Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldr Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),13,4,7
+b_foldNatNat (List Int) (con Int) (nil Int) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+b_foldNatNat (List Int) (con Int) (nil Int) _0,7,3,4
+prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int))),13,6,7
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+not found,3,2,2
+not (is_nil Int (filter Int (b_eq _0) _1)),11,4,6
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0,13,5,7
+not found,3,2,2
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldr Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_succ b_zero) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),11,5,6
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0),13,4,7
+b_foldNatNat (List Int) (con Int) (nil Int) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),11,5,6
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+b_foldNatNat (List Int) (con Int) (nil Int) _0,7,3,4
+prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int))),13,6,7
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+not found,3,2,2
+not (is_nil Int (filter Int (b_eq _0) _1)),11,4,6
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,11,4,6
+not found,3,2,2
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_succ b_zero) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),11,5,6
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (prod (nil Int)))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (prod (nil Int)))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+sum (map &0 Int (const Int &0 (b_succ b_zero)) _0),11,5,6
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (head Int _0))) _0,11,4,6
+foldr Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+not found,3,2,2
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+not found,3,2,2
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+not found,3,2,2
+not found,3,2,2
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+map &0 &0 (const &0 &0 (head &0 (reverse &0 _0))) _0,11,4,6
+not found,3,2,2
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_succ b_zero) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+not found,3,2,2
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldr Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+not found,3,2,2
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+not found,3,2,2
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+foldr Int Int b_max b_zero _0,7,3,4
+not found,3,2,2
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+not found,3,2,2
+not found,3,2,2
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldr Int Int (b_foldNat Int b_succ) b_zero _0,9,4,5
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldr (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_succ b_zero) _0,7,3,4
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldr Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldr Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+reverse &0 (tail &0 (reverse &0 _0)),7,3,4
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+b_is_zero (length &0 _0),5,2,3
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+map Int Int (b_mul (b_succ (b_succ b_zero))) _0,11,5,6
+foldl Int Int b_max b_zero _0,7,3,4
+not (is_nil Int (filter Int (b_eq _0) _1)),11,4,6
+replicate &0 (length &0 _0) (head &0 _0),9,3,5
+replicate &0 (length &0 _0) (head &0 (reverse &0 _0)),11,4,6
+head &0 (drop &0 (b_sub _0 (b_succ b_zero)) _1),13,5,7
+b_foldNat (List &0) (con &0 _0) (nil &0) _1,9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+concat &0 (map &0 (List &0) (replicate &0 (b_succ (b_succ b_zero))) _0),13,6,7
+foldl Int Int b_add b_zero _0,7,3,4
+nnn,1,1,1
+foldr &0 (List &0) (con &0) _1 _0,7,2,4
+foldl (List &0) (List &0) (append &0) (nil &0) _0,7,3,4
+b_foldNat (List &0) (tail &0) _1 _0,7,2,4
+not found,3,2,2
+filter Int (b_neq (maximum _0)) _0,9,3,5
+not found,3,2,2
+enumFromTo (b_div _0 _0) _0,9,2,5
+prod (enumTo _0),5,2,3
+b_is_zero _0,3,1,2
+not found,3,2,2
+head &0 (reverse &0 _0),5,2,3
+foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0,9,4,5
+map Int Int (b_add _0) _1,7,2,4
+not found,3,2,2
+foldr Int Int b_max b_zero _0,7,3,4
+b_is_zero (prod (map Int Int (b_sub _0) _1)),11,4,6
+map &0 &0 (const &0 &0 (head &0 _0)) _0,9,3,5
+map &0 &0 (head (&0 -> &0) (map &0 (&0 -> &0) (const &0 &0) (reverse &0 _0))) _0,13,5,7
+not found,3,2,2
+map Int &0 (const &0 Int _0) (enumTo _1),9,3,5
+foldl (List &0) &0 (flip &0 (List &0) (List &0) (con &0)) (nil &0) _0,9,4,5
+not found,3,2,2
+foldl Int Int (b_foldNat Int b_succ) b_zero _0,9,4,5
+1..14
+# Looks like you planned 14 tests but only ran 0.

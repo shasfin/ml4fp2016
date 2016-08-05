@@ -409,6 +409,13 @@ let test_enumeration_with_templates ?debug:(debug=true) ?msg:(msg="Enumeration w
    satisfying
 
 (******************************************************************************)
+(* Generate blacklist *)
+(*let blacklist = generate_id_blacklist 100;;
+let blackset = String.Set.of_list blacklist;;
+let () = String.Set.iter
+  ~f:(fun s -> print_endline s)
+  blackset;;*)
+
 
 (*(* Generate programs *)
 
@@ -1647,7 +1654,7 @@ let dedup_test =
                   [1;2;1]]);;*)
 
 
-(* Try to generate dropmax with an accurate manual black_list *)
+(*(* Try to generate dropmax with an accurate manual black_list *)
 let dropmax_test =
     let example xs = (([list_to_intlist xs],[]), list_to_intlist (List.filter ~f:(fun x -> x = (match (List.max_elt ~cmp:compare xs) with Some m -> m | None -> invalid_arg "max of empty list")) xs)) in
   test_black_list
@@ -1708,7 +1715,7 @@ let dropmax_test =
     ~examples:(List.map ~f:example
                  [[1;2;3];
                   [1;1];
-                  [1;2;1]]);;
+                  [1;2;1]]);;*)
 
 (*(* Try to generate map_double with an accurate manual black_list *)
 let map_double_test =

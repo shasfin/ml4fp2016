@@ -36,6 +36,18 @@ let concat =
   }
 
 
+let drop =
+  let example (n, xs) = (([number_to_int n; list_to_intlist xs],["Int"]), list_to_intlist (List.drop xs n)) in
+
+  {
+   name = "drop";
+   goal_type = parse_type "@ Int -> List #0 -> List #0";
+   examples = List.map ~f:example
+                [(0,[0;2]);
+                 (2,[0;1;2])];
+  }
+
+
 let droplast =
   let droplast xs = List.take xs ((List.length xs) - 1) in
   let example xs = (([list_to_intlist xs],["Int"]),  (list_to_intlist (droplast xs))) in
@@ -108,6 +120,30 @@ let factorial =
    examples = List.map ~f:example
                  [2;
                   4];
+  }
+
+
+let is_even =
+  let example n = (([number_to_int n],[]), string_of_bool ((n mod 2) = 0)) in
+
+  {
+   name = "is_even";
+   goal_type = parse_type "Int -> Bool";
+   examples = List.map ~f:example
+                [0;
+                 3];
+  }
+
+
+let is_nil =
+  let example xs = (([list_to_intlist xs],["Int"]), string_of_bool (List.is_empty xs)) in
+
+  {
+   name = "is_nil";
+   goal_type = parse_type "@ List #0 -> Bool";
+   examples = List.map ~f:example
+                [[];
+                 [0;1;2]];
   }
 
 
@@ -218,6 +254,19 @@ let multlast =
   }
 
 
+let nth =
+    let example (n,xs) = (([number_to_int n; list_to_intlist xs],["Int"]), number_to_int (List.nth_exn xs (n-1))) in
+
+  {
+   name = "nth";
+   goal_type = parse_type "@ Int -> List #0 -> #0";
+   examples = List.map ~f:example
+                [(1,[0]);
+                 (2,[0;1;2]);
+                 (1,[1;2;3])];
+  }
+
+
 let replicate =
   let example (x, n) = 
     let rec replicate n = match n with
@@ -264,7 +313,7 @@ let stutter =
 
 
 let sum =
-  let example xs = (([list_to_intlist xs],[]),  string_of_int (List.fold_left ~f:(+) ~init:0 xs)) in
+  let example xs = (([list_to_intlist xs],[]),  number_to_int (List.fold_left ~f:(+) ~init:0 xs)) in
 
   {
    name = "sum";
@@ -274,5 +323,28 @@ let sum =
                  [4;2;1]];
   }
 
+
+let take =
+    let example (n, xs) = (([number_to_int n; list_to_intlist xs],["Int"]), list_to_intlist (List.take xs n)) in
+
+  {
+   name = "take";
+   goal_type = parse_type "@ Int -> List #0 -> List #0";
+   examples = List.map ~f:example
+                [(0,[0;2]);
+                 (2,[0;1;2])];
+  }
+
+
+let take_one = 
+  let example xs = (([list_to_intlist xs],["Int"]), list_to_intlist (List.take xs 1)) in
+
+  {
+   name = "take_one";
+   goal_type = parse_type "@ List #0 -> List #0";
+   examples = List.map ~f:example
+                [[0;2];
+                 [0;2;1]]
+  }
 
 
