@@ -1,3 +1,5 @@
+\lstset{style=plain}
+
 \chapter{Evaluation} \label{evaluation}
 
 The main goal of this chapter is to give some insights about the factors that affect performance and compare different variants of the synthesis procedure described in Chapter~\ref{ch:definitions}. The chapter also puts our synthesis procedure in relation with the related work discussed in Chapter~\ref{ch:relatedwork}.
@@ -45,6 +47,29 @@ Two variants of our synthesis procedure were able to synthesis all $23$ benchmar
 The search space is of exponential nature and depends on many factors: most notably the number of library components and the size of the solution to be synthesised. In the remainder of this section we look at these and other factors and their influence on the runtime.
 
 \subsection{Size of the solution}
+\TODO{If you have time, redo the graphics in latex, or at least move trend line in the legend}
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.95\textwidth]{time_vs_nof_nodes.eps}
+    \caption{Average running time of the variants of the synthesis procedure depending on the number of nodes of the solution.}
+    \label{fig:runtime_vs_nof_nodes}
+\end{figure}
+Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes. This goes along with the intuition that a bigger program is more difficult to synthesise.
+For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate the hole.
+
+
+\TODO{Delete this question or do something with it. We cannot answer it, we do not have enough data.}
+More surprisingly, the individual results show that there must be some other factor influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
+
+In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
+
+
+\subsection{Type of the solution}
+polymorphic easier to synthesise because less functions apply. nth vs stutter vs enumFromTo.
+discuss together with type of components.
+
+\TODO{why does enumFromTo take so much time even with enumTo as a component}
+\TODO{we can actually synthesise enumFromTo without enumTo and we actually did in a very restricted context (only the library components present in the actual solution), but it takes a lot of time.}
 \subsection{Number of components}
 \subsection{Examples}
 \subsection{Blacklist}
@@ -52,6 +77,10 @@ The search space is of exponential nature and depends on many factors: most nota
 \subsection{Cost functions}
 \subsection{Stack vs Queue expansion}
 
+\section{Interesting unexpected solutions}
+\TODO{explain the thing with the different solutions\\}
+\TODO{discuss interesting solutions, isEven, member\\}
+\TODO{polymorphic equality\\}
 \section{Automatic black list}\label{Automatic black list}
 
 \section{Comparison to related work}
@@ -60,12 +89,6 @@ The search space is of exponential nature and depends on many factors: most nota
 
 
 
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=0.95\textwidth]{nof_comp_vs_runtime.eps}
-    \caption{Average running time of the synthesis procedure without blacklist and without templates depending on the size of the solution measured in components appearing in the solution.}
-    \label{fig:nof_comp_vs_runtime}
-\end{figure}
 
 
 
