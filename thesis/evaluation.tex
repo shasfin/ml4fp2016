@@ -4,6 +4,13 @@ The main goal of this chapter is to give some insights about the factors that af
 
 
 \section{Experimental set up}
+This section presents the set up of the two experiments we are going to discuss in the rest of the chapter.
+
+The goal of the first experiment is to assess the quality and the performance of the synthesiser on standard benchmarks. The detailed set up is described in Section~\ref{Evaluation on benchmarks} and the results are discussed in Section~\ref{Factors affecting runtime}.
+
+In the second experiment the synthesiser is used to automatically generate a \emph{black list} that can be successively be used to prune the search space. We refer back to Section~\ref{Black list} for a description of pruning based on black lists. Section~\ref{Black list generation} describes how we used the synthesis procedure to generate a black list and Section~\ref{Automatic black list} reviews the quality of the generated black list.
+
+\subsection{Evaluation on benchmarks}\label{Evaluation on benchmarks}
 We evaluated $9$ variants of our synthesis procedure, crossing the $3$ exploration strategies with $3$ of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are the following.
 \begin{description}
 \item[plain] implements the basic synthesis procedure based on best first search described in Section~\ref{Exploration}.
@@ -17,6 +24,27 @@ We exercised the $9$ different variants of our synthesis procedure on a benchmar
 All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the code is sequential, the performance could not benefit from the number of cores. The performance numbers are averages from 1 to 3 different executions all sharing the same specification, that is the goal type, the given examples and the set of components do not change between different executions.
 
 In Table~\ref{giant-table-37} all benchmarks except for \lstinline?nth? share the same set of components, from which we took out the benchmark to synthesise, if it was one of the components. In Table~\ref{giant-table-19}, in order to meet the need of all benchmarks, we used four different sets of $19$ components.
+
+Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textbf{plain} and \tesxtbf{blacklist} the execution stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textbf{template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the plain procedure. For the cost function \textit{nof-nodes} this corresponds to  circa $4$~min. 
+
+\subsection{Automatic black list generation}\label{Black list generation}
+
+
+
+\section{Factors affecting runtime}\label{Factors affecting runtime}
+
+\subsection{Size of the solution}
+\subsection{Number of components}
+\subsection{Examples}
+\subsection{Blacklist}
+\subsection{Templates}
+\subsection{Cost functions}
+\subsection{Stack vs Queue expansion}
+
+\section{Automatic black list}\label{Automatic black list}
+
+\section{Comparison to related work}
+
 
 
 
