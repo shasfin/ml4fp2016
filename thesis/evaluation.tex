@@ -25,13 +25,24 @@ All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the
 
 In Table~\ref{giant-table-37} all benchmarks except for \lstinline?nth? share the same set of components, from which we took out the benchmark to synthesise, if it was one of the components. In Table~\ref{giant-table-19}, in order to meet the need of all benchmarks, we used four different sets of $19$ components.
 
-Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textbf{plain} and \tesxtbf{blacklist} the execution stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textbf{template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the plain procedure. For the cost function \textit{nof-nodes} this corresponds to  circa $4$~min. 
+Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textbf{plain} and \textbf{blacklist} the execution had been stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textbf{template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the plain procedure. For the cost function \textit{nof-nodes} this corresponds to circa \SI{4}{min}.
 
 \subsection{Automatic black list generation}\label{Black list generation}
-
+\TODO{write about how you used your synthesis procedure to generate a black list}
+\begin{itemize}
+\item used plain and nof-nodes
+\item generated also examples by giving only constructors to the synthesiser
+\item generated three types of identity: \lstinline?Int -> Int?, \lstinline?List Int -> List Int? and \lstinline?List (List Int) -> List (List Int)? with the idea that polymorphic identity functions as \lstinline?@ List #0 -> List #0? will be generated during \lstinline?List Int -> List Int?. As we are ignoring input arguments, holes and types during pruning, it makes no difference
+\item 100 (? I am not sure they were only 100) generated programs for each type
+\item take all except the first one (the first one should be just the input) into the blacklist, prune equivalent programs, print
+\item Refer to table
+\end{itemize}
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
+Two variants of our synthesis procedure were able to synthesis all $23$ benchmarks in the presence of $37$ library components, all variants synthesised at least $15$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textbf{blacklist} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
+
+The search space is of exponential nature and depends on many factors: most notably the number of library components and the size of the solution to be synthesised. In the remainder of this section we look at these and other factors and their influence on the runtime.
 
 \subsection{Size of the solution}
 \subsection{Number of components}
