@@ -6,8 +6,6 @@ The main goal of this chapter is to give some insights about the factors that af
 
 
 \section{Experimental set up}
-\TODO{Beschtreibung der Tabelle zur Tabelle anpassen}
-
 This section presents the set up of the two experiments we are going to discuss in the rest of the chapter.
 
 The goal of the first experiment is to assess the quality and the performance of the synthesiser on standard benchmarks. The detailed set up is described in Section~\ref{Evaluation on benchmarks} and the results are discussed in Section~\ref{Factors affecting runtime}.
@@ -15,6 +13,8 @@ The goal of the first experiment is to assess the quality and the performance of
 In the second experiment the synthesiser is used to automatically generate a \emph{black list} that can be successively be used to prune the search space. We refer back to Section~\ref{Black list} for a description of pruning based on black lists. Section~\ref{Black list generation} describes how we used the synthesis procedure to generate a black list and Section~\ref{Automatic black list} reviews the quality of the generated black list.
 
 \subsection{Evaluation on benchmarks}\label{Evaluation on benchmarks}
+\TODO{Insert giant table. Refer to the right table, make sure you describe only columns that are really there\\
+Make and insert mentioned figures: manual black list\\}
 We evaluated $9$ variants of our synthesis procedure, crossing the $3$ exploration strategies with $3$ of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are the following.
 \begin{description}
 \item[plain] implements the basic synthesis procedure based on best first search described in Section~\ref{Exploration}.
@@ -44,7 +44,7 @@ Two variants of our synthesis procedure were able to synthesis all $23$ benchmar
 The search space is of exponential nature and depends on many factors: most notably the number of library components and the size of the solution to be synthesised. In the remainder of this section we look at these and other factors and their influence on the runtime.
 
 \subsection{Size of the solution}
-\TODO{If you have time, redo the graphics in latex, or at least move trend line in the legend}
+\TODO{If you have time, redo the graphics in latex, or at least find a way to move trend line in the legend}
 \begin{figure}[p]
     \centering
     \includegraphics[width=0.95\textwidth]{time_vs_nof_nodes.eps}
@@ -61,9 +61,12 @@ More surprisingly, the individual results show that there must be some other fac
 In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
 
 \subsection{Number of components}
-\TODO{enumFromTo}\\
+\TODO{Write this\\}
 Discuss that enumFromTo can be generated with 19 but not with 37 components even if we provide \lstinline?enumTo?. That providing only the components it needs, \lstinline?enumFromTo? can be synthesised pretty quickly also without providing \lstinline?enumTo?.
 
+How number of components affects synthesis time
+
+In particular, not only the number but also the number of components of the same type. If you have more functions with the same type you will need much more time to find the program you are looking for (more possible successors).
 
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
@@ -75,6 +78,7 @@ Clearly, using as few and as small input-output examples as possible has a posit
 \TODO{Put a concrete example with enumFromTo}
 
 \subsection{Blacklist}
+\TODO{Make and insert mentioned figures: the manual black list\\}
 The search space abounds of superfluous programs that are equivalent to smaller ones. In Section~\ref{Black list} we introduced a way to leverage this inconvenience: Pruning based on black lists. This approach allows us not to explore further programs that will surely lead to a solution bigger than the optimal one, like \lstinline!append [X] (nil [X]) ?$xs$!, or not lead to a solution at all, like \lstinline!(head [?$X_1$ -> ?$X_2$ -> $X_3$] (nil [?$X_1$ -> ?$X_2$ -> $X_3$])) ?$x_1$ ?$x_2$!.
 
 A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, black list pruning is extremely expensive in our implementation. Each element of the black list is matched against every subtree of every program with holes that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
@@ -88,7 +92,25 @@ The running time drops less significantly if we use other cost functions. A poss
 We could also empirically see that pruning using black lists is very helpful in the presence of "useless" functions that increase the branching factor, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesis functions that need them.
 
 \subsection{Templates}
+\TODO{Write this\\}
+Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
+
+\note{Short section explaining that the templates you generate are not the templates you expect and why}
+I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
+(Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
+
 \subsection{Cost functions}
+\TODO{Write this\\}
+How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
+
+\begin{itemize}
+\item Idea behind nof-nodes: smaller programs generalize better to the examples
+\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
+\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
+\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
+\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
+\end{itemize}
+
 \subsection{Stack vs Queue expansion}
 As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
 \begin{enumerate}[a.]
@@ -116,10 +138,18 @@ Keeping the open holes of a program in a queue leads to the expansion of the hol
 
 We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
 
-\section{Interesting unexpected solutions}
-\TODO{explain the thing with the different solutions\\}
-\TODO{discuss interesting solutions, isEven, member\\}
-\TODO{polymorphic equality\\}
+\section{Synthesised solutions}
+Most of the synthesised solutions are precisely the ones we would have written by hand. Interestingly, for 
+\TODO{write this in prose}
+\begin{enumerate}
+\item Two different solutions, both make sense, most of them have the same size: \lstinline?enumFromTo?, \lstinline?length?, \lstinline?multlast?, \lstinline?multfirst?, \lstinline?replicate?, \lstinline?member?
+\item Different solutions, one or more of them are "stupid", the one found with templates can be much bigger: \lstinline?enumTo?, \lstinline?factorial?, \lstinline?mapDouble?
+\item Foldl/Foldr: \lstinline?concat?, \lstinline?maximum?, \lstinline?sum?
+\item Programs I did not expect to synthesise: \lstinline?isEven?, \lstinline?drop?
+\item Interesting programs: \lstinline?isEven?, \lstinline?drop?, \lstinline?member?
+\item give \lstinline?enumTo? to \lstinline?enumFromTo? and \lstinline?enumFromTo? to \lstinline?enumTo?. Can synthesise both without them, but to synthesise \lstinline?enumFromTo? must give much less components.
+\item \lstinline?member? not polymorphic because no polymorphic equality. Could generate it with a custom input equality function.
+\end{enumerate}
 
 \section{Automatic black list}\label{Automatic black list}
 We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples \TODO{time it}. Because of their incremental nature, we need $6$ to $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
@@ -135,36 +165,10 @@ The first two points can be addressed with small modifications to the experiment
 The third point is way more complex. Partial evaluation of programs with holes could help to some extent, but at the end it's about the ability to abstract and generalise over programs.
 
 \section{Comparison to related work}
-\TODO{Put the table in LaTeX}
+\TODO{Put the table in LaTeX\\}
+\TODO{Write this}
+Comparison to Feser, to Nadia, to Escher and to Myth. Say that you cannot really compare the numbers because they weren't run on the same machine. Say the thing with the size of the specification and the number of components. Say you have components capturing (tail?) recursive behaviour (fold over lists and fold over integers).
 
-
-
-
-
-
-
-----------------------------------------
-What I want to see in this chapter:
-\begin{itemize}
-\item Comparison to Feser, to Nadia, to Escher and to Myth (yes, we have their running times for some of the benchmarks. Say that you cannot really compare the numbers because they weren't run on the same machine).
-\item Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
-\item How number of components affects synthesis time
-\begin{itemize}
-\item   \note{Short section explaining that the templates you generate are not the templates you expect and why}
-I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
-(Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
-\item In particular, not only the number but also the number of components of the same type. If you have more functions with the same type you will need much more time to find the program you are looking for (more possible successors).
-\end{itemize} 
-\item Talk about the constants in the cost functions and how they affect the search space.
-How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
-\begin{itemize}
-\item Idea behind nof-nodes: smaller programs generalize better to the examples
-\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
-\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
-\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
-\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
-\end{itemize}
-\end{itemize}
 
 %%% Local Variables:
 %%% mode: latex
