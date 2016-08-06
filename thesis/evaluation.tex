@@ -6,6 +6,8 @@ The main goal of this chapter is to give some insights about the factors that af
 
 
 \section{Experimental set up}
+\TODO{Beschtreibung der Tabelle zur Tabelle anpassen}
+
 This section presents the set up of the two experiments we are going to discuss in the rest of the chapter.
 
 The goal of the first experiment is to assess the quality and the performance of the synthesiser on standard benchmarks. The detailed set up is described in Section~\ref{Evaluation on benchmarks} and the results are discussed in Section~\ref{Factors affecting runtime}.
@@ -30,15 +32,10 @@ In Table~\ref{giant-table-37} all benchmarks except for \lstinline?nth? share th
 Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textbf{plain} and \textbf{blacklist} the execution had been stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textbf{template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the plain procedure. For the cost function \textit{nof-nodes} this corresponds to circa \SI{4}{min}.
 
 \subsection{Automatic black list generation}\label{Black list generation}
-\TODO{write about how you used your synthesis procedure to generate a black list}
-\begin{itemize}
-\item used plain and nof-nodes
-\item generated also examples by giving only constructors to the synthesiser
-\item generated three types of identity: \lstinline?Int -> Int?, \lstinline?List Int -> List Int? and \lstinline?List (List Int) -> List (List Int)? with the idea that polymorphic identity functions as \lstinline?@ List #0 -> List #0? will be generated during \lstinline?List Int -> List Int?. As we are ignoring input arguments, holes and types during pruning, it makes no difference
-\item 100 (? I am not sure they were only 100) generated programs for each type
-\item take all except the first one (the first one should be just the input) into the blacklist, prune equivalent programs, print
-\item Refer to table
-\end{itemize}
+We also used our system to generate an automatic black list based on the identity function. Using the \textbf{plain} exploration strategy and the \textit{nof-nodes} cost function, we generated $100$ programs representing the identity functions over integers, $100$ over lists of integers and $100$ over lists of lists of integers. The examples were also generated automatically with the \textbf{plain} exploration strategy and the \textit{nof-nodes} cost function providing only constructors as library components.
+
+We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type.
+Table~\ref{automatic-black-list} summarizes $30$ typical programs.
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
