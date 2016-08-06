@@ -76,6 +76,15 @@ Another factor that greatly impacts on performance is the choice and the number 
 \end{enumerate}
 Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?.
 \TODO{Put a concrete example with enumFromTo}
+\lstinline?con Int _0 (drop Int _0 )enumTo _1))? well, this is a real solution\\
+\lstinline?filter Int (b_leq _0) (con Int b_zero (enumTo _1))?\\
+On input \lstinline?enumFromTo 1 3 = [1,2,3]? and \lstinline?enumFromTo 2 4 = [2,3,4]? we get the program \lstinline?con Int _0 (con Int (b_succ _0) (con Int _1 (nil Int)))?
+
+for (1,2) and (1,3) we get \lstinline?enumTo _1? or \lstinline?b_foldNatNat (List Int) (con Int) (nil Int) _1? depending on the components we give.
+
+for (1,2) and (2,3) we get \lstinline?con Int _0 (con Int _1 (nil Int))?
+
+for (1,2) and (2,4) we get \lstinline?con Int _0 (map Int Int (b_add _0) (enumTo _0))? 
 
 \subsection{Blacklist}
 \TODO{Make and insert mentioned figures: the manual black list\\}
@@ -152,7 +161,7 @@ Most of the synthesised solutions are precisely the ones we would have written b
 \end{enumerate}
 
 \section{Automatic black list}\label{Automatic black list}
-We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples \TODO{time it}. Because of their incremental nature, we need $6$ to $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
+We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s}. Because of their incremental nature, we need $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
 
 For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
 \begin{enumerate}
