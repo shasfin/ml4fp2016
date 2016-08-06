@@ -75,9 +75,36 @@ Clearly, using as few and as small input-output examples as possible has a posit
 \TODO{Put a concrete example with enumFromTo}
 
 \subsection{Blacklist}
+
+
 \subsection{Templates}
 \subsection{Cost functions}
 \subsection{Stack vs Queue expansion}
+As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
+\begin{enumerate}[a.]
+\item what program to expand next
+\item which hole of this program to expand first
+\end{enumerate}
+In the previous section we addressed the first question with different cost functions. In this section we focus on the second one.
+
+Among all possible heuristics to determine which hole of the least-cost program to expand next, we chose to discuss two. In the first one the open holes of a program are organised in a stack, as opposed to the second one, where the open holes are kept in a queue.
+
+Organising the open holes of a program into a stack leads to the expansion of the holes from left to right. To give some intuition we provide a derivation of \lstinline?mapAdd? featuring the stack of open holes on the right of the program, where \lstinline?xs? represents the input list and \lstinline?n? the amount of the increment.
+\begin{lstlisting}[style=plain]
+(?$x_0$, [$x_0$]) $\longrightarrow$
+(?$x_1$ ?$x_2$, [?$x_1$, ?$x_2$]) $\longrightarrow$
+(?$x_3$ ?$x_4$ ?$x_2$, [?$x_3$, ?$x_4$, ?$x_2$])) $\longrightarrow$
+(map [Int] ?$x_4$ ?$x_2$, [?$x_4$, ?$x_2$]) $\longrightarrow$
+(map [Int] (?$x_5$ ?$x_6$) ?$x_2$, [?$x_5$, ?$x_6$, ?$x_2$]) $\longrightarrow$
+(map [Int] (add ?$x_6$) ?$x_2$, [?$x_6$, ?$x_2$]) $\longrightarrow$
+(map [Int] (add n) ?$x_2$, [?$x_2$]) $\longrightarrow$
+(map [Int] (add n) xs, [])
+\end{lstlisting}
+Left-to-right expansion often lead to faster synthesis, because leftmost holes have usually more constraints on their type. Consider the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! from the derivation of \lstinline??. We know more about \lstinline!?$x_3$! than about \lstinline!?$x_2$!: The first one must be a function that takes two arguments of some type and returns a list of integers, whereas the second hole could be anything. Furthermore, the instantiation of \lstinline!?$x_3$! with \lstinline?map [Int]? imposes some constraints on the types of \lstinline!?$x_4$! and \lstinline!?$x_2$!.
+
+Keeping the open holes of a program in a queue leads to the expansion of the hole with the smallest depth first. This could be useful to control the depth of a program, but in practice it has a substantial drawback. Consider again the derivation of \lstinline?mapAdd?. The first three steps are the same, but in the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! we would now try to expand the hole \lstinline!?$x_2$!, that we have absolutely no information about. Every library component and every input variable are valid instantiations of this hole. Thus, this expanding strategy leads to a higher branching factor and explores many useless programs like \lstinline!?$x_3$ ?$x_4$ map! and \lstinline!map (?$x_5$ foldr) xs!.
+
+We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
 
 \section{Interesting unexpected solutions}
 \TODO{explain the thing with the different solutions\\}
@@ -98,12 +125,9 @@ Clearly, using as few and as small input-output examples as possible has a posit
 What I want to see in this chapter:
 \begin{itemize}
 \item runtime highly dependent on the number of components used in the solution \TODO{if you have time, redo the graph relating number of components to runtime in latex}
-\item difficult to find examples (small but enough)
-Sensible to the choice of examples: for speed (enumTo prod enumTo prod...), examples must be small and there must be only a few of them. But then it is very likely, that another program is generated. It is very tricky to choose the right examples for enumFromTo and for member.
 \item blacklist tradeoff: Show advantages of using black lists and explain why we do not see them in the data. (we do see them. Compare plain nof-nodes with blacklist nof-nodes. The benefit is comparable with the introduction of the nof-nodes-simple-types cost function. Which is reasonable, because they both fight against \lstinline?head nil?.)
 \item Table of all components (no, this should go to implementation)
 \item Table of synthesized programs with synthesis times for the different algorithms (aka giant-table-19 and giant-table-37)
-\item Figure of the synthesis times of synthesized programs (nope)
 \item Comparison to Feser, to Nadia, to Escher and to Myth (yes, we have their running times for some of the benchmarks. Say that you cannot really compare the numbers because they weren't run on the same machine).
 \item Explain why automatic black list generation did not worked out as you wished
 \begin{itemize}
@@ -125,7 +149,6 @@ How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> I
 \item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
 \item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
 \end{itemize}
-\item Stack versus queue expanding $\rightarrow$ mention it in the definitions (argument why stack is better. Intuitively it makes sense to construct a program from top-down or bottom-up, but it does not make any sense to put in some components in the middle. \lstinline!?1 ?2! gets transformed to \lstinline!(?3 ?4) ?2! and then we get programs like \lstinline!(?3 ?4) sum! and \lstinline!(?3 ?4) foldr! for all possible components. The leftmost strategy makes much more sense, because then we put constraint on the type of the next hole to be expanded.
 \end{itemize}
 
 \section{Set up}
