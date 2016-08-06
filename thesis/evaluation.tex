@@ -82,6 +82,11 @@ A longer black list allows to prune more superfluous programs and sinks consider
 Figure~\ref{fig:manual_blacklist} shows the black list  we used to evaluate the benchmarks. We manually compiled it combining unwanted patterns often seen in the search space with some carefully chosen automatically generated identity functions. We also added some extremely increasing functions like \lstinline!foldNat [Int] (foldNat [Int] (mul n) 1) 1 m! that represented a problem for our evaluator.
 \TODO{If you have time, try to figure out what mathematical function it corresponds to}.
 
+In Table~\ref{fig:table_with_runtimes} we see that the runtime profits the most from the introducing of black list pruning when we use the cost function \textit{nof-nodes}.
+The running time drops less significantly if we use other cost functions. A possible explanation of this behaviour could be the fact that other cost functions give a higher cost to those programs that are filtered with our black list.
+
+We could also empirically see that pruning using black lists is very helpful in the presence of "useless" functions that increase the branching factor, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesis functions that need them.
+
 \subsection{Templates}
 \subsection{Cost functions}
 \subsection{Stack vs Queue expansion}
@@ -115,10 +120,22 @@ We used the stack-based expansion strategy throughout all runtime evaluations of
 \TODO{explain the thing with the different solutions\\}
 \TODO{discuss interesting solutions, isEven, member\\}
 \TODO{polymorphic equality\\}
+
 \section{Automatic black list}\label{Automatic black list}
+We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples \TODO{time it}. Because of their incremental nature, we need $6$ to $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
+
+For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
+\begin{enumerate}
+\item All programs in the automatically generated black list correspond to the identity function.
+\item Many automatically generated black list programs are unnecessary. For example, \lstinline?append (append nil nil) _? and \lstinline?concat (append nil _)? are not needed if the black list already contains \lstinline?append nil _?.
+\item The automatically generated programs are all closed programs and as such they are too concrete. For example, instead of \lstinline?foldNatNat max _ zero?, \lstinline?foldNatNat const _ zero? and \lstinline?foldNatNat drop _ zero? we could just have the one program \lstinline?foldNatNat _ _ zero? that generalises all the programs with the idea that folding over the integer $0$ is the same as taking the initial value, no matter which function is used for folding.
+\end{enumerate}
+
+The first two points can be addressed with small modifications to the experimental set up: generate \lstinline?nil?, \lstinline?zero?, \lstinline?undefined? and other constants as well for the first and prune the black list after or during generation for the second.
+The third point is way more complex. Partial evaluation of programs with holes could help to some extent, but at the end it's about the ability to abstract and generalise over programs.
 
 \section{Comparison to related work}
-
+\TODO{Put the table in LaTeX}
 
 
 
@@ -129,18 +146,13 @@ We used the stack-based expansion strategy throughout all runtime evaluations of
 ----------------------------------------
 What I want to see in this chapter:
 \begin{itemize}
-\item Table of all components (no, this should go to implementation)
-\item Table of synthesized programs with synthesis times for the different algorithms (aka giant-table-19 and giant-table-37)
 \item Comparison to Feser, to Nadia, to Escher and to Myth (yes, we have their running times for some of the benchmarks. Say that you cannot really compare the numbers because they weren't run on the same machine).
-\item Explain why automatic black list generation did not worked out as you wished
-\begin{itemize}
-\item only identity function (but you could also generate something else)
-\item many "useless" programs already ruled out by other programs (but you could incrementally use the blacklist as a blacklist, you know?)
-\item (maybe) show it?
-\end{itemize}
 \item Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
 \item How number of components affects synthesis time
 \begin{itemize}
+\item   \note{Short section explaining that the templates you generate are not the templates you expect and why}
+I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
+(Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
 \item In particular, not only the number but also the number of components of the same type. If you have more functions with the same type you will need much more time to find the program you are looking for (more possible successors).
 \end{itemize} 
 \item Talk about the constants in the cost functions and how they affect the search space.
@@ -153,37 +165,6 @@ How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> I
 \item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
 \end{itemize}
 \end{itemize}
-
-\section{Set up}
-  \note{Describe the machine and the testing set up, which components were used, what information did you give to the synthesizer, how many examples were given. What else?}
-All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the code is sequential, the performance could not benefit from the number of cores.
-
-We refer to Table~\ref{giant_table_19} and Table~\ref{giant_table_37} for the experimental results. All performance numbers are averages from 1 to 3 different executions all sharing the same specification. The goal type and the given examples do not change between different executions. In Table~\ref{giant_table_37} all benchmarks share the same set of components.
-
-\section{Specification size}
-
-\section{Solution size}
-  
-\section{Cost functions}
-  \note{Compare the different cost functions with each other, explain why are they good for some programs and bad for other. Table.}
-
-\section{Black lists}
-
-In the presence of "useless" functions with a high branching factor like \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? black list pruning is a must. But it can also be useful in other cases as well. The important thing is to find a reasonable trade off between the length of the black list (don't forget that every subterm of every open program is matched against every item of the black list) and the degree of pruning. A longer black list prunes more of the search space, but the synthesis procedure also takes longer.
-
-  \subsection{Benefits of black lists}
-  \note{Table of your super manual black list. Figure that for each cost function compares time with and without black list. Trivial words about pruning search space and useless branches.}
-  \subsection{Shortcomes of automatically generated black lists}
-  \note{Maybe really bring the automatically generated table. Point at the repetitions. Say that automatically generated I/O-examples are bad and we need a lot of them. Say that you tried only identity pruning, but one could also try to generate, say, the empty list or whatever.}
-
-\section{Templates}
-  \note{Short section explaining that the templates you generate are not the templates you expect and why}
-I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
-(Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type).
-
-It is very important to choose the examples well, because many generated programs are bad and will take forever to evaluate. And as we evaluate each closed program on the examples... We should really try to keep them small and simple.
-For example, I had a problem when I tried to generate \lstinline?dropmax? using the example \lstinline?[1,4,3]?, because one of the generated programs was \lstinline?enumTo (prod (enumTo (prod _0)))?. It tried to construct a list with 479001600 elements and ran out of memory.
-At the same time, they should give enough information, otherwise a simpler program will be generated that, although it satisfies all given I/O-examples, it not what the user had in mind when writing the specification.
 
 %%% Local Variables:
 %%% mode: latex
