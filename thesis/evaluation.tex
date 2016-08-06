@@ -60,15 +60,20 @@ More surprisingly, the individual results show that there must be some other fac
 
 In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
 
-
-\subsection{Type of the solution}
-polymorphic easier to synthesise because less functions apply. nth vs stutter vs enumFromTo.
-discuss together with type of components.
-
-\TODO{why does enumFromTo take so much time even with enumTo as a component}
-\TODO{we can actually synthesise enumFromTo without enumTo and we actually did in a very restricted context (only the library components present in the actual solution), but it takes a lot of time.}
 \subsection{Number of components}
+\TODO{enumFromTo}\\
+Discuss that enumFromTo can be generated with 19 but not with 37 components even if we provide \lstinline?enumTo?. That providing only the components it needs, \lstinline?enumFromTo? can be synthesised pretty quickly also without providing \lstinline?enumTo?.
+
+
 \subsection{Examples}
+Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
+\begin{enumerate}[a.]
+\item small enough, so that also nasty programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?.
+\item expressive enough to rule out many programs, so that there is no need to fall back on the other, often bigger, input-output examples.
+\end{enumerate}
+Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?.
+\TODO{Put a concrete example with enumFromTo}
+
 \subsection{Blacklist}
 \subsection{Templates}
 \subsection{Cost functions}
