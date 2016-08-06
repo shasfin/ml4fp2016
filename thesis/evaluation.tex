@@ -75,7 +75,12 @@ Clearly, using as few and as small input-output examples as possible has a posit
 \TODO{Put a concrete example with enumFromTo}
 
 \subsection{Blacklist}
+The search space abounds of superfluous programs that are equivalent to smaller ones. In Section~\ref{Black list} we introduced a way to leverage this inconvenience: Pruning based on black lists. This approach allows us not to explore further programs that will surely lead to a solution bigger than the optimal one, like \lstinline!append [X] (nil [X]) ?$xs$!, or not lead to a solution at all, like \lstinline!(head [?$X_1$ -> ?$X_2$ -> $X_3$] (nil [?$X_1$ -> ?$X_2$ -> $X_3$])) ?$x_1$ ?$x_2$!.
 
+A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, black list pruning is extremely expensive in our implementation. Each element of the black list is matched against every subtree of every program with holes that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
+
+Figure~\ref{fig:manual_blacklist} shows the black list  we used to evaluate the benchmarks. We manually compiled it combining unwanted patterns often seen in the search space with some carefully chosen automatically generated identity functions. We also added some extremely increasing functions like \lstinline!foldNat [Int] (foldNat [Int] (mul n) 1) 1 m! that represented a problem for our evaluator.
+\TODO{If you have time, try to figure out what mathematical function it corresponds to}.
 
 \subsection{Templates}
 \subsection{Cost functions}
@@ -124,8 +129,6 @@ We used the stack-based expansion strategy throughout all runtime evaluations of
 ----------------------------------------
 What I want to see in this chapter:
 \begin{itemize}
-\item runtime highly dependent on the number of components used in the solution \TODO{if you have time, redo the graph relating number of components to runtime in latex}
-\item blacklist tradeoff: Show advantages of using black lists and explain why we do not see them in the data. (we do see them. Compare plain nof-nodes with blacklist nof-nodes. The benefit is comparable with the introduction of the nof-nodes-simple-types cost function. Which is reasonable, because they both fight against \lstinline?head nil?.)
 \item Table of all components (no, this should go to implementation)
 \item Table of synthesized programs with synthesis times for the different algorithms (aka giant-table-19 and giant-table-37)
 \item Comparison to Feser, to Nadia, to Escher and to Myth (yes, we have their running times for some of the benchmarks. Say that you cannot really compare the numbers because they weren't run on the same machine).
