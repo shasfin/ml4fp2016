@@ -118,63 +118,63 @@ Notice that among the new programs there are two closed programs, \lstinline?rep
 \subsection{Concepts}
 
 This example shows some important concepts that are defined formally in the next sections of this chapter.
-\begin{itemize}
-\item Hole: unknown part of a program that can be instantiated with some other programs. Only its type is known.
-\item Closed program: a program without holes that can be evaluated on the input-output examples. The terms and the types of our calculus are formally defined in Section~\ref{Term and types}.
-\item Type-aware expansion of holes: we expand holes based on their type. In Section~\ref{Search space} we can find the rules according to which a program is expanded.
-\item Best first search: a frontier of programs with holes is maintained, one hole of the most promising is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and a notion of most promising program is presented in Section~\ref{Cost functions}.
-\item Superfluous program: a program that is equivalent to a simpler program. For example, a human programmer would not instantiate a hole with \lstinline!const ?x ?y!, because he could have written just \lstinline!?x! instead, which is always a shorter and preferable program. Section~\ref{Black list} shows one way to rule out superfluous programs.
-\end{itemize}
+\begin{description}
+\item[Hole] unknown part of a program that can be instantiated with some other programs. Only its type is known.
+\item[Closed program] a program without holes that can be evaluated on the input-output examples. The terms and the types of our calculus are formally defined in Section~\ref{Term and types}.
+\item[Type-aware expansion of holes] we expand holes based on their type. In Section~\ref{Search space} we can find the rules according to which a program is expanded.
+\item[Best first search] a frontier of programs with holes is maintained, one hole of the most promising is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and a notion of most promising program is presented in Section~\ref{Cost functions}.
+\item[Superfluous program] a program that is equivalent to a simpler program. For example, a human programmer would not instantiate a hole with \lstinline!const ?x ?y!, because he could have written just \lstinline!?x! instead, which is always a shorter and preferable program. Section~\ref{Black list} shows one way to rule out superfluous programs.
+\end{description}
  
 \section{Calculus}
-In this section we will introduce three different calculus.
-\begin{itemize}
-\item System F as in the excellent book of Pierce \cite{pierce2002types}
-\item The system we derive from System F and in which the components are defined (includes holes, input variables and recursion for terms and types)
-\item A subset of the second system, used for generation (only application of components, holes or input variables is allowed).
-\end{itemize}
-The exposition will closely follow  Pierce \cite{pierce2002types}.
+In this section we will look at three different calculi.
+\begin{enumerate}[1.]
+\item System F
+\item An extension of System F with holes, input variables, library components, parametric types and recursive terms and types
+\item A subset of the second calculus, featuring only application of components, holes or input variables
+\end{enumerate}
 
-Let's start with the standart System F.
+\TODO{Write this\\}
+
+\begin{itemize}
+\item Synthesiser syntheses only programs of the third calculus
+\item First calculus only for reference. Consult Pierce \cite{pierce2002types} for more details
+\item Second calculus is the real calculus we use. Components are defined in that language, evaluation and type checking happen there.
+\item evaluation and type checking only for second calculus: for the first one see book, the third one is just a subset of the second one.
+\end{itemize}
+
+The exposition and notation will closely follow  Pierce \cite{pierce2002types}.
+
+Let's start with the standard System F.
 Our calculus is based on System F. A subset of our calculus is used for generation.
 
-\begin{itemize}
-\item generate programs from restricted calculus
-\item calculus itself is still powerful, because we use it to define the library components as well.
-\end{itemize}
-
-
   \subsection{Terms and Types}\label{Term and types}
-\begin{itemize}
-\item similar to Pierce
-\item except holes, components and free variables
-\item recursion
-\item recursive types that can take parameters
-\item the search space is not the whole language but only a subset of it
-\end{itemize}
+System F, also known as the polymorphic lambda calculus, is a calculus that, additionally to term abstraction and term application, features two new kinds of terms: Type abstraction \lstinline!$\Lambda$X. t! and type application \lstinline!t [T]!. This allows to express polymorphic functions. Polymorphic functions, defined as type abstractions, have a special type: The \emph{universal} type \lstinline!$\forall$X. T!. For a more detailed introduction to System F we refer to \cite{pierce2002types}. The syntax is summarized below.
 
-Real System F
  \begin{plstx}
 (terms): t ::= x | \lambda x : T.\; t | t\;t | \Lambda X.\; t | t\;[T]\\
 (types): T ::= X | T \rightarrow T | \forall X.\; T\\
 (variable bindings): \Gamma ::= \emptyset | \Gamma \cup \{x : T\} | \Gamma \cup \{X\}\\
 \end{plstx}
 
-We use an extension of System F featuring holes $?x$, input variables $i$ as well as named library components $c$ and named types $C$. The use of the names enables recursion in the definition of library components and types. Named types also support type parameters. The number of type parameters supported by a named type is denoted as $K$ in its definition.
 
-Question: where is the output? Can you define input and output pairs?
-Our system
+We extend System F with holes $?x$, input variables $i$ as well as named library components $c$ and named types $C$ that can take parameters $C\;[T_1, \ldots, T_k]$. The number of type parameters supported by a named type is denoted as $K$ in its definition. The use of the names enables recursion in the definition of library components and types. Terms that do not contain holes are called \emph{closed}.
+The syntax of our calculus is summarised below.
+
+Note that we have three additional contexts. $\Xi$ binds term holes to their types and type holes.
+$\Phi$ is the library of input variables. It contains one concrete instantiation of the input variables. It binds a definition and a type signature to each input term variable and a definition to each input type variable.
+$\Delta$ is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
  \begin{plstx}
 (terms): t ::= x | \lambda x : T.\; t | t\;t | \Lambda X.\; t | t\;[T] | c | {?x} | i\\
 (types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\;[T,\ldots, T]\\
 (variable bindings): \Gamma ::= \emptyset | \Gamma \cup \{x : T\} | \Gamma \cup \{X\}\\
 (hole bindings): \Xi ::= \emptyset | \Xi \cup \{{?x} : T\} | \Xi \cup \{{?X}\}\\
-(input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
+(input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
+Evaluation and typing rules for this calculus can be found in the respective subsections.
 
-Question: do we need the definitions of library components for synthesis? We use them only for evaluation, but we always evaluate programs during synthesis. Same for the input variables. Actually, for each I/O-example we get the pair $(\Phi,o)$, where $\Phi$ instantiates all input variables and input types of a program and $o$ is the expected output.
-Subset of our system that builds the search space
+The target language of our synthesiser is a subset of the previous calculus. We are only interested in term and type application of library components, input variables and holes. Therefore, the syntax is restricted as follows.
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
 (types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\;[T,\ldots, T]\\
@@ -182,15 +182,13 @@ Subset of our system that builds the search space
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
+Since this is a proper subset of the second calculus presented in this section, we do not need separate typing and evaluation rules.
 
-
-A program is the quadriplet $\{\Xi, \Phi, \Delta \vdash t :: T\}$. 
-A term is called \emph{closed} if it does not contain holes.
-A program is closed, if $\Xi$ is empty and $t$ and $T$ do not contain holes.
-
+The synthesiser synthesises programs over the target language. A program is defined as a quadriplet $\{\Xi, \Phi, \Delta \vdash t :: T\}$, where $t$ is a term of the target language.
+A program is called \emph{closed}, if $\Xi$ is empty and $t$ and $T$ do not contain holes.
 
   \subsection{Encodings}
-Note that in the definition of types we do not see familiar types such as booleans, integers, lists or trees. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it's more efficient in our case.
+Note that in the definition of types we do not see familiar types such as booleans, integers or lists. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it is more efficient in our case.
 Scott's booleans coincide with Church's booleans and are encoded as follows.
 \begin{lstlisting}[style=plain, mathescape]
 Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
@@ -202,7 +200,7 @@ if-then-else = $\Lambda$X. $\lambda$b:Bool. $\lambda$t:X. $\lambda$f:X. b [X] t 
              : $\forall$X. Bool $\rightarrow$ X $\rightarrow$ X $\rightarrow$ X
 \end{lstlisting}
 
-Scott's integers differ from Church's integers as they are more suitable for pattern matching. \note{because they don't unwrap the whole integer every time.}
+Scott's integers differ from Church's integers as they are more suitable for pattern matching, as they unwrap the constructor only once.
 \begin{lstlisting}[style=plain, mathescape]
 Int = $\forall$R. R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
 zero = $\Lambda$R. $\lambda$z:R. $\lambda$s:Int $\rightarrow$ R. z
@@ -225,7 +223,6 @@ case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\r
 \end{lstlisting} 
  
   \subsection{Evaluation semantics}
-
 In this section we present the evaluation semantics of our extended System F, that is the second calculus introduced in Section~\ref{Term and types}. The evaluation semantics is a standard eager evaluation and we refer to the excellent book of Benjamin Pierce about type systems \cite{pierce2002types} for an introduction to the evaluation semantics of System F and evaluation rules in general.
 
 The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that the term $t$ evaluates in one step to the term $t'$ under the free variable bindings library $\Phi$, that contains concrete instantiations for the input variables, and the component library $\Delta$ , that contains the definitions of the library components. Before listing the evaluation rules, let us define \emph{value} $v$ to be a term to which no evaluation rule apply.
@@ -367,6 +364,7 @@ A set of constraints is a set of types that should be equal under a substitution
 \end{algorithm} 
 
 \section{Search}
+\TODO{Write this section\\}
 how do we explore the search space (best-first search).
 \subsection{Search space}\label{Search space}
 Use only third system presented in Section System F.
@@ -415,6 +413,7 @@ Note that the types of all successor programs unify with the types of their ance
 
 
 \subsection{Exploration}\label{Exploration}
+\TODO{Write this section\\}
   \note{Write also about stack vs queue of open holes}
 
 We explore the search graph using a best first search.
@@ -441,7 +440,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \end{algorithm}
 
 \section{Cost functions}\label{Cost functions}
-
+\TODO{write this section\\}
 The compare function in the best first search algorithm is \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to implement this cost function. We will present four alternatives.
 
   \paragraph{number of nodes}
@@ -537,6 +536,7 @@ In the third function we additionally penalize terms using the same component mo
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term is taking the length of the string of that term.
 
 \section{Black list}\label{Black list}
+\TODO{Write this section\\}
   \note{automatic generation of black list discussed in evaluation}
 A black list is a list of terms. Programs containing a black term as a subterm are not allowed to have successors. Thus, the algorithm above is modified as follows.
 
@@ -564,6 +564,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 One could use the synthesis algorithm presented in Section \ref{Exploration} to automatically synthesise black lists. For example,  one could synthesise many programs corresponding to the identity function or to the empty list or to any other term, and add all those programs but one to the black list.
 
 \section{Templates}\label{Templates}
+\TODO{Write this section\\}
   Top-down type-driven synthesis.
 
 A template is a program with holes. We are interested in templates where all higher-order components are fixed and there are holes for the first-order components.

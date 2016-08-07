@@ -1,7 +1,6 @@
 Pool of sections to write:
 
 Definitions:
-- system F, terms and types --> medium
 - type unification --> medium
 - search, exploration --> easy
 - blacklist --> easy
@@ -21,6 +20,7 @@ Done today:
 - evaluation --> easy
 - type checking --> easy --> 1.5h together with evaluation
 - introductory example --> easy, 2h
+- system F, terms and types --> medium, 2h
 
 
 
