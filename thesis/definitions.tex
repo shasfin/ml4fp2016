@@ -1,8 +1,13 @@
+\lstset{style=plain}
+
 \chapter{Top down type driven synthesis} \label{ch:definitions}
 
 In this chapter we will formally define our type-directed top-down synthesis procedure. We will start with an intuitive description of the problem and move on to the formal definitions of the target programming language and the search space. Finally, we will define the synthesis procedure and present some enhancements.
 
 \section{Problem}
+
+\subsection{The 'replicate' example}
+
 Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise \lstinline?replicate?. As our synthesis procedure is type-driven and example-based, the user specifies a program by providing its type along with a few I/O-examples.\\
 Let us specify \lstinline?replicate? as follows.
 \begin{lstlisting}[style=plain]
@@ -11,34 +16,40 @@ replicate 3 1 = [1,1,1]
 replicate 2 [] = [[],[]]
 \end{lstlisting}
 
-We also need a library of components, from which we are going to compose our program. Let us assume we have the standard list combinators \lstinline?map, foldr, foldl? with \lstinline?enumTo?, the function that returns a list from $1$ up to its argument, and \lstinline?const?, that always returns its first argument along with the list constructors \lstinline?cons? and \lstinline?[]? and the integer constructors \lstinline?succ? and \lstinline?0?.
+We also need a library of components, from which we are going to compose our program. Let us assume we have the standard list combinators \lstinline?map? and \lstinline?foldr? with \lstinline?enumTo?, the function that returns a list from $1$ up to its argument, and \lstinline?const?, that always returns its first argument, along with the list constructors \lstinline?cons? and \lstinline?[]? and the integer constructors \lstinline?succ? and \lstinline?0?. Even with so few library components, the search space is quite big.
 
-\begin{itemize}
+The goal is to put together components from the library in order to get a list. More concretely, we fix \lstinline?X? to be a fixed input type variable, we fix \lstinline?n? to be an integer and \lstinline?x? to be a fixed input variable of type \lstinline?X?. Now the goal looks like
+\begin{lstlisting}[style=plain]
+replicate n x = ?p
+?p :: List X
+\end{lstlisting}, 
+where \lstinline!?p! is a \emph{hole}, a new fresh variable whose type is known.
 
-
-
-\item Try to put components together in order to get a list.
-Fix $X$ as a type variable and fix $n$ to be an Int and $x$ to be an $X$. Try to synthesise a \lstinline?List X?. Which components can you use in order to get a \lstinline?List X?? You cannot use \lstinline?enumTo?, because it only produces a list of integers, but all other possibilities are open. We could either fold  with an interesting function, or map some function, or even use \lstinline?const? with a smart first argument. But the first and easiest thing that has the type \lstinline?List X? is \lstinline?[]?.
+Which components can we use in order to get something of type \lstinline?List X?? We cannot use \lstinline?enumTo?, because it only produces a list of integers, but all other possibilities are open. We could either fold  with an interesting function, or map some function, or even use \lstinline?const? with a smart first argument. But the first and easiest thing that has the type \lstinline?List X? is \lstinline?[]?. That is, our first program looks as follows.
 \begin{lstlisting}[style=plain]
 replicate n x = []
+?p = [] :: List X
 \end{lstlisting}
-Cool, we can evaluate this program straight away... and see that is does not satisfy the I/O-examples. It means, we must try further.
+This is a \emph{closed} program, that is, a program without holes that can be evaluated on the input-output examples. Alas, it does not satisfy any of them. Therefore we must try the other components. We have following possibilities to fill in the hole \lstinline!?p!.
 
 \begin{lstlisting}[style=plain]
 replicate n x = cons ?x ?xs
+?p = cons ?x ?xs :: List X
 ?x :: X
 ?xs :: List X
 \end{lstlisting}
 
 \begin{lstlisting}[style=plain]
 replicate n x = map ?f ?xs
+?p = map ?f ?xs :: List X
 ?f :: ?Y -> X
 ?xs :: List ?Y
 \end{lstlisting}
-\lstinline!?Y! is a fresh variable.
-We omit \lstinline?foldl? for brevity.
+Here \lstinline!?Y! is a fresh type variable that will be instantiated with something later. As of now we have no idea about the type of the argument of \lstinline!?f!, we only know that it has to match the type of the elements of \lstinline!?xs!.
+
 \begin{lstlisting}[style=plain]
 replicate n x = foldr ?f ?init ?xs
+?p = foldr ?f ?init ?xs :: List X
 ?f :: ?Y -> List X -> List X
 ?init :: List X
 ?xs :: List ?Y
@@ -46,15 +57,19 @@ replicate n x = foldr ?f ?init ?xs
 
 \begin{lstlisting}[style=plain]
 replicate n x = const ?xs ?s
+?p = const ?xs ?s :: List X
 ?xs :: List X
 ?s :: ?Y
 \end{lstlisting}
 
-Now we take the most promising program and try to fill in one of its \emph{holes} (the fresh variables starting with \lstinline!?!.
-Let us decide that the first one is the most promising. We now have two holes to fill in, a function that can take something and return an \lstinline?X? (note that it has to be possible for all possible instantiations of \lstinline?X? and note that we have only one value of type \lstinline?X?: \lstinline?x?, the second argument to \lstinline?replicate?.\\
-What are the possibilities to instantiate \lstinline!?f!? Obviously, we cannot use \lstinline?map? or \lstinline?enumTo?, because they return lists. But all other possibilities are still open (again, we leave out \lstinline?foldl? for brevity).
+Now we take the most promising program and try to fill in one of its \emph{holes} (the fresh variables starting with \lstinline!?!).
+Let us decide that the first one is the most promising. We now have two holes to fill in, a function that can take something and return an \lstinline?X? and a list of something. Note that it has to be possible for all possible instantiations of \lstinline?X? and note that we have only one value of type \lstinline?X?, namely \lstinline?x?, the second argument to \lstinline?replicate?.
+
+What are the possibilities to instantiate \lstinline!?f!? Obviously, we cannot use \lstinline?map? or \lstinline?enumTo?, because they return lists. But all other possibilities are still open. We have to add following programs to our pool of possible solutions.
+
 \begin{lstlisting}[style=plain]
 replicate n x = map (foldr ?g ?init) ?xs
+?p = map ?f ?xs :: List X
 ?f = foldr ?g ?init :: List ?Z -> X
 ?g :: ?Z -> X -> X
 ?init :: X
@@ -69,46 +84,48 @@ replicate n x = map (const ?x) ?xs
 ?xs :: List ?Y
 \end{lstlisting}
 
-Again, from all programs generated so far (6 in total) we choose the most promising one. Let us decide that it is the last one. It has two holes to fill in. For the first hole, \lstinline!?x!, we have only one possibility. As this hole must be of type \lstinline?X?, the only thing we can take is the second argument of \lstinline?replicate?, \lstinline?x?.
+As you noticed, we maintain a frontier of programs with holes and expand one of the holes of the most promising program. Let us do it again. From the $6$ programs generated so far we choose the most promising one. Let us decide that it is the last one.
+It has two holes to fill in. For the first hole, \lstinline!?x!, we have only one possibility. As this hole must be of type \lstinline?X?, the only thing we can take is the second argument of \lstinline?replicate?, \lstinline?x?.
 
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) ?xs
+?p = map ?f ?xs :: List X
 ?f = const ?x :: ?Y -> X
 ?x = x :: X
 ?xs :: List ?Y
 \end{lstlisting}
 
-Let us directly decide this is the most promising program so far (how to decide which program are we going to expand next is explained in Section~\ref{Cost functions}).
-Like at the beginning, we have to generate a list. But this time we can choose what the elements of the list are, therefore we cannot rule out \lstinline?enumTo?. As you see, we have a lot of possibilities, starting with \lstinline?replicate n x = map (const x) []?, where we instantiate \lstinline!?xs! with \lstinline?[]?, and ending with
+Let us directly decide that this is the most promising program so far. Later, in Section~\ref{Cost functions}, we will define cost functions of programs and define the most promising program to be the one with the smallest cost. For now we just choose the one that will lead us to the solution.
+
+Like in the beginning, we have to generate a list. However, since this time the type of the elements is not fixed, we cannot rule out  \lstinline?enumTo?.
+Therefore we have a lot of possibilities, starting with \lstinline?replicate n x = map (const x) []?, where we instantiate \lstinline!?xs! with \lstinline?[]?, and ending with
+
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) (enumTo ?n)
+?p = map ?f ?xs :: List X
 ?f = const ?x :: ?Y -> X
 ?x = x :: X
 ?xs = enumTo ?n :: List Int
 ?n :: Int
 \end{lstlisting}
-First we are going to evaluate the \emph{closed} program (that is, without holes) \lstinline?replicate n x = map (const x) []?... and see that it doesn't satisfy the I/O-examples.
-Then, as always, we take the most promising program and expand one of its holes. Let us decide that the most promising program is the last one. That is, we are searching for an integer. An integer can either be the constructor \lstinline?0?, or the constructor \lstinline?succ? applied to some integer hole, the first argument of \lstinline?replicate?, \lstinline?n?, or \lstinline?const? with some clever first argument applied to something.
-This time, we got two closed programs that we are going to evaluate, \lstinline?replicate n x = map (const x) (enumTo 0)? and \lstinline?replicate n x = map (const x) (enumTo n)?. Evaluation shows that only the second one satisfies the I/O-examples.
 
+First, we are going to evaluate the closed program \lstinline?replicate n x = map (const x) []?. This program does not satisfy any of the input-output examples too.
 
-\item Important difference between \lstinline?X? and \lstinline!?X!. The first one is fixed and cannot be instantiated with anything, the second one is a free variable that can be instantiated with anything we like.
-\end{itemize}
+The next step is to expand one of the holes of the most promising program, let us decide that it is the last one. That is, we are looking for an integer. An integer can either be the constructor \lstinline?0?, or the constructor \lstinline?succ? applied to some integer hole, the first argument of \lstinline?replicate?, \lstinline?n?, or \lstinline?const? with some clever first argument applied to something.
 
-This example show following concepts
+Notice that among the new programs there are two closed programs, \lstinline?replicate n x = map (const x) (enumTo 0)? and \lstinline?replicate n x = map (const x) (enumTo n)?. Evaluation shows that only the second one satisfies the I/O-examples.
+
+\subsection{Concepts}
+
+This example shows some important concepts that are defined formally in the next sections of this chapter.
 \begin{itemize}
-\item Hole: unknown part of a program, for which we only know the type and that we can expand
-\item we maintain a frontier of programs with holes
-\item from this frontier, we always chose the most promising one. What program is the most promising can be determined by a cost function (Section~\ref{Cost functions})
-\item some programs are not worth expanding. For example, we see straight away that is does not make much sense to instantiate a hole with \lstinline!const ?x ?y!, because we could as well write \lstinline!?x! for it, which is always a shorter and preferable program. That is, some programs can be ruled out semantically (Section~\ref{Black list})
-\item The search space is quite big even with so few components. Exponential.
+\item Hole: unknown part of a program that can be instantiated with some other programs. Only its type is known.
+\item Closed program: a program without holes that can be evaluated on the input-output examples. The terms and the types of our calculus are formally defined in Section~\ref{Term and types}.
+\item Type-aware expansion of holes: we expand holes based on their type. In Section~\ref{Search space} we can find the rules according to which a program is expanded.
+\item Best first search: a frontier of programs with holes is maintained, one hole of the most promising is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and a notion of most promising program is presented in Section~\ref{Cost functions}.
+\item Superfluous program: a program that is equivalent to a simpler program. For example, a human programmer would not instantiate a hole with \lstinline!const ?x ?y!, because he could have written just \lstinline!?x! instead, which is always a shorter and preferable program. Section~\ref{Black list} shows one way to rule out superfluous programs.
 \end{itemize}
-
-
-\begin{lstlisting}[style=plain, mathescape]
-replicate n x = map Int X (const X Int x) (enumTo n)
-\end{lstlisting}
-
+ 
 \section{Calculus}
 In this section we will introduce three different calculus.
 \begin{itemize}
@@ -310,6 +327,10 @@ T-Abs types a lambda abstraction as an arrow type from the type of its variable 
 An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
 \subsection{Type unification}
+\TODO{Write this\\}
+
+Since unification on System F types is undecidable \cite{Huet1975}, we decided to do something simpler. Explain what. Boom, fertig, party.
+
 The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
   
 How did you do type unification?
@@ -347,7 +368,6 @@ A set of constraints is a set of types that should be equal under a substitution
 
 \section{Search}
 how do we explore the search space (best-first search).
- (only priority queue)
 \subsection{Search space}\label{Search space}
 Use only third system presented in Section System F.
 

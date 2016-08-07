@@ -71,7 +71,7 @@ In particular, not only the number but also the number of components of the same
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
 \begin{enumerate}[a.]
-\item small enough, so that also nasty programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?.
+\item small enough, so that also undesirable programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?.
 \item expressive enough to rule out many programs, so that there is no need to fall back on the other, often bigger, input-output examples.
 \end{enumerate}
 Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?.
