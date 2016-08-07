@@ -148,13 +148,26 @@ Keeping the open holes of a program in a queue leads to the expansion of the hol
 We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
 
 \section{Synthesised solutions}
-Most of the synthesised solutions are precisely the ones we would have written by hand. Interestingly, for 
+Most of the synthesised solutions are precisely the ones we would have written by hand. Interestingly, for some programs different variants of the synthesis procedure found two different valid programs of the same size. For example, for \lstinline?replicate? we find both \lstinline?map Int &0 (const &0 Int _0) (enumTo _1)? and \lstinline?b_foldNat (List &0) (con &0 _0) (nil &0) _1?.
+
+Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where we find \lstinline?map &0 &0 (const &0 &0 (head &0 _0)) _0? and \lstinline?replicate &0 (length &0 _0) (head &0 _0)? for \lstinline?multfirst? and analogous programs for \lstinline?multlast?. The different synthesis procedures show a clear preference for the one or the other. For example, all synthesis procedures using the \textbf{templates} exploration strategy seem to prefer the use of the higher-order \lstinline?map? to the first-order \lstinline?replicate?. This has to do with the depth of the first-order search. The search from a particular template (in this case the template with no higher-order functions) times out before reaching programs with three components. On the other hand, the search starting from the template \lstinline!map ^0 &0 (const ^0 &0 ?1) ?2! succeeds within the timeout.
+
+Sometimes, as for example for \lstinline?length?, two solutions of different sizes are found: \lstinline?foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0? and \lstinline?sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)?. The reason is that the cost function \textit{nof-nodes-simple-type} assigns a higher cost to the first solution, as it contains an arrow type.
+
+For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one of such programs and \lstinline?foldl? for the other.
+
+\TODO{finish to write this}
+
+For example, for \lstinline?enumFromTo? both \lstinline?con Int _0 (b_foldNat (List Int) (tail Int) (enumTo _1) _0)? (13, 4, 7) and \lstinline?b_foldNat (List Int) (tail Int) (con Int _0 (enumTo _1)) _0? (13, 4, 7)
+
+
+
+
+
 \TODO{write this in prose}
 \begin{enumerate}
-\item Two different solutions, both make sense, most of them have the same size: \lstinline?enumFromTo?, \lstinline?length?, \lstinline?multlast?, \lstinline?multfirst?, \lstinline?replicate?, \lstinline?member?
+\item Two different solutions, both make sense, most of them have the same size: \lstinline?member?
 \item Different solutions, one or more of them are "stupid", the one found with templates can be much bigger: \lstinline?enumTo?, \lstinline?factorial?, \lstinline?mapDouble?
-\item Foldl/Foldr: \lstinline?concat?, \lstinline?maximum?, \lstinline?sum?
-\item Programs I did not expect to synthesise: \lstinline?isEven?, \lstinline?drop?
 \item Interesting programs: \lstinline?isEven?, \lstinline?drop?, \lstinline?member?
 \item give \lstinline?enumTo? to \lstinline?enumFromTo? and \lstinline?enumFromTo? to \lstinline?enumTo?. Can synthesise both without them, but to synthesise \lstinline?enumFromTo? must give much less components.
 \item \lstinline?member? not polymorphic because no polymorphic equality. Could generate it with a custom input equality function.
