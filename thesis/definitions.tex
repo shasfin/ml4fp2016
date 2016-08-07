@@ -205,7 +205,7 @@ con = $\Lambda$X. $\lambda$x:X. $\lambda$xs:List X. $\Lambda$R. $\lambda$n:R. $\
     : $\forall$X. X $\rightarrow$ List X $\rightarrow$ List X
 case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ Y. l [Y] n c
      : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
-\end{lstlisting}
+\end{lstlisting} 
  
   \subsection{Evaluation semantics}
 
@@ -253,12 +253,8 @@ Rules E-Lib and E-Inp load the definitions of library components or input variab
 Note that E-App2 applies only if the left hand side of the application cannot be evaluated further and that E-AppAbs applies only when the argument of the lambda abstraction is a value, determining the order of evaluation.
 
 \subsection{Type checking}
-Question: why do I mathematically need that many contexts? How can I summarize T-Var, T-Hol, T-Inp, T-Lib in one rule?\\
-Question: Should I type System F or only "programs"? Answer: System F, of course. In the code you type library components as well.  
-  
-I moved this section because type checking does not need unification.
-  
-The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$. Based on the book of Pierce.  
+
+In this sections we will present the typing rules of our extended System F, that is the second calculus presented in Section~\ref{Term and types}. The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$ means the term $t$ has type $T$ in the contexts $\Gamma$ and $\Xi$, binding respectively variables and holes, and $\Phi$ and $\Delta$, containing signatures and definitions of respectively input variables and library components. The typing judgement is similar to the typing judgement of System F presented in the book about type systems of Benjamin Pierce \cite{pierce2002types} and we refer to the book for more details.
   
 \begin{prooftree}
 \AxiomC{$x : T \in \Gamma$}
@@ -299,15 +295,19 @@ The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$. Based on the book
 
 \begin{prooftree}
 \AxiomC{$\Gamma \cup \{X\}, \Xi, \Phi, \Delta \vdash t_2 : T_2$}
-	\RightLabel{T-ABS}
+	\RightLabel{\textsc{T-Abs}}
 	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash \Lambda X.\; t_2 : \forall X.\; T_2$}
 \end{prooftree}
 
 \begin{prooftree}
 \AxiomC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1 : \forall X.\; T_{12}$}
-	\RightLabel{T-APP}
+	\RightLabel{\textsc{T-App}}
 	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1\;[T_2] : [X \mapsto T_2]T_{12}$}
 \end{prooftree}
+
+The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, input variables or library components from the respective context.
+T-Abs types a lambda abstraction as an arrow type from the type of its variable to the type of its body. \textsc{T-Abs} gives a type abstraction as a universal type in accordance to the type of its body.
+An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
 \subsection{Type unification}
 The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
