@@ -1,0 +1,27 @@
+Pool of sections to write:
+
+Definitions:
+- system F, terms and types --> medium
+- type unification --> medium
+- search, exploration --> easy
+- blacklist --> easy
+- templates --> medium
+
+
+Evaluation:
+- comparison to related work --> easy
+- number of components --> medium
+- templates --> hard
+- cost functions --> medium
+
+
+
+Done today:
+- solutions --> easy, 3h
+- evaluation --> easy
+- type checking --> easy --> 1.5h together with evaluation
+- introductory example --> easy, 2h
+
+
+
+
