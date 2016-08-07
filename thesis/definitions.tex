@@ -127,7 +127,7 @@ Our calculus is based on System F. A subset of our calculus is used for generati
 \end{itemize}
 
 
-  \subsection{Terms and Types}
+  \subsection{Terms and Types}\label{Term and types}
 \begin{itemize}
 \item similar to Pierce
 \item except holes, components and free variables
@@ -209,9 +209,9 @@ case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\r
  
   \subsection{Evaluation semantics}
 
-We usually evaluate only closed programs. Eager evaluation. Rules. Judgement $\Phi, \Delta \vdash t \longrightarrow t'$.
+In this section we present the evaluation semantics of our extended System F, that is the second calculus introduced in Section~\ref{Term and types}. The evaluation semantics is a standard eager evaluation and we refer to the excellent book of Benjamin Pierce about type systems \cite{pierce2002types} for an introduction to the evaluation semantics of System F and evaluation rules in general.
 
-Define \emph{value} $v$ to be a term to which no evaluation rule apply.
+The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that the term $t$ evaluates in one step to the term $t'$ under the free variable bindings library $\Phi$, that contains concrete instantiations for the input variables, and the component library $\Delta$ , that contains the definitions of the library components. Before listing the evaluation rules, let us define \emph{value} $v$ to be a term to which no evaluation rule apply.
 
 \begin{prooftree}
 \AxiomC{$c = t : T \in \Delta$}
@@ -245,11 +245,12 @@ Define \emph{value} $v$ to be a term to which no evaluation rule apply.
 
 \begin{prooftree}
 \AxiomC{}
-	\RightLabel{E-APPABS}
+	\RightLabel{\textsc{E-AppAbs}}
 	\UnaryInfC{$\Phi, \Delta \vdash (\Lambda X.\; t_2)\; [T_2] \longrightarrow [X \mapsto T_2]t_2$}
 \end{prooftree}  
   
-
+Rules E-Lib and E-Inp load the definitions of library components or input variables from the respective library. E-App1 and E-App2 evaluate the left hand side, respectively the right hand side, of an application. E-AppAbs and \textsc{E-AppAbs} get rid of an abstraction and substitute the argument into the body.\\
+Note that E-App2 applies only if the left hand side of the application cannot be evaluated further and that E-AppAbs applies only when the argument of the lambda abstraction is a value, determining the order of evaluation.
 
 \subsection{Type checking}
 Question: why do I mathematically need that many contexts? How can I summarize T-Var, T-Hol, T-Inp, T-Lib in one rule?\\
