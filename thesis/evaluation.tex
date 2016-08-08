@@ -42,7 +42,8 @@ Programs are enumerated only up to a timeout based on the number of programs tha
 We also used our system to generate an automatic black list based on the identity function. Using the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function, we generated $100$ programs representing the identity functions over integers, $100$ over lists of integers and $100$ over lists of lists of integers. The input-output examples were also generated automatically with the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function, to which we provided only constructors as library components.
 
 We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type.
-\TODO{Either put the table of delete following sentence\\}
+
+\TODO{Either put the table of delete following sentence}
 Table~\ref{automatic-black-list} summarizes $30$ typical programs.
 
 
@@ -69,7 +70,8 @@ Since our synthesis procedures expand holes in a type aware manner, the number o
     \caption{Average running time of the variants of the synthesis procedure depending on the number of nodes of the solution.}
     \label{fig:runtime_vs_nof_nodes}
 \end{figure}
-Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes. This goes along with the intuition that a bigger program is more difficult to synthesise.
+In the previous sections we mentioned a second factor: the size of the solution to be synthesised. Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes of the solution found. This goes along with the intuition that a bigger program is more difficult to synthesise.
+
 For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate each hole.
 
 
@@ -77,6 +79,31 @@ For example, if we have $n$ possibilities to generate a program consisting of on
 More surprisingly, the individual results show that there must be some other factor influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
 
 In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
+
+\subsection{Cost functions}
+Cost functions are an instrument to prioritize some programs over others and as such have an impact on the running time. We extensively evaluated three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component}. In the following we will see how they affect the runtime and which programs they prefer.
+
+\begin{description}
+\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes. This means that the programs
+\begin{lstlisting}[style=plain]
+head [List Int -> List Int] (nil [List Int -> List Int]) ?xs
+map Int Int succ ?xs
+\end{lstlisting}
+will have the same cost. It seems natural that paired with the \textsc{Plain} strategy it leads usually to higher running time than other cost functions.
+
+\TODO{Write this\\}
+\end{description}
+
+
+How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
+
+\begin{itemize}
+\item Idea behind nof-nodes: smaller programs generalize better to the examples
+\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
+\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
+\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
+\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
+\end{itemize}
 
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
@@ -117,18 +144,6 @@ Explain why templates perform so poorly (hm... because they don't do BFS, that i
 \note{Short section explaining that the templates you generate are not the templates you expect and why}
 I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
 (Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
-
-\subsection{Cost functions}
-\TODO{Write this\\}
-How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
-
-\begin{itemize}
-\item Idea behind nof-nodes: smaller programs generalize better to the examples
-\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
-\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
-\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
-\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
-\end{itemize}
 
 \subsection{Stack vs Queue expansion}
 As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
