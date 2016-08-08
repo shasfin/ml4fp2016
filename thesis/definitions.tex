@@ -1,12 +1,10 @@
 \lstset{style=plain}
 
-\chapter{Top down type driven synthesis} \label{ch:definitions}
+\chapter{A type-driven synthesis procedure} \label{ch:definitions}
 
 In this chapter we will formally define our type-directed top-down synthesis procedure. We will start with an intuitive description of the problem and move on to the formal definitions of the target programming language and the search space. Finally, we will define the synthesis procedure and present some enhancements.
 
-\section{Problem}
-
-\subsection{The 'replicate' example}
+\section{The 'replicate' example}
 
 Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise \lstinline?replicate?. As our synthesis procedure is type-driven and example-based, the user specifies a program by providing its type along with a few I/O-examples.\\
 Let us specify \lstinline?replicate? as follows.
@@ -115,7 +113,7 @@ The next step is to expand one of the holes of the most promising program, let u
 
 Notice that among the new programs there are two closed programs, \lstinline?replicate n x = map (const x) (enumTo 0)? and \lstinline?replicate n x = map (const x) (enumTo n)?. Evaluation shows that only the second one satisfies the I/O-examples.
 
-\subsection{Concepts}
+\subsection{Summary}
 
 This example shows some important concepts that are defined formally in the next sections of this chapter.
 \begin{description}
@@ -134,19 +132,10 @@ In this section we will look at three different calculi.
 \item A subset of the second calculus, featuring only application of components, holes or input variables
 \end{enumerate}
 
-\TODO{Write this\\}
+We provide the first calculus only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
 
-\begin{itemize}
-\item Synthesiser syntheses only programs of the third calculus
-\item First calculus only for reference. Consult Pierce \cite{pierce2002types} for more details
-\item Second calculus is the real calculus we use. Components are defined in that language, evaluation and type checking happen there.
-\item evaluation and type checking only for second calculus: for the first one see book, the third one is just a subset of the second one.
-\end{itemize}
+The third calculus is the target language of our synthesiser. However, we still need the more powerful second calculus to define the library components and evaluate them on the input-output examples.
 
-The exposition and notation will closely follow  Pierce \cite{pierce2002types}.
-
-Let's start with the standard System F.
-Our calculus is based on System F. A subset of our calculus is used for generation.
 
   \subsection{Terms and Types}\label{Term and types}
 System F, also known as the polymorphic lambda calculus, is a calculus that, additionally to term abstraction and term application, features two new kinds of terms: Type abstraction \lstinline!$\Lambda$X. t! and type application \lstinline!t [T]!. This allows to express polymorphic functions. Polymorphic functions, defined as type abstractions, have a special type: The \emph{universal} type \lstinline!$\forall$X. T!. For a more detailed introduction to System F we refer to \cite{pierce2002types}. The syntax is summarized below.
@@ -326,6 +315,8 @@ An application typechecks only if the left hand side has an arrow type and the t
 \subsection{Type unification}
 \TODO{Write this\\}
 
+Need it to see which component can be used to expand a given hole.
+
 Since unification on System F types is undecidable \cite{Huet1975}, we decided to do something simpler. Explain what. Boom, fertig, party.
 
 The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
@@ -412,13 +403,15 @@ In all other cases we just choose a hole and expand it according to the three ru
 Note that the types of all successor programs unify with the types of their ancestors. Thus, the search is type directed. Only programs of the right type are generated.
 
 
-\subsection{Exploration}\label{Exploration}
+\subsection{Best-first search}\label{Exploration}
 \TODO{Write this section\\}
   \note{Write also about stack vs queue of open holes}
+Say that it's standard, we just review it.
+
 
 We explore the search graph using a best first search.
 We can play with the algorithm in two points (marked in blue): first, we can define which hole to expand first, second, we can choose the compare function of the priority queue.
-Different approaches to define the \lstinline?compare? function are discussed in the next session.
+Different approaches to define the \lstinline?compare? function are discussed in the next section.
 Concerning the order of expansion of the holes, we tried two strategies: the first one was maintaining a stack of holes ($\Xi$ implemented as a stack), which leads to the expansion of the deepest hole first, the second one was maintaining a queue of holes ($\Xi$ implemented as a queue), which leads to the expansion of the oldest hole first.
 
 \begin{algorithm}

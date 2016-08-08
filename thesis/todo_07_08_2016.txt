@@ -14,8 +14,16 @@ Evaluation:
 - cost functions --> medium
 
 
+Introduction:
+- outline
 
-Done today:
+
+
+Done 08.08.2016:
+
+
+
+Done 07.08.2016:
 - solutions --> easy, 3h
 - evaluation --> easy
 - type checking --> easy --> 1.5h together with evaluation
