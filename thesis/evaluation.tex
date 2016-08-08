@@ -39,16 +39,27 @@ Programs are enumerated only up to a timeout based on the number of programs tha
 \input{gianttable}
 
 \subsection{Automatic black list generation}\label{Black list generation}
-We also used our system to generate an automatic black list based on the identity function. Using the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function, we generated $100$ programs representing the identity functions over integers, $100$ over lists of integers and $100$ over lists of lists of integers. The examples were also generated automatically with the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function providing only constructors as library components.
+We also used our system to generate an automatic black list based on the identity function. Using the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function, we generated $100$ programs representing the identity functions over integers, $100$ over lists of integers and $100$ over lists of lists of integers. The input-output examples were also generated automatically with the \textsc{Plain} exploration strategy and the \textit{nof-nodes} cost function, to which we provided only constructors as library components.
 
 We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type.
+\TODO{Either put the table of delete following sentence\\}
 Table~\ref{automatic-black-list} summarizes $30$ typical programs.
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
-Two variants of our synthesis procedure were able to synthesis all $23$ benchmarks in the presence of $37$ library components, all variants synthesised at least $15$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
+Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $37$ library components, all variants synthesised at least $15$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
 
 The search space is of exponential nature and depends on many factors: most notably the number of library components and the size of the solution to be synthesised. In the remainder of this section we look at these and other factors and their influence on the runtime.
+
+\subsection{Number of components}
+One well known factor that exponentially affects the runtime is the number of components provided to the synthesiser.
+
+With 19 components we could synthesise all benchmarks with all procedures except the ones using the \textsc{Template} exploration strategy. With 37 components only two variants find all programs.
+
+In particular, with $37$ components, even if we provide \lstinline?enumTo?, the synthesis benchmark \lstinline?enumFromTo? times out for seven procedures out of nine, whereas with only $19$ components this number is reduced to three.
+Interestingly, if we provide a $38$th component, namely \lstinline?drop?, then six procedures succeed in the synthesis of \lstinline?enumFromTo?. This has very simple explanation: \lstinline?enumFromTo? has a smaller solution that uses \lstinline?drop?.
+
+Since our synthesis procedures expand holes in a type aware manner, the number of components with the same type has an even higher impact on the running time than just the number of components. For example, if we add a constant of a new type \lstinline?Foo? to the library, the running time will not increase much, because there are not many places, where we can use this component without causing a type error. On the contrary, if we would add another function from lists to lists like \lstinline?tail? or \lstinline?inits?, depending on the goal type we could have a considerable slowdown. 
 
 \subsection{Size of the solution}
 \TODO{If you have time, redo the graphics in latex, or at least find a way to move trend line in the legend}
@@ -59,21 +70,13 @@ The search space is of exponential nature and depends on many factors: most nota
     \label{fig:runtime_vs_nof_nodes}
 \end{figure}
 Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes. This goes along with the intuition that a bigger program is more difficult to synthesise.
-For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate the hole.
+For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate each hole.
 
 
 \TODO{Delete this question or do something with it. We cannot answer it, we do not have enough data.}
 More surprisingly, the individual results show that there must be some other factor influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
 
 In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
-
-\subsection{Number of components}
-\TODO{Write this\\}
-Discuss that enumFromTo can be generated with 19 but not with 37 components even if we provide \lstinline?enumTo?. That providing only the components it needs, \lstinline?enumFromTo? can be synthesised pretty quickly also without providing \lstinline?enumTo?.
-
-How number of components affects synthesis time
-
-In particular, not only the number but also the number of components of the same type. If you have more functions with the same type you will need much more time to find the program you are looking for (more possible successors).
 
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is

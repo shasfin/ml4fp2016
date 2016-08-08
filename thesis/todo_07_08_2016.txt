@@ -9,7 +9,6 @@ Definitions:
 
 Evaluation:
 - comparison to related work --> easy
-- number of components --> medium
 - templates --> hard
 - cost functions --> medium
 
@@ -20,7 +19,7 @@ Introduction:
 
 
 Done 08.08.2016:
-
+- number of components --> medium
 
 
 Done 07.08.2016:
