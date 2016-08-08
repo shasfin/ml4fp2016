@@ -13,8 +13,7 @@ The goal of the first experiment is to assess the quality and the performance of
 In the second experiment the synthesiser is used to automatically generate a \emph{black list} that can successively be used to prune the search space. We refer back to Section~\ref{Black list} for a description of pruning based on black lists. Section~\ref{Black list generation} describes how we used the synthesis procedure to generate a black list and Section~\ref{Automatic black list} reviews the quality of the generated black list.
 
 \subsection{Evaluation on benchmarks}\label{Evaluation on benchmarks}
-\TODO{Refer to the right table, make sure you describe only columns that are really there\\
-Make and insert mentioned figures: manual black list\\}
+\TODO{Make and insert mentioned figures: manual black list\\}
 
 We evaluated nine variants of our synthesis procedure, crossing the three exploration strategies with three of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are the following.
 
@@ -91,7 +90,7 @@ map Int Int succ ?xs
 \end{lstlisting}
 will have the same cost. It seems natural that paired with the \textsc{Plain} strategy it leads usually to higher running time than other cost functions.
 
-\TODO{Write this\\}
+\item[nof-nodes-simple-type] additionally penalises arrow types appearing in type applications. Its impact on the runtime is comparable to the introduction of pruning based on black lists.\TODO{Finish to write this section.\\} This preference leads to a larger solution for \lstinline!length!.
 \end{description}
 
 
@@ -141,6 +140,8 @@ We could also empirically see that pruning using black lists is very helpful in 
 \TODO{Write this\\}
 Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
 
+Maybe show "strange" solutions? But we already have them in the section about solutions.
+
 \note{Short section explaining that the templates you generate are not the templates you expect and why}
 I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
 (Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
@@ -173,14 +174,14 @@ Keeping the open holes of a program in a queue leads to the expansion of the hol
 We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
 
 \section{Synthesised solutions}
-\TODO{Rewrite programs in normal style\\}
+\TODO{Rewrite programs in normal style and put listing blocks with programs instead of inlining everything\\}
 Most of the synthesised solutions are precisely the ones we would have written by hand. Interestingly, for some programs different variants of the synthesis procedure found two different valid programs of the same size. For example, for \lstinline?replicate? we find both \lstinline?map Int &0 (const &0 Int _0) (enumTo _1)? and \lstinline?b_foldNat (List &0) (con &0 _0) (nil &0) _1?.
 
 Sometimes, as for example for \lstinline?length?, two solutions of different sizes are found: \lstinline?foldr &0 Int (const (Int -> Int) &0 b_succ) b_zero _0? and \lstinline?sum (map &0 Int (const Int &0 (b_succ b_zero)) _0)?. The reason is that the cost function \textit{nof-nodes-simple-type} assigns a higher cost to the first solution, as it contains an arrow type.
 
 For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one of such programs and \lstinline?foldl? for the other.
 
-Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where we find \lstinline?map &0 &0 (const &0 &0 (head &0 _0)) _0? and \lstinline?replicate &0 (length &0 _0) (head &0 _0)? for \lstinline?multfirst? and analogous programs for \lstinline?multlast?. The different synthesis procedures show a clear preference for the one or the other. For example, all synthesis procedures using the \textbf{templates} exploration strategy seem to prefer the use of the higher-order \lstinline?map? to the first-order \lstinline?replicate?. This has to do with the depth of the first-order search. The search from a particular template (in this case the template with no higher-order functions) times out before reaching programs with three components. On the other hand, the search starting from the template \lstinline!map ^0 &0 (const ^0 &0 ?1) ?2! succeeds within the timeout.
+Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where we find \lstinline?map &0 &0 (const &0 &0 (head &0 _0)) _0? and \lstinline?replicate &0 (length &0 _0) (head &0 _0)? for \lstinline?multfirst? and analogous programs for \lstinline?multlast?. The different synthesis procedures show a clear preference for the one or the other. For example, all synthesis procedures using the \textsc{Template} exploration strategy seem to prefer the use of the higher-order \lstinline?map? to the first-order \lstinline?replicate?. This has to do with the depth of the first-order search. The search from a particular template (in this case the template with no higher-order functions) times out before reaching programs with three components. On the other hand, the search starting from the template \lstinline!map ^0 &0 (const ^0 &0 ?1) ?2! succeeds within the timeout.
 
 The preference of the \textsc{Template} exploration strategy for solutions containing higher-order functions leads to unexpectedly large programs. For example, one of the solutions for \lstinline?factorial? is \lstinline?prod (foldr (List Int) (List Int) (foldl (List Int) Int (const (List Int) Int)) (enumTo _0) (nil (List Int)))? instead of the much simpler \lstinline?prod (enumTo _0)?. Note that since we are folding over an empty list, the two programs are completely equivalent.
 
