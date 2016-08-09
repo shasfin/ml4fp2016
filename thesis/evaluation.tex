@@ -47,7 +47,7 @@ Table~\ref{automatic-black-list} summarizes $30$ typical programs.
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
-Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $37$ library components, all variants synthesised at least $15$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
+Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $37$ library components, all variants synthesised at least $18$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
 
 The search space is of exponential nature and depends on many factors: most notably the number of library components and the size of the solution to be synthesised. In the remainder of this section we look at these and other factors and their influence on the runtime.
 
@@ -102,8 +102,9 @@ length [X] xs
 because the second one contains an arrow type in a type application.
 
 The impact on the runtime of this cost function is comparable to the introduction of pruning based on black lists. This has to do with the fact that polymorphic functions that apply in many cases but are rarely needed, like \lstinline?const? and \lstinline?flip?, tend to instantiate their type variables with long arrow types. In the \textsc{BlackList} exploration strategy those programs are filtered by the black list, the \textit{nof-nodes-simple-type} cost function assigns them a higher cost because of their types.
+\TODO{\lstinline!mul (sub zero (succ zero)) (sum (enumTo n))!}
 
-\item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \TODO{put an example of foldnat foldnat foldnat mul (mul 3 3) 3 or \lstinline?enumTo prod enumTo prod?}, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that do not contain any type applications, like \TODO{put an example of succ add sub mul prod}.
+\item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \lstinline?enumTo (prod (enumTo (prod xs)))?, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that do not contain any type applications, like \TODO{put an example of succ add sub mul prod \lstinline!div (mul n m) (sub n (succ ?x))! \lstinline!enumTo (mul (succ (div n m)) (succ ?x))!}.
 \end{description}
 
 \subsection{Stack vs Queue expansion}
@@ -175,15 +176,22 @@ The running time drops less significantly if we use other cost functions. A poss
 We could also empirically see that pruning using black lists is very helpful in the presence of polymorphic functions that apply in many cases but are rarely needed, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesise functions that need them.
 
 \subsection{Templates}
-\TODO{Write this\\}
-Explain why templates perform so poorly (hm... because they don't do BFS, that is they have to explore every branch to the "end"?)
+In Table~\ref{fig:gianttable} we see that the synthesis procedures that use the \textsc{Template} exploration strategy fail more often to find a solution within the timeout. Moreover, even if they find a solution, they tend to be $10$ times slower than the other synthesis procedures, \lstinline?length?, \lstinline?member?, \lstinline?replicate? and \lstinline?reverse? being an exception.
 
-Maybe show "strange" solutions? But we already have them in the section about solutions.
+The main reason for this slowdown resides in our implementation. In particular, in the successor rules we presented in Section~\ref{Templates}. Before having a chance to explore a sensible template like \lstinline!foldl [?X] [?Y] ?f ?init ?xs!, the synthesiser must reach templates consisting of $4$ holes in a row. But between \lstinline!?x! and \lstinline!?$x_1$ ?$x_2$ ?$x_3$ ?$x_4$! lie many not that sensible templates like \lstinline!?x (foldr [?X] [?Y]),! and every such template has to be explored up to a certain depth.
+Such nonsense templates are a consequence of the fact that there is no higher-order library component that takes only one argument, that we can just close a hole and hope that the first-order search will find an instantiation for it and that every type unifies with a hole.
+Consider following derivation of a template for \lstinline?replicate?, where \lstinline?X? represent the input type variable, \lstinline?n? is the first argument and \lstinline?x? is the second. The list on the right of the program shows the type of its open holes.
+\begin{lstlisting}[style=plain]
+(?$x_0$,       [?$x_0$ :: List X]) $\longrightarrow$
+(?$x_1$ ?$x_2$,     [?$x_1$ :: ?Y ->  List X, ?$x_2$ :: ?Y]) $\longrightarrow$
+($\underline{?x_1}$ ?$x_2$,      [?$x_2$ :: ?Y]) $\longrightarrow$
+($\underline{?x_1}$ (foldr [?$Z_1$] [?$Z_2$]),   [])
+\end{lstlisting}
+Note that the only thing we can do with \lstinline!?$x_1$! is to close it. On the other hand, \lstinline!?$x_2$! can be instantiated with every higher-order function of the library, because closing \lstinline!?$x_1$! does not constrain its type in any way.
 
-\note{Short section explaining that the templates you generate are not the templates you expect and why}
-I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
-(Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
+The solutions synthesised by the synthesis procedures that use the \textsc{Template} exploration strategy tend to contain more higher-order components and in two cases are surprisingly long. In Table~\ref{fig:nofnodestable} we can see that two variants of our synthesis procedure synthesise a program with $13$ nodes for \lstinline?factorial?, whereas all other variants find one with only $5$ nodes.
 
+Despite of those drawbacks, the \textsc{Template} exploration strategy is still interesting: it is more resilient to the choice of input-output examples compared to the other two. For example, if we provide a slightly larger input-output example for \lstinline?dropmax?, six variants of our synthesis procedure run out of memory, whereas the three variants that use the \textsc{Template} exploration strategy still find the solution in under \SI{8}{s}.
 
 \subsection{Unknown factors}
 Individual results show that there must be other factors influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude for the synthesis procedures that do not time out on \lstinline?stutter?. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?

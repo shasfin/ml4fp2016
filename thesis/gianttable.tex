@@ -133,3 +133,21 @@ Name & \multicolumn{3}{c}{\textsf{Plain}} & \multicolumn{3}{c}{\textsf{Blacklist
 \caption{Number of nodes of the synthesised solution.\label{fig:nofnodestable}}
 \end{longtable}}
 
+\begin{longtable}{l  p{0.5\textwidth}}
+\toprule
+ & library components\\
+\midrule
+general functions & \lstinline!const!, \lstinline?flip?\\
+booleans & \lstinline?true?, \lstinline?false?, \lstinline?not?\\
+integer constructors & \lstinline?zero?, \lstinline?succ?\\
+integer destructors & \lstinline?isZero?\\
+integer combinators & \lstinline?foldNat?, \lstinline?foldNatNat?\\
+arithmetics & \lstinline?add?, \lstinline?mul?, \lstinline?div?, \lstinline?max?, \lstinline?eq?, \lstinline?neq?\\
+list constructors & \lstinline?nil?, \lstinline?con?\\
+list destructors & \lstinline?head?, \lstinline?tail?, \lstinline?isNil?\\
+list combinators & \lstinline?map?, \lstinline?foldr?, \lstinline?foldl?, \lstinline?filter?\\
+list functions & \lstinline?length?, \lstinline?append?, \lstinline?reverse?, \lstinline?replicate?, \lstinline?concat?\\
+list of integers functions & \lstinline?sum?, \lstinline?prod?, \lstinline?maximum?, \lstinline?member?, \lstinline?enumTo?, \lstinline?enumFromTo?\\
+\bottomrule
+\caption{37 library components used for synthesis\label{fig:library-components}}
+\end{longtable}
