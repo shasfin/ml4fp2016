@@ -57,7 +57,7 @@ One well known factor that exponentially affects the runtime is the number of co
 With 19 components we could synthesise all benchmarks with all procedures except the ones using the \textsc{Template} exploration strategy. With 37 components only two variants find all programs.
 
 In particular, with $37$ components, even if we provide \lstinline?enumTo?, the synthesis benchmark \lstinline?enumFromTo? times out for seven procedures out of nine, whereas with only $19$ components this number is reduced to three.
-Interestingly, if we provide a $38$th component, namely \lstinline?drop?, then six procedures succeed in the synthesis of \lstinline?enumFromTo?. This has very simple explanation: \lstinline?enumFromTo? has a smaller solution that uses \lstinline?drop?.
+Interestingly, if we provide a $38$th component, namely \lstinline?drop?, then six procedures succeed in the synthesis of \lstinline?enumFromTo?. This has a very simple explanation: \lstinline?enumFromTo? has a smaller solution that uses \lstinline?drop?.
 
 Since our synthesis procedures expand holes in a type aware manner, the number of components with the same type has an even higher impact on the running time than just the number of components. For example, if we add a constant of a new type \lstinline?Foo? to the library, the running time will not increase much, because there are not many places, where we can use this component without causing a type error. On the contrary, if we would add another function from lists to lists like \lstinline?tail? or \lstinline?inits?, depending on the goal type we could have a considerable slowdown. 
 
@@ -77,13 +77,13 @@ For example, if we have $n$ possibilities to generate a program consisting of on
 \TODO{Delete this question or do something with it. We cannot answer it, we do not have enough data.}
 More surprisingly, the individual results show that there must be some other factor influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
 
-In our simple intuitive explanation of the exponential dependency of the synthesis time with the size of the solution we completely ignored the contribution of types to search space pruning.
+In our simple intuitive explanation of the exponential dependency of the synthesis time on the size of the solution we completely ignored the contribution of types to search space pruning.
 
 \subsection{Cost functions}
-Cost functions are an instrument to prioritize some programs over others and as such have an impact on the running time. We extensively evaluated three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component}. In the following we will see how they affect the runtime and which programs they prefer.
+Cost functions are an instrument to prioritize some programs over others and as such have an impact on the running time. We extensively evaluated three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component} with three different exploration strategies. In the following we will see how they affect the runtime and which programs they prefer.
 
 \begin{description}
-\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes, in the hope that smaller programs generalise better the examples. However, this cost function gives the same cost to the following two programs.
+\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes, under the hypothesis that smaller programs generalise better to the examples. However, this cost function gives the same cost to the following two programs.
 \begin{lstlisting}[style=plain]
 head [List Int -> List Int] (nil [List Int -> List Int]) ?xs
 map Int Int succ ?xs
@@ -102,28 +102,32 @@ length [X] xs
 \end{lstlisting}
 because the second one contains an arrow type in a type application.
 
-The impact on the runtime of this cost function is comparable to the introduction of pruning based on black lists. This has to do with the fact that polymorphic functions that apply in many cases but are rarely needed, like \lstinline?const? and \lstinline?flip?, tend to have long arrow types. In the \textsc{BlackList} exploration strategy those programs are filtered by the black list, the \textit{nof-nodes-simple-type} cost function assigns them a higher cost because of their types.
+The impact on the runtime of this cost function is comparable to the introduction of pruning based on black lists. This has to do with the fact that polymorphic functions that apply in many cases but are rarely needed, like \lstinline?const? and \lstinline?flip?, tend to instantiate their type variables with long arrow types. In the \textsc{BlackList} exploration strategy those programs are filtered by the black list, the \textit{nof-nodes-simple-type} cost function assigns them a higher cost because of their types.
 
-\item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \TODO{put an example of foldnat foldnat foldnat mul (mul 3 3) 3 or \lstinline?enumTo prod enumTo prod?}, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that to not contain any type applications, like \TODO{put an example of succ add sub mul prod}.
+\item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \TODO{put an example of foldnat foldnat foldnat mul (mul 3 3) 3 or \lstinline?enumTo prod enumTo prod?}, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that do not contain any type applications, like \TODO{put an example of succ add sub mul prod}.
 \end{description}
 
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
 \begin{enumerate}[a.]
-\item small enough, so that also undesirable programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?.
+\item small enough, so that also undesirable programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?;
 \item expressive enough to rule out many programs, so that there is no need to fall back on the other, often bigger, input-output examples.
 \end{enumerate}
-Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?.
-\TODO{Put a concrete example with enumFromTo}
-\lstinline?con Int _0 (drop Int _0 )enumTo _1))? well, this is a real solution\\
-\lstinline?filter Int (b_leq _0) (con Int b_zero (enumTo _1))?\\
-On input \lstinline?enumFromTo 1 3 = [1,2,3]? and \lstinline?enumFromTo 2 4 = [2,3,4]? we get the program \lstinline?con Int _0 (con Int (b_succ _0) (con Int _1 (nil Int)))?
-
-for (1,2) and (1,3) we get \lstinline?enumTo _1? or \lstinline?b_foldNatNat (List Int) (con Int) (nil Int) _1? depending on the components we give.
-
-for (1,2) and (2,3) we get \lstinline?con Int _0 (con Int _1 (nil Int))?
-
-for (1,2) and (2,4) we get \lstinline?con Int _0 (map Int Int (b_add _0) (enumTo _0))? 
+Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?. For example, if we provided \lstinline?enumFromTo? only with examples that result in a list of length three, we got the program that simply concatenated the first input with its successor with the second input.
+\begin{lstlisting}[style=plain]
+enumFromTo m n
+    <> con [Int] m (con [Int] (succ m) (con [Int] n (nil [Int])))
+\end{lstlisting}
+If we provided \lstinline?enumFromTo? only with examples starting with $1$, the synthesised solution was just a call to \lstinline?enumTo? with the second input variable as argument or, depending on the components we gave, the program corresponding to \lstinline?enumTo n?.
+\begin{lstlisting}[style=plain]
+enumFromTo m n
+    <> foldNatNat [List Int] (con [Int]) (nil [Int]) n
+\end{lstlisting}
+And for the two examples \lstinline?enumFromTo 1 2? and \lstinline?enumFromTo 2 4? that we carefully chose so that the output lists had different lengths and so that the first arguments were different, we got the program that completely ignores the second argument, as it assumes that the length of the resulting list is the successor of the first argument.
+\begin{lstlisting}[style=plain]
+enumFromTo m n
+    <> con [Int] m (map [Int] [Int] (b_add m) (enumTo m))
+\end{lstlisting}
 
 \subsection{Blacklist}
 \TODO{Make and insert mentioned figures: the manual black list\\}
