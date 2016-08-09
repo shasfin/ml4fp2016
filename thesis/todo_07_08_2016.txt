@@ -8,10 +8,8 @@ Definitions:
 
 
 Evaluation:
-- comparison to related work --> easy
 - manual blacklist
 - automatic blacklist (part of it)
-- components used for synthesis
 - table of comparison to related work
 
 
@@ -36,6 +34,7 @@ Done 09.08.2016:
 - put concrete example of enumTo prod enumTo prod
 - put concrete example of succ prod mul sub n m
 - templates --> medium
+- comparison to related work --> easy
 
 Done 08.08.2016:
 - number of components --> medium

@@ -292,8 +292,26 @@ The third point is way more complex. Partial evaluation of programs with holes c
 
 \section{Comparison to related work}
 \TODO{Put the table in LaTeX\\}
-\TODO{Write this}
-Comparison to Feser, to Nadia, to Escher and to Myth. Say that you cannot really compare the numbers because they weren't run on the same machine. Say the thing with the size of the specification and the number of components. Say you have components capturing (tail?) recursive behaviour (fold over lists and fold over integers).
+We compare our synthesis procedure that uses the \textsc{Blacklist} exploration strategy combined with the \textit{nof-nodes-simple-type} cost functions with the state-of-the-art tools we reviewed \TODO{use another word} in Chapter~\ref{ch:relatedwork}. The results are summarised in Table~\ref{fig:comparisontable}, where for each tool we provide the specification size (expressed in number of examples for example-based tools and in AST nodes for \textsc{Synquid}) and the runtime.
+
+Since the running times were taken from the respective papers and were not run on the same machine, we cannot directly compare performance. However, the case of \lstinline?droplast?, where \textsc{$\lambda^2$} takes around \SI{300}{s} and our tool only \SI{0.06}{s}, cannot be explained only by the difference in the hardware. Providing the right components, in this case \lstinline?reverse? and \lstinline?tail?, helps the synthesis tool to find a solution faster.
+
+Another thing that impedes direct comparison of the running time is that the other tools generate a richer class of programs. All of them are capable of generating recursive functions and most of them have support for conditionals and pattern matching, whereas the target language of our tool includes only application of components and input variables. On the other hand, components can encode well-known recursion patterns. For example, programs that use the component \lstinline?foldNat? naturally translate to a recursive program, as we see from the example of \lstinline?isEven?.
+\begin{lstlisting}[style=plain]
+isEven n = foldNat not true n
+\end{lstlisting}
+\begin{lstlisting}[style=plain]
+isEven n = match n with
+  | 0 -> true
+  | 1 + m -> not (isEven m)
+\end{lstlisting}
+
+It might be a consequence of the simplicity of our target language, but as we can see in Table~\ref{fig:comparisontable}, our tool needs less input-output examples to synthesise the benchmarks than the other example-based tools. \textsc{Synquid} relies on a different specification that requires a higher level of expertise, which makes direct comparison difficult.
+
+The number of provided components also changes across the tools. With $36$ to $37$ components, we provide the largest library to our tool. On the second place, \textsc{Escher} uses a library of $23$ components to evaluate all benchmarks. Other tools handle less components.
+
+Considering that our tool is just standard type-aware best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
+
 
 
 %%% Local Variables:
