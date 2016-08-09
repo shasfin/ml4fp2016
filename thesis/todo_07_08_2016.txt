@@ -10,6 +10,14 @@ Definitions:
 Evaluation:
 - comparison to related work --> easy
 - templates --> hard
+- see why are templates so bad
+- put concrete example of foldNat (foldNat (foldNat mul and so on
+- put concrete example of enumTo prod enumTo prod
+- put concrete example of succ prod mul sub n m
+- manual blacklist
+- automatic blacklist (part of it)
+- components used for synthesis
+- table of comparison to related work
 
 
 Introduction:

@@ -74,8 +74,7 @@ In the previous sections we mentioned a second factor: the size of the solution 
 For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate each hole.
 
 
-\TODO{Delete this question or do something with it. We cannot answer it, we do not have enough data.}
-More surprisingly, the individual results show that there must be some other factor influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
+
 
 In our simple intuitive explanation of the exponential dependency of the synthesis time on the size of the solution we completely ignored the contribution of types to search space pruning.
 
@@ -107,6 +106,34 @@ The impact on the runtime of this cost function is comparable to the introductio
 \item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \TODO{put an example of foldnat foldnat foldnat mul (mul 3 3) 3 or \lstinline?enumTo prod enumTo prod?}, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that do not contain any type applications, like \TODO{put an example of succ add sub mul prod}.
 \end{description}
 
+\subsection{Stack vs Queue expansion}
+As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
+\begin{enumerate}[a.]
+\item what program to expand next
+\item which hole of this program to expand first
+\end{enumerate}
+In the previous section we addressed the first question with different cost functions. In this section we focus on the second one.
+
+Among all possible heuristics to determine which hole of the least-cost program to expand next, we chose to discuss two. In the first one the open holes of a program are organised as a stack, as opposed to the second one, where the open holes are kept in a queue.
+
+Organising the open holes of a program as a stack leads to the expansion of the holes from left to right. To give some intuition, we provide a derivation of \lstinline?mapAdd? showing the stack of open holes on the right of the program, where \lstinline?xs? represents the input list and \lstinline?n? the amount of the increment.
+\begin{lstlisting}[style=plain]
+(?$x_0$, [$x_0$]) $\longrightarrow$
+(?$x_1$ ?$x_2$, [?$x_1$, ?$x_2$]) $\longrightarrow$
+(?$x_3$ ?$x_4$ ?$x_2$, [?$x_3$, ?$x_4$, ?$x_2$])) $\longrightarrow$
+(map [Int] ?$x_4$ ?$x_2$, [?$x_4$, ?$x_2$]) $\longrightarrow$
+(map [Int] (?$x_5$ ?$x_6$) ?$x_2$, [?$x_5$, ?$x_6$, ?$x_2$]) $\longrightarrow$
+(map [Int] (add ?$x_6$) ?$x_2$, [?$x_6$, ?$x_2$]) $\longrightarrow$
+(map [Int] (add n) ?$x_2$, [?$x_2$]) $\longrightarrow$
+(map [Int] (add n) xs, [])
+\end{lstlisting}
+Left-to-right expansion often leads to faster synthesis, because leftmost holes usually have more constraints on their type. Consider the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! from the derivation of \lstinline??. We know more about \lstinline!?$x_3$! than about \lstinline!?$x_2$!: the first one must be a function that takes two arguments of some type and returns a list of integers, whereas the second hole could be anything. Furthermore, the instantiation of \lstinline!?$x_3$! with \lstinline?map [Int]? imposes some constraints on the types of \lstinline!?$x_4$! and \lstinline!?$x_2$!.
+
+Keeping the open holes of a program in a queue leads to the expansion of the hole with the smallest depth first. This could be useful to control the depth of a program, but in practice it has a substantial drawback. Consider again the derivation of \lstinline?mapAdd?. The first three steps are the same, but in the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! we would now try to expand the hole \lstinline!?$x_2$!, that we have absolutely no information about. Every library component and every input variable are valid instantiations of this hole. Thus, this expanding strategy leads to a higher branching factor and explores many superfluous programs like \lstinline!?$x_3$ ?$x_4$ map! and \lstinline!map (?$x_5$ foldr) xs!.
+
+We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
+
+
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
 \begin{enumerate}[a.]
@@ -131,17 +158,21 @@ enumFromTo m n
 
 \subsection{Blacklist}
 \TODO{Make and insert mentioned figures: the manual black list\\}
-The search space abounds of superfluous programs that are equivalent to smaller ones. In Section~\ref{Black list} we introduced a way to leverage this inconvenience: Pruning based on black lists. This approach allows us not to explore further programs that will surely lead to a solution bigger than the optimal one, like \lstinline!append [X] (nil [X]) ?$xs$!, or not lead to a solution at all, like \lstinline!(head [?$X_1$ -> ?$X_2$ -> $X_3$] (nil [?$X_1$ -> ?$X_2$ -> $X_3$])) ?$x_1$ ?$x_2$!.
+The search space abounds of superfluous programs that are equivalent to smaller ones. In Section~\ref{Black list} we introduced a way to leverage this inconvenience: pruning based on black lists. This approach allows us not to explore further programs that will surely lead to a solution bigger than the optimal one, like \lstinline!append [X] (nil [X]) ?$xs$!, or not lead to a solution at all, like \lstinline!(head [?$X_1$ -> ?$X_2$ -> $X_3$] (nil [?$X_1$ -> ?$X_2$ -> $X_3$])) ?$x_1$ ?$x_2$!.
 
-A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, black list pruning is extremely expensive in our implementation. Each element of the black list is matched against every subtree of every program with holes that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
+A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, in our implementation black list pruning is extremely expensive. Each element of the black list is matched against every subterm of every program with holes that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
 
-Figure~\ref{fig:manual_blacklist} shows the black list  we used to evaluate the benchmarks. We manually compiled it combining unwanted patterns often seen in the search space with some carefully chosen automatically generated identity functions. We also added some extremely increasing functions like \lstinline!foldNat [Int] (foldNat [Int] (mul n) 1) 1 m! that represented a problem for our evaluator.
+Figure~\ref{fig:manual_blacklist} shows the black list  we used to evaluate the benchmarks. We manually compiled it combining unwanted patterns often seen in the search space with some carefully chosen automatically generated identity functions. We also added some rapidly increasing functions. For example, following program represent a problem for our evaluator.
+\begin{lstlisting}[style=plain]
+f n m =
+    foldNat [Int] (foldNat [Int] (mul n) 1) 1 m
+\end{lstlisting}
 \TODO{If you have time, try to figure out what mathematical function it corresponds to}.
 
-In Table~\ref{fig:table_with_runtimes} we see that the runtime profits the most from the introducing of black list pruning when we use the cost function \textit{nof-nodes}.
+In Table~\ref{fig:gianttable} we see that the runtime profits the most from the introduction of black list pruning when we use the cost function \textit{nof-nodes}.
 The running time drops less significantly if we use other cost functions. A possible explanation of this behaviour could be the fact that other cost functions give a higher cost to those programs that are filtered with our black list.
 
-We could also empirically see that pruning using black lists is very helpful in the presence of "useless" functions that increase the branching factor, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesis functions that need them.
+We could also empirically see that pruning using black lists is very helpful in the presence of polymorphic functions that apply in many cases but are rarely needed, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesise functions that need them.
 
 \subsection{Templates}
 \TODO{Write this\\}
@@ -153,57 +184,30 @@ Maybe show "strange" solutions? But we already have them in the section about so
 I found one example, where templates help! For \lstinline?dropmax? I had a run out of memory exception with plain enumeration and I could synthesise it in 7 seconds with templates!
 (Ok, I modified templates to put in only really higher-order components and close every hole, no matter the type). More resistant to the choice of examples.
 
-\subsection{Stack vs Queue expansion}
-As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
-\begin{enumerate}[a.]
-\item what program to expand next
-\item which hole of this program to expand first
-\end{enumerate}
-In the previous section we addressed the first question with different cost functions. In this section we focus on the second one.
 
-Among all possible heuristics to determine which hole of the least-cost program to expand next, we chose to discuss two. In the first one the open holes of a program are organised in a stack, as opposed to the second one, where the open holes are kept in a queue.
-
-Organising the open holes of a program into a stack leads to the expansion of the holes from left to right. To give some intuition we provide a derivation of \lstinline?mapAdd? featuring the stack of open holes on the right of the program, where \lstinline?xs? represents the input list and \lstinline?n? the amount of the increment.
-\begin{lstlisting}[style=plain]
-(?$x_0$, [$x_0$]) $\longrightarrow$
-(?$x_1$ ?$x_2$, [?$x_1$, ?$x_2$]) $\longrightarrow$
-(?$x_3$ ?$x_4$ ?$x_2$, [?$x_3$, ?$x_4$, ?$x_2$])) $\longrightarrow$
-(map [Int] ?$x_4$ ?$x_2$, [?$x_4$, ?$x_2$]) $\longrightarrow$
-(map [Int] (?$x_5$ ?$x_6$) ?$x_2$, [?$x_5$, ?$x_6$, ?$x_2$]) $\longrightarrow$
-(map [Int] (add ?$x_6$) ?$x_2$, [?$x_6$, ?$x_2$]) $\longrightarrow$
-(map [Int] (add n) ?$x_2$, [?$x_2$]) $\longrightarrow$
-(map [Int] (add n) xs, [])
-\end{lstlisting}
-Left-to-right expansion often lead to faster synthesis, because leftmost holes have usually more constraints on their type. Consider the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! from the derivation of \lstinline??. We know more about \lstinline!?$x_3$! than about \lstinline!?$x_2$!: The first one must be a function that takes two arguments of some type and returns a list of integers, whereas the second hole could be anything. Furthermore, the instantiation of \lstinline!?$x_3$! with \lstinline?map [Int]? imposes some constraints on the types of \lstinline!?$x_4$! and \lstinline!?$x_2$!.
-
-Keeping the open holes of a program in a queue leads to the expansion of the hole with the smallest depth first. This could be useful to control the depth of a program, but in practice it has a substantial drawback. Consider again the derivation of \lstinline?mapAdd?. The first three steps are the same, but in the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! we would now try to expand the hole \lstinline!?$x_2$!, that we have absolutely no information about. Every library component and every input variable are valid instantiations of this hole. Thus, this expanding strategy leads to a higher branching factor and explores many useless programs like \lstinline!?$x_3$ ?$x_4$ map! and \lstinline!map (?$x_5$ foldr) xs!.
-
-We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
+\subsection{Unknown factors}
+Individual results show that there must be other factors influencing the runtime. Take, for example, \lstinline?enumFromTo?, \lstinline?stutter? and \lstinline?nth?. All three of them have a solution with exactly $13$ nodes, but their runtimes differ at least by an order of magnitude for the synthesis procedures that do not time out on \lstinline?stutter?. What does make \lstinline?nth? generate in less than \SI{1}{s}, \lstinline?stutter? a hundred times slower and \lstinline?enumFromTo? to time out in most of the cases?
 
 \section{Synthesised solutions}
-\TODO{Rewrite programs in normal style and put listing blocks with programs instead of inlining everything\\}
 Most of the synthesised solutions are precisely the ones we would have written by hand. For some programs different variants of the synthesis procedure find two different valid programs of the same size. For example, for \lstinline?replicate? we find following two solutions.
 \begin{lstlisting}
 replicate [X] n x
     = map Int [X] (const [X] Int x) (enumTo n)
+\end{lstlisting}
+\begin{lstlisting}
+replicate [X] n x
     = foldNat [List X] (con [X] x) (nil [X]) n
 \end{lstlisting}
 
-
-%Sometimes, as for example for \lstinline?length?, two solutions of different sizes are found.
-%\begin{lstlisting}
-%length [X] xs
-%    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs
-%    = sum (map [X] [Int] (const [Int] [X] (succ zero)) xs)
-%\end{lstlisting}
-% The larger program is sometimes found before the smaller one because the cost function \textit{nof-nodes-simple-type} assigns a higher cost to the first solution, as it contains an arrow type.
-%
 For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one of such programs and \lstinline?foldl? for the other.
 
 Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where following two solutions are found.
 \begin{lstlisting}
 multfirst [X] xs
     = map [X] [X] (const [X] [X] (head [X] xs)) xs
+\end{lstlisting}
+\begin{lstlisting}
+multfirst [X] xs
     = replicate [X] (length [X] xs) (head [X] xs)
 \end{lstlisting}
 We omit the analogous solutions for \lstinline!multlast! for brevity.
@@ -262,7 +266,6 @@ a special version that makes use of the fact that the product of a list is $0$ i
 \begin{lstlisting}
 member n xs
     = is_zero (prod (map [Int] [Int] (sub n) xs))
-
 \end{lstlisting}
 This works in our implementation because our built-in integers can have negative values.
 
