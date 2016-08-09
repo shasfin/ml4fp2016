@@ -134,7 +134,7 @@ let to_term prog =
         | (Some (Term.ABS (o, m)), _) -> Term.ABS (o, to_term_m m)
         | (Some (Term.Hol (o, j)), _) -> to_term_i j
         | (Some m, _) -> m
-        | (None, a) -> Term.Hol (a, i))
+        | (None, a) -> if List.mem i prog.closed_holes then Term.Sym (a, sprintf "[?%d]" i) else Term.Hol (a, i))
       else
         raise (Invalid_argument (sprintf "Hol %d is not bound in the program" i))
   and to_term_m m =

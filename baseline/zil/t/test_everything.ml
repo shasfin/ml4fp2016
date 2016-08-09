@@ -6,6 +6,24 @@ open Zil.Parse;;
 open Zil.Benchmark;;
 open Zil;;
 
+(* auxiliary function *)
+let size_nof_nodes m = 
+  let rec nof_nodes m = match m with
+  | Term.Var _ -> 1
+  | Term.Int _ -> 1
+  | Term.App (_, m, n) -> 1 + (nof_nodes m) + (nof_nodes n)
+  | Term.Abs (_, _, m) -> 1 + (nof_nodes m)
+  | Term.APP (_, m, _) -> 0 + (nof_nodes m)
+  | Term.ABS (_, m) -> 1 + (nof_nodes m)
+  | Term.Sym _ -> 1
+  | Term.Hol _ -> 1
+  | Term.Free _ -> 1
+  | Term.Fun (_, def, _, _) -> 1
+  | Term.FUN (_, def, _, _) -> 1
+  | Term.BuiltinFun _ -> 1 in
+
+  nof_nodes m
+
 
 (* Read library *)
 let sym_lib = Library.read_from_file "src/b_library.tm";;
@@ -16,14 +34,14 @@ let first_prog = Program.create ();;
 let (sym_lib_uni, first_prog) = Synthesiser.prepare_lib sym_lib first_prog;;
 
 (* Select what you want to time *)
-let b_plain = false;;
-let b_blacklist = true;;
+let b_plain = true;;
+let b_blacklist = false;;
 let b_template = false;;
 
 let components = [
-  (*"const";
+  "const";
   "flip";
-  "curry";
+  (*"curry";
   "uncurry";
   "fanout";
   "ignore";*)
@@ -32,44 +50,44 @@ let components = [
   "con";
   "head";
   "tail";
-  (*"is_nil";*)
-  (*"true";
+  "is_nil";
+  "true";
   "false";
-  "not";*)
+  "not";
   (*"pair";
   "fst";
   "snd";*)
   "map";
   "foldr";
   "foldl";
-  (*"filter";
+  "filter";
   "sum";
-  "prod";*)
-  (*"b_zero";
-  "b_succ";*)
-  (*"b_is_zero";*)
+  "prod";
+  "b_zero";
+  "b_succ";
+  "b_is_zero";
   "b_foldNat";
   "b_foldNatNat";
-  (*"b_add";
-  "b_sub";*)
-  (*"b_mul";
+  "b_add";
+  "b_sub";
+  "b_mul";
   "b_div";
   "b_max";
   "b_eq";
   "b_neq";
-  "b_leq";*)
+  (*"b_leq";*)
   (*"b_geq";*)
-  (*"length";*)
+  "length";
   (*"factorial";*)
-  (*"replicate";
+  "replicate";
   "append";
   "reverse";
-  "concat";*)
-  (*"enumTo";*)
-  (*"enumFromTo";
+  "concat";
+  "enumTo";
+  (*"enumFromTo";*)
   "member";
   "maximum";
-  "drop";*)
+  (*"drop";*)
 ]
 
 (* Utility function to recognize higher-order types *)
@@ -94,61 +112,61 @@ let black_list = List.map ~f:parse_term
   "append ^0 ?0 (nil ^0)";
   "b_add ?0 b_zero";
   "b_add b_zero";
-  (*"b_div ?0 b_zero";
+  "b_div ?0 b_zero";
   "b_div ?0 (b_succ b_zero)";
   "b_div b_zero";
   "b_div (b_succ b_zero)";
   "b_foldNat ^0 ?0 ?0 b_zero";
-  "b_foldNat ^0 b_succ b_zero";*)
+  "b_foldNat ^0 b_succ b_zero";
   "b_foldNatNat ^0 (b_foldNatNat ^0 ?0 ?0 ?0)";
   "b_foldNatNat ^0 ?0 ?0 b_zero";
-  (*"b_is_zero b_zero";
+  "b_is_zero b_zero";
   "b_max b_zero b_zero";
   "b_mul (b_succ b_zero)";
   "b_mul ?0 (b_succ b_zero)";
   "b_mul ?0 b_zero";
-  "b_mul b_zero";*)
+  "b_mul b_zero";
   "b_sub ?0 b_zero";
   "b_sub b_zero";
   "concat ^0 (nil ^0)";
   "const ^0 ^0 ?0 ?0";
-  (*"enumFromTo (b_succ b_zero)";
+  "enumFromTo (b_succ b_zero)";
   "enumTo b_zero";
-  "enumTo (prod ?0)";*)
+  "enumTo (prod ?0)";
   "flip ^0 ^0 ^0 ?0 ?0 ?0";
   "foldl ^0 ^0 ?0 ?0 (nil ^0)";
   "foldr ^0 ^0 (con ^0) (nil ^0)";
   "foldr ^0 ^0 ?0 ?0 (nil ^0)";
   (*"fst ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
   "head ^0 (con ^0 ?0 ?0)";
-  (*"head ^0 (enumFromTo ?0 ?0)";
-  "head ^0 (enumTo ?0)";*)
-  (*"head ^0 (map ^0 ^0 ?0 ?0)";*)
+  "head ^0 (enumFromTo ?0 ?0)";
+  "head ^0 (enumTo ?0)";
+  "head ^0 (map ^0 ^0 ?0 ?0)";
   "head ^0 (nil ^0)";
   "head ^0 (replicate ^0 ?0 ?0)";
   "is_nil ^0 (nil ^0)";
-  (*"length ^0 (con ^0 ?0 ?0)";*)
-  (*"length ^0 (enumFromTo ?0 ?0)";
+  "length ^0 (con ^0 ?0 ?0)";
+  "length ^0 (enumFromTo ?0 ?0)";
   "length ^0 (enumTo ?0)";
   "length ^0 (map ^0 ^0 ?0 ?0)";
   "length ^0 (nil ^0)";
-  "length ^0 (reverse ^0 ?0)";*)
+  "length ^0 (reverse ^0 ?0)";
   "map ^0 ^0 ?0 (nil ^0)";
   "maximum ^0 (nil ^0)";
   "not (not ?0)";
-  (*"prod (con ^0 ?0 (nil))";
+  "prod (con ^0 ?0 (nil))";
   "prod (con ^0 b_zero ?0)";
   "prod (nil ^0)";
-  "prod (reverse ^0 ?0)";*)
+  "prod (reverse ^0 ?0)";
   "replicate ^0 b_zero";
   "reverse ^0 (con ^0 ?0 (nil ^0))";
   "reverse ^0 (map ^0 ^0 ?0 (reverse ^0 ?0))";
   "reverse ^0 (nil ^0)";
   "reverse ^0 (reverse ^0 ?0)";
   (*"snd ^0 ^0 (pair ^0 ^0 ?0 ?0)";*)
-  (*"sum (con ^0 ?0 (nil ^0))";
+  "sum (con ^0 ?0 (nil ^0))";
   "sum (nil ^0)";
-  "sum (reverse ^0 ?0)";*)
+  "sum (reverse ^0 ?0)";
   "tail ^0 (con ^0 ?0 (nil))";
   "tail ^0 (enumFromTo ?0 ?0)";
   "tail ^0 (nil ^0)";
@@ -309,18 +327,21 @@ let test ~sym_lib_uni ~first_prog ~sym_def benchmark =
     | None -> "Not found") in
 
   print_endline (sprintf
-    "%s, %f, \"%s\", %f, \"%s\", %f, \"%s\", %d"
+    "%s, %f, \"%s\", %d, %f, \"%s\", %d, %f, \"%s\", %d, %d"
     benchmark.name
     time_plain
     solution_plain
+    (size_nof_nodes (parse_term solution_plain))
     time_blacklist
     solution_blacklist
+    (size_nof_nodes (parse_term solution_blacklist))
     time_templates
     solution_templates
+    (size_nof_nodes (parse_term solution_templates))
     nof_components)
 
 let test_all =
 
-  let () = print_endline "name, time plain (s), solution plain, time with blacklist (s), solution with blacklist, time with templates (s), solution with templates, nof components" in
+  let () = print_endline "name, time plain (s), solution plain, size, time with blacklist (s), solution with blacklist, size, time with templates (s), solution with templates, size, nof components" in
 
   List.map ~f:(test ~sym_lib_uni ~first_prog ~sym_def)  benchmarks

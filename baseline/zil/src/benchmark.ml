@@ -131,7 +131,8 @@ let is_even =
    goal_type = parse_type "Int -> Bool";
    examples = List.map ~f:example
                 [0;
-                 3];
+                 1;
+                 2];
   }
 
 
