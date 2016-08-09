@@ -83,26 +83,29 @@ In our simple intuitive explanation of the exponential dependency of the synthes
 Cost functions are an instrument to prioritize some programs over others and as such have an impact on the running time. We extensively evaluated three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component}. In the following we will see how they affect the runtime and which programs they prefer.
 
 \begin{description}
-\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes. This means that the programs
+\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes, in the hope that smaller programs generalise better the examples. However, this cost function gives the same cost to the following two programs.
 \begin{lstlisting}[style=plain]
 head [List Int -> List Int] (nil [List Int -> List Int]) ?xs
 map Int Int succ ?xs
 \end{lstlisting}
-will have the same cost. It seems natural that paired with the \textsc{Plain} strategy it leads usually to higher running time than other cost functions.
+It seems therefore natural that paired with the \textsc{Plain} strategy it usually leads to higher running times than other cost functions.
 
-\item[nof-nodes-simple-type] additionally penalises arrow types appearing in type applications. Its impact on the runtime is comparable to the introduction of pruning based on black lists.\TODO{Finish to write this section.\\} This preference leads to a larger solution for \lstinline!length!.
+\item[nof-nodes-simple-type] additionally penalises arrow types appearing in type applications. We can see it in the solution for \lstinline?length?. Two of the synthesis procedures that use this cost function find the larger solution
+\begin{lstlisting}
+length [X] xs
+    = sum (map [X] [Int] (const [Int] [X] (succ zero)) xs)
+\end{lstlisting}
+instead of the smaller
+\begin{lstlisting}
+length [X] xs
+    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs,
+\end{lstlisting}
+because the second one contains an arrow type in a type application.
+
+The impact on the runtime of this cost function is comparable to the introduction of pruning based on black lists. This has to do with the fact that polymorphic functions that apply in many cases but are rarely needed, like \lstinline?const? and \lstinline?flip?, tend to have long arrow types. In the \textsc{BlackList} exploration strategy those programs are filtered by the black list, the \textit{nof-nodes-simple-type} cost function assigns them a higher cost because of their types.
+
+\item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \TODO{put an example of foldnat foldnat foldnat mul (mul 3 3) 3 or \lstinline?enumTo prod enumTo prod?}, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that to not contain any type applications, like \TODO{put an example of succ add sub mul prod}.
 \end{description}
-
-
-How cost functions influence the search space (\lstinline!(head (^26 -> ^27 -> Int) (nil (^26 -> ^27 -> Int))) ?2 ?3! has too complicated types appearing in the term, so it will have a higher cost in some of the cost functions. \lstinline!foldnat foldnat foldnat mul (mul 3 3) 3! takes a lot of time to evaluate, it will have a higher cost in no-same-component).
-
-\begin{itemize}
-\item Idea behind nof-nodes: smaller programs generalize better to the examples
-\item Idea behind nof-nodes-simple-types: programs with smaller types are less "useless" (example with \lstinline?head nil?). Favor the use of input variables. But now a lot of "simple" but difficult to evaluate programs are synthesised, like the \lstinline?enumTo prod enumTo prod?.
-\item Idea behind no-same-component: there are components that are usually used only once in a program, like \lstinline?foldr?, \lstinline?foldNat?. Another thing is that we penalize also complicated types of the form \lstinline?List (List (^5 -> List ^4))? that had no additional cost in nof-nodes-simple-types. But now types overweight the number of nodes and simple programs like \lstinline?foldr add zero _0? weight more than programs like \lstinline?add mul sub prod enumTo...?.
-\item Idea behind no-same-component-bigger-constants: make all constants bigger so that we can differentiate more between the constants and so that nodes count more than types.
-\item Idea behind no-same-component-even-bigger-constants: see above. (well, then you failed. your constants for types are pretty much as big as those for terms...). Why it's bad? See above.
-\end{itemize}
 
 \subsection{Examples}
 Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
@@ -175,22 +178,22 @@ We used the stack-based expansion strategy throughout all runtime evaluations of
 
 \section{Synthesised solutions}
 \TODO{Rewrite programs in normal style and put listing blocks with programs instead of inlining everything\\}
-Most of the synthesised solutions are precisely the ones we would have written by hand. Interestingly, for some programs different variants of the synthesis procedure find two different valid programs of the same size. For example, for \lstinline?replicate? we find following two solutions.
+Most of the synthesised solutions are precisely the ones we would have written by hand. For some programs different variants of the synthesis procedure find two different valid programs of the same size. For example, for \lstinline?replicate? we find following two solutions.
 \begin{lstlisting}
 replicate [X] n x
     = map Int [X] (const [X] Int x) (enumTo n)
-    = foldNat (List X) (con [X] x) (nil [X]) n
+    = foldNat [List X] (con [X] x) (nil [X]) n
 \end{lstlisting}
 
 
-Sometimes, as for example for \lstinline?length?, two solutions of different sizes are found.
-\begin{lstlisting}
-length [X] xs
-    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs
-    = sum (map [X] [Int] (const [Int] [X] (succ zero)) xs)
-\end{lstlisting}
- The reason is that the cost function \textit{nof-nodes-simple-type} assigns a higher cost to the first solution, as it contains an arrow type.
-
+%Sometimes, as for example for \lstinline?length?, two solutions of different sizes are found.
+%\begin{lstlisting}
+%length [X] xs
+%    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs
+%    = sum (map [X] [Int] (const [Int] [X] (succ zero)) xs)
+%\end{lstlisting}
+% The larger program is sometimes found before the smaller one because the cost function \textit{nof-nodes-simple-type} assigns a higher cost to the first solution, as it contains an arrow type.
+%
 For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one of such programs and \lstinline?foldl? for the other.
 
 Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where following two solutions are found.
