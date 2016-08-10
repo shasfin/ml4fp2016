@@ -10,8 +10,6 @@ Definitions:
 Evaluation:
 - automatic blacklist (part of it)
 - rewrite automatic black list generation
-- structurise section about the first experiment
-- add a summary of the table (what is better and why)
 
 
 Introduction:
@@ -30,6 +28,8 @@ Conclusion and future work:
 Done 10.08.2016:
 - table of comparison to related work
 - manual blacklist
+- structurise section about the first experiment
+- add a summary of the table (what is better and why)
 
 Done 09.08.2016:
 - Format solutions (more listing blocks, rewrite programs in normal style)
