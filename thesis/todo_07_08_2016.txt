@@ -10,7 +10,6 @@ Definitions:
 Evaluation:
 - manual blacklist
 - automatic blacklist (part of it)
-- table of comparison to related work
 - rewrite automatic black list generation
 - structurise section about the first experiment
 - add a summary of the table (what is better and why)
@@ -29,6 +28,8 @@ Implementation:
 Conclusion and future work:
 - outline
 
+Done 10.08.2016:
+- table of comparison to related work
 
 Done 09.08.2016:
 - Format solutions (more listing blocks, rewrite programs in normal style)

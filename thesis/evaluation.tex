@@ -314,6 +314,7 @@ Considering that our tool is just standard type-aware best-first enumeration, it
 
 \begin{table}
 \pgfplotstabletypeset[
+    col sep=comma,
 	column type=l,
 	every head row/.style={
 		before row={%
@@ -325,21 +326,25 @@ Considering that our tool is just standard type-aware best-first enumeration, it
 			& \multicolumn{2}{c}{$\lambda^2$}
 			& \multicolumn{2}{c}{\textsc{Escher}}
 			& \multicolumn{2}{c}{\textsc{Myth}}\\
-			\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+			\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
 		},
 		after row=\midrule,
 	},
 	every last row/.style={
 		after row=\bottomrule},
-	columns/program/.style = {string type,column name=program},
-	columns/base/.style = {column name=base},
-	columns/O20000/.style = {sci,sci 10e,column name={20000}},
-	columns/O2000000/.style = {sci,sci 10e,column name={2000000}},
-	columns/S200/.style = {sci,sci 10e,column name={200}},
-	columns/S20000/.style = {sci,sci 10e,column name={20000}},
-	columns/S2000000/.style = {sci,sci 10e,column name={2000000}},
-]{rand_space_norm.dat}
-\caption{Number of words allocated by the random tests in Poly/ML with lists of length $200$, $20000$ and $2000000$. All values are normalized with respect to the base: the number of words allocated by the original version with a list of length $200$. Programs where laziness plays an important role are printed in bold.\label{random alloc}}
+	columns/name/.style = {string type,column name=name},
+	columns/nof-examples-tamandu/.style = {column type=r,column name=spec},
+	columns/time-tamandu/.style = {fixed,column type=r,column name=time},
+	columns/spec-size-synquid/.style = {column type=r,column name=spec},
+	columns/time-synquid/.style = {fixed,column type=r,column name=time},
+	columns/nof-examples-lambda/.style = {column type=r,column name=spec},
+	columns/time-lambda/.style = {fixed,column type=r,column name=time},
+	columns/nof-examples-escher/.style = {column type=r,string type,column name=spec},
+	columns/time-escher/.style = {fixed,column type=r,column name=time},
+	columns/nof-examples-myth/.style = {column type=r,column name=spec},
+	columns/time-myth/.style = {fixed,column type=r,column name=time},
+]{comparison.dat}
+\caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. \label{comparisontable}}
 \end{table}
 
 
