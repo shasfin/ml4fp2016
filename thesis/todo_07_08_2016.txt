@@ -11,6 +11,9 @@ Evaluation:
 - manual blacklist
 - automatic blacklist (part of it)
 - table of comparison to related work
+- rewrite automatic black list generation
+- structurise section about the first experiment
+- add a summary of the table (what is better and why)
 
 
 Introduction:

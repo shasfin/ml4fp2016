@@ -312,6 +312,35 @@ The number of provided components also changes across the tools. With $36$ to $3
 
 Considering that our tool is just standard type-aware best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
 
+\begin{table}
+\pgfplotstabletypeset[
+	column type=l,
+	every head row/.style={
+		before row={%
+			\toprule
+			% program name
+		    %& % base
+			& \multicolumn{2}{c}{Our tool}
+			& \multicolumn{2}{c}{\textsc{Synquid}}
+			& \multicolumn{2}{c}{$\lambda^2$}
+			& \multicolumn{2}{c}{\textsc{Escher}}
+			& \multicolumn{2}{c}{\textsc{Myth}}\\
+			\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+		},
+		after row=\midrule,
+	},
+	every last row/.style={
+		after row=\bottomrule},
+	columns/program/.style = {string type,column name=program},
+	columns/base/.style = {column name=base},
+	columns/O20000/.style = {sci,sci 10e,column name={20000}},
+	columns/O2000000/.style = {sci,sci 10e,column name={2000000}},
+	columns/S200/.style = {sci,sci 10e,column name={200}},
+	columns/S20000/.style = {sci,sci 10e,column name={20000}},
+	columns/S2000000/.style = {sci,sci 10e,column name={2000000}},
+]{rand_space_norm.dat}
+\caption{Number of words allocated by the random tests in Poly/ML with lists of length $200$, $20000$ and $2000000$. All values are normalized with respect to the base: the number of words allocated by the original version with a list of length $200$. Programs where laziness plays an important role are printed in bold.\label{random alloc}}
+\end{table}
 
 
 %%% Local Variables:
