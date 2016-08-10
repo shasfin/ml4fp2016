@@ -170,6 +170,40 @@ f n m =
 \end{lstlisting}
 \TODO{If you have time, try to figure out what mathematical function it corresponds to}.
 
+\begin{longtable}{l l}
+\lstinline?append nil? & \lstinline?head (enumFromTo _ _)?\\
+\lstinline?append _ nil? & \lstinline?head (enumTo _)?\\
+\lstinline?add _ zero? & \lstinline?head (map _ _)?\\
+\lstinline?add zero? & \lstinline?head nil?\\
+\lstinline?div _ zero? & \lstinline?head (replicate _ _)?\\
+\lstinline?div _ (succ zero)? & \lstinline?isNil nil?\\
+\lstinline?div zero? & \lstinline?length (con _ _)?\\
+\lstinline?div (succ zero)? & \lstinline?length (enumFromTo _ _)?\\
+\lstinline?foldNat _ _ zero? & \lstinline?length (enumTo _)?\\
+\lstinline?foldNat succ zero? & \lstinline?length (map _ _)?\\
+\lstinline?foldNatNat (foldNatNat _ _ _)? & \lstinline?length nil?\\
+\lstinline?foldNatNat _ _ zero? & \lstinline?length (reverse _)?\\
+\lstinline?isZero zero? & \lstinline?map _ nil?\\
+\lstinline?max zero zero? & \lstinline?maximum nil?\\
+\lstinline?mul (succ zero)? & \lstinline?not (not _)?\\
+\lstinline?mul _ (succ zero)? & \lstinline?prod (con _ nil)?\\
+\lstinline?mul _ zero? & \lstinline?prod (con zero _)?\\
+\lstinline?mul zero? & \lstinline?prod nil?\\
+\lstinline?sub _ zero? & \lstinline?prod (reverse _)?\\
+\lstinline?sub zero? & \lstinline?replicate zero?\\
+\lstinline?concat nil? & \lstinline?reverse (con _ nil)?\\
+\lstinline?const _ _? & \lstinline?reverse (map _ (reverse _))?\\
+\lstinline?enumFromTo (succ zero)? & \lstinline?reverse nil?\\
+\lstinline?enumTo zero? & \lstinline?reverse (reverse _)?\\
+\lstinline?enumTo (prod _)? & \lstinline?sum (con _ nil)?\\
+\lstinline?flip _ _ _? & \lstinline?sum nil?\\
+\lstinline?foldl _ _ nil? & \lstinline?sum (reverse _)?\\
+\lstinline?foldr con nil? & \lstinline?tail (con _ nil)?\\
+\lstinline?foldr _ _ nil? & \lstinline?tail (enumFromTo _ _)?\\
+\lstinline?head (con _ _)? & \lstinline?tail nil?\\
+\caption{Manually compiled black list patterns used for evaluation in the \textsc{BlackList} exploration strategy.\label{fig:manual_blacklist}}
+\end{longtable}
+
 In Table~\ref{fig:gianttable} we see that the runtime profits the most from the introduction of black list pruning when we use the cost function \textit{nof-nodes}.
 The running time drops less significantly if we use other cost functions. A possible explanation of this behaviour could be the fact that other cost functions give a higher cost to those programs that are filtered with our black list.
 
@@ -291,7 +325,6 @@ The first two points can be addressed with small modifications to the experiment
 The third point is way more complex. Partial evaluation of programs with holes could help to some extent, but at the end it is about the ability to abstract and generalise over programs.
 
 \section{Comparison to related work}
-\TODO{Put the table in LaTeX\\}
 We compare our synthesis procedure that uses the \textsc{Blacklist} exploration strategy combined with the \textit{nof-nodes-simple-type} cost functions with the state-of-the-art tools we reviewed \TODO{use another word} in Chapter~\ref{ch:relatedwork}. The results are summarised in Table~\ref{fig:comparisontable}, where for each tool we provide the specification size (expressed in number of examples for example-based tools and in AST nodes for \textsc{Synquid}) and the runtime.
 
 Since the running times were taken from the respective papers and were not run on the same machine, we cannot directly compare performance. However, the case of \lstinline?droplast?, where \textsc{$\lambda^2$} takes around \SI{300}{s} and our tool only \SI{0.06}{s}, cannot be explained only by the difference in the hardware. Providing the right components, in this case \lstinline?reverse? and \lstinline?tail?, helps the synthesis tool to find a solution faster.
