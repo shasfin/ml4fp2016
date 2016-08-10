@@ -8,8 +8,6 @@ Definitions:
 
 
 Evaluation:
-- automatic blacklist (part of it)
-- rewrite automatic black list generation
 
 
 Introduction:
@@ -30,6 +28,9 @@ Done 10.08.2016:
 - manual blacklist
 - structurise section about the first experiment
 - add a summary of the table (what is better and why)
+- rewrite automatic black list generation
+- do all todos (including tetration)
+- rewrite caption of giant table
 
 Done 09.08.2016:
 - Format solutions (more listing blocks, rewrite programs in normal style)
