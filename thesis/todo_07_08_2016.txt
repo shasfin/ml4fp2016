@@ -1,7 +1,7 @@
 Pool of sections to write:
 
 Definitions:
-- search, exploration --> easy
+- notation for deuniversalise and dearrowise, consisten through the whole chapter
 - blacklist --> easy
 - templates --> medium
 
@@ -26,6 +26,7 @@ Done 11.08.2016:
 - improve structure of evaluation
 - proofread first part of definitions (until unification)
 - type unification --> medium
+- search, exploration --> easy
 
 Done 10.08.2016:
 - table of comparison to related work

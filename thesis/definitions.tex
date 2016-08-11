@@ -181,8 +181,8 @@ $\Delta$ is the library of components. Each named term is bound to its definitio
 \end{plstx}
 Since this is a proper subset of the second calculus presented in this section, we do not need separate typing and evaluation rules.
 
-The synthesiser synthesises programs over the target language. A \textbf{program} is defined as a quadriplet $\{\Xi, \Phi, \Delta \vdash t :: T\}$, where $t$ is a term of the target language.
-A program is called \emph{closed} if $\Xi$ is empty and $t$ and $T$ do not contain holes.
+\paragraph{Program} A program is defined as the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T\}$, where $t$ is a term of the target language. A program is called \emph{closed} if $\Xi$ is empty and $t$ and $T$ do not contain holes.
+
 
   \subsection{Encodings}
 Note that in the definition of types we do not see familiar types such as booleans, integers or lists. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it is more efficient in our case.
@@ -361,26 +361,37 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 \end{algorithm} 
 
 \section{Search}
-\TODO{Write this section\\}
-how do we explore the search space (best-first search).
+\TODO{Find a general notation for the deuniversalise and dearrowise thing, it looks very confusing. Define it somewhere in the beginning and use always the same. A good way is to couple fresh(T) with c [T] [T] [T]. Apply fresh holes to the component, THEN unify.\\}
+After defining the target language, the type checking and the evaluation semantics, we are ready to formally define the problem.
+
+\paragraph{Problem definition} Given a library $\Delta$, a goal type $T$ and a list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ in the target language such that
+\begin{enumerate}[(i)]
+\item the abstraction of $t$ over all of its type and term input variables has the goal type under an empty variable binding context and an empty hole binding context, that is $\emptyset, \emptyset, \Phi_1, \Delta \vdash t' : T$ where $t'$ is \[\Lambda X_1.\; \ldots\; \Lambda X_j.\; \lambda x_1.\; \ldots\; \lambda x_k.\; [I_1 \mapsto X_1, \ldots, I_j \mapsto X_j, i_1 \mapsto x_1, \ldots, x_k \mapsto x_k]t.\]
+\item $t$ satisfies all input-output examples, that is $\Phi_n, \Delta \vdash t \longrightarrow^* t'$ and $\Phi_n, \Delta \vdash o_n \longrightarrow^* t'$ for all $n = 1, \ldots, N$.
+\end{enumerate}
+
+In Section~\ref{Search space} we define the search space and in Section~\ref{Exploration} we describe the main enumeration algorithm, a standard best-first search.
+
 \subsection{Search space}\label{Search space}
-Use only third system presented in Section System F.
+We see the search space as a graph, where the vertices correspond to \emph{programs}. Recall that a program is the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T'\}$, where $t$ is a term of the target language. The type $T'$ can be transformed into the goal type $T$ abstracting over all type and term input variables. That is, if $\Phi$ contains the type input variables $I_1, \ldots, I_j$ and the signatures of the term input variables $i_1 : T_1, \ldots, i_k : T_k$, then the goal type $T$ should be equal to
+\[\forall X_1.\; \ldots \forall X_j.\; [I_1 \mapsto X_1, \ldots, I_j \mapsto X_j] (T_1 \rightarrow \ldots \rightarrow T_k \rightarrow T').\]
 
-Formal problem definition. Given a library $\Delta$, a goal type $T$ and a list of I/O-examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ so that $\emptyset, \emptyset, \Phi_1, \Delta \vdash t : T$ (that is, $t$ has the goal type under an empty variable binding context and an empty hole binding context) and $t$ satisfies all I/O-examples, that is $\Phi_n, \Delta \vdash t \longrightarrow^* \vdash t'$ and $\Phi_n, \Delta \vdash o_n \longrightarrow^* \vdash t'$ for all $n = 1, \ldots, N$.
+There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 :: T'\}$ and $\{\Xi_2, \Phi, \Delta \vdash t_2 :: T'\}$ if and only if the judgement \emph{derive} (defined below) $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
 
-We see the search space as a graph of programs with holes (see third syntax presented in Section System F) where there is an edge between two terms $t_1$ and $t_2$ if and only if the judgement \emph{derive} defined below $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
+To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
 
-To express the rules in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
-
-A hole $?x$ can be turned into a library component $c$ from the context $\Delta$ or an input variable $i$ from the context $\Phi$. The procedure fresh($T$) transforms universally quantified type variables into fresh type variables $?X$ not used in $\Xi$.
-The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigma$ to all types contained in the context $\Delta$.
+The derive judgement can be summarised by the following four rules.\\
+D-VarLib and D-VarInp replace a hole $?x$ by a library component $c$ from the context $\Delta$ \TODO{type application. For universally typed $c$ it's not $c$ but $c\;[T_1]\;\ldots\;[T_k]$ for some types or fresh type holes}, or an input variable $i$ from the context $\Phi$, respectively, if they have the right type. The procedure fresh($T$) removes the universal quantifiers and replaces the bound type variables $X$ with fresh type holes $?X$ not used in $\Xi$.
+The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigma$ to all types contained in the context $\Delta$.\\
+D-VarApp turns a hole into a term application of two fresh holes.\\
+The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
 
 \begin{prooftree}
 \AxiomC{$c : T_c \in \Delta$}
 \AxiomC{$\sigma$ unifies $T$ with fresh($T_c$)}
 	\RightLabel{D-VarLib}
 	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash c :: \sigma(T) $
-	}
+	\TODO{type application $c\;[T_1]\;\ldots\;[T_k]$ depending on $T_c$ and $\sigma$}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -391,7 +402,7 @@ The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigm
 	}
 \end{prooftree}
 
-A hole can also be turned into a function application of two new active holes.
+
 \begin{prooftree}
 \AxiomC{$?X$ is a fresh type variable}
 \AxiomC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
@@ -399,7 +410,7 @@ A hole can also be turned into a function application of two new active holes.
 	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
 \end{prooftree}
 
-In all other cases we just choose a hole and expand it according to the three rules above.
+
 \begin{prooftree}
 \AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
 	\RightLabel{D-App}
@@ -413,6 +424,15 @@ Note that the types of all successor programs unify with the types of their ance
 \TODO{Write this section\\}
   \note{Write also about stack vs queue of open holes}
 Say that it's standard, we just review it.
+
+what we want to say in this section
+
+
+
+what do we want to have in this section
+\begin{itemize}
+\item section Best-first search $\longrightarrow$ standard enumeration. We can tweak it in two points: which hole first and what program first. Write about stack vs queue and refer to next section for cost functions. Or do another sections about it? Section or subsection? In best-first search or already in the search space?
+\end{itemize}
 
 
 We explore the search graph using a best first search.
