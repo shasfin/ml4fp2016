@@ -27,6 +27,7 @@ Done 11.08.2016:
 - proofread first part of definitions (until unification)
 - type unification --> medium
 - search, exploration --> easy
+- think of a solution for the notation problem
 
 Done 10.08.2016:
 - table of comparison to related work

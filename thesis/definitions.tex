@@ -362,6 +362,18 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 
 \section{Search}
 \TODO{Find a general notation for the deuniversalise and dearrowise thing, it looks very confusing. Define it somewhere in the beginning and use always the same. A good way is to couple fresh(T) with c [T] [T] [T]. Apply fresh holes to the component, THEN unify.\\}
+I can either say that I apply fresh holes to a library component until no universal quantifiers are left and then unify the type of this new component with the "goal type". I need it in three places:
+\begin{enumerate}
+\item in unification, when I say how I can unify universally quantified variables
+\item in the problem definition, when I relate the goal type with the type of the programs.
+\item in the successor rules, in the rule D-VarLib, when you say that you can replace a hole with a library component with the right type. Well, actually not the component, but the type application of the component to $\sigma$ of the fresh holes we applied to the component in order to make unification possible.
+\end{enumerate}
+
+
+Let $\mathcal{A}$ be the class of quantifier-free types. Try to do it with fresh holes and explicit type holes. You can also need a class of arrow- and quantifier-free types. Say then that the goal type has the form bla bla bla and introduce it like that.
+
+Summary: in unification say that you have unification only for quantifier-free types. Say that this still allows to have universally quantified components and explain the trick with the fresh holes. In the problem definition: see above. In the successor rule: decompose type of component as $T_c = \forall X. \forall Y. T(X,Y)$, then take two fresh holes, unify $T(?X,?Y)$ with the type of the hole and instantiate the hole with $c\; [\sigma(?X)]\; [\sigma(?Y)]$.
+\TODO{End of notation discussion\\}
 After defining the target language, the type checking and the evaluation semantics, we are ready to formally define the problem.
 
 \paragraph{Problem definition} Given a library $\Delta$, a goal type $T$ and a list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ in the target language such that
@@ -426,7 +438,14 @@ Note that the types of all successor programs unify with the types of their ance
 Say that it's standard, we just review it.
 
 what we want to say in this section
-
+\begin{itemize}
+\item it's standard
+\item it's best-first search
+\item algorithm
+\item there are two points that can be tweaked
+\item stack vs queue expansion (mention it at least)
+\item mention cost functions and refer to the next section
+\end{itemize}
 
 
 what do we want to have in this section
