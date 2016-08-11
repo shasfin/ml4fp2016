@@ -14,7 +14,7 @@ In the second experiment the synthesiser is used to automatically generate a \em
 
 All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the code is sequential, the performance could not benefit from the number of cores. The performance numbers are averages from 1 to 3 different executions all sharing the same specification, that is the goal type, the given examples and the set of components do not change between different executions.
 
-\subsection{Evaluation on benchmarks}\label{Evaluation on benchmarks}
+\section{Performance evaluation}\label{Evaluation on benchmarks}
 
 We evaluated nine variants of our synthesis procedure, crossing the three exploration strategies with three of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are the following.
 
@@ -34,10 +34,18 @@ Table~\ref{fig:nofnodestable} lists the benchmarks along with the size of the so
 In the last three columns of Table~\ref{fig:gianttable}, in order to meet the needs of all benchmarks, we used four different sets of $19$ components.
 
 \paragraph{Timeout} Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textsc{Plain} and \textsc{BlackList} the execution had been stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textsc{Template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the \textsc{Plain} procedure. For the cost function \textit{nof-nodes} this corresponds to circa \SI{4}{min}.
+
+\subsection{Results}\label{Table summary}
+Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $36$ to $37$ library components, all variants synthesised at least $18$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
+
+The variants that use the \textsc{BlackList} exploration strategy can synthesise the most number of benchmarks: for two cost functions they generate all $23$ benchmark programs within the time limit, for the cost function \textit{no-same-component} they fail to synthesise \lstinline?enumFromTo?. They synthesise half of the benchmarks in under \SI{0.2}{s} on average and $17$ benchmark programs in under \SI{1}{s}.
+
+The variants that use the \textsc{Plain} exploration strategy can synthesise from $21$ to $22$ benchmark programs depending on the cost function. They are on average $8$ times slower than the variant that combines the \textsc{BlackList} exploration strategy with the \textit{nof-nodes-simple-type} cost function. However, $15$ benchmarks are synthesised less than $3$ times slower and for $3$ of them the running times are actually lower. In the case of \lstinline?enumTo? the solution found by the other variants, \lstinline?enumTo n = enumFromTo (succ zero) n?, contains a pattern forbidden by the black list we used to prune the search space. The other two benchmarks have very short, simple solutions for which the overhead of checking every program against the black list is not balanced out by a substantial pruning of the search space.
+
+The variants of our synthesis procedure that use the \textsc{Template} exploration strategy can synthesise only $18$ to $19$ benchmark programs within the time out. Moreover, they are on average $1680$ times slower than the variant that uses the \lstinline?BlackList? exploration strategy combined with the \textit{nof-nodes-simple-type} cost function. However, this value is pushed up by the benchmark \lstinline?factorial?. For half of the $18$ benchmarks all variants can synthesise this value is less than $20$ and $15$ of them are no more than $90$ times slower than the variant that combines \textsc{BlackList} with \textit{nof-nodes-simple-types}.
 \input{gianttable}
 
-
-\subsection{Automatic black list generation}\label{Black list generation}
+\section{Automatic black list}\label{Black list generation}
 We also used our system to generate an automatic black list based on the identity function. We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type. We chose to generate programs corresponding to the identity function over integers, lists of integers and lists of lists of integers.
 
 To that end, we first used the synthesis procedure that combines the \textsc{Plain} exploration strategy with the \textit{nof-nodes} cost function to synthesise the first $8$ programs of type \lstinline?Int?, respectively \lstinline?List Int? or \lstinline?List (List Int)?. For this step we provided only the constructors \lstinline?con, nil, succ, zero? to the synthesiser. We paired each synthesised program with itself to generate and input-output example.
@@ -52,17 +60,8 @@ we used the synthesis procedure that combines the \textsc{Plain} exploration str
 
 After removing duplicates and the classical program corresponding to the identity function, that is \lstinline?id x = x?, we got $212$ black list patterns. Section~\ref{Automatic black list} reviews the quality of the generated black list.
 
-\section{Results}
-\subsection{Runtime on benchmarks}\label{Table summary}
-Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $36$ to $37$ library components, all variants synthesised at least $18$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
 
-The variants that use the \textsc{BlackList} exploration strategy can synthesise the most number of benchmarks: for two cost functions they generate all $23$ benchmark programs within the time limit, for the cost function \textit{no-same-component} they fail to synthesise \lstinline?enumFromTo?. They synthesise half of the benchmarks in under \SI{0.2}{s} on average and $17$ benchmark programs in under \SI{1}{s}.
-
-The variants that use the \textsc{Plain} exploration strategy can synthesise from $21$ to $22$ benchmark programs depending on the cost function. They are on average $8$ times slower than the variant that combines the \textsc{BlackList} exploration strategy with the \textit{nof-nodes-simple-type} cost function. However, $15$ benchmarks are synthesised less than $3$ times slower and for $3$ of them the running times are actually lower. In the case of \lstinline?enumTo? the solution found by the other variants, \lstinline?enumTo n = enumFromTo (succ zero) n?, contains a pattern forbidden by the black list we used to prune the search space. The other two benchmarks have very short, simple solutions for which the overhead of checking every program against the black list is not balanced out by a substantial pruning of the search space.
-
-The variants of our synthesis procedure that use the \textsc{Template} exploration strategy can synthesise only $18$ to $19$ benchmark programs within the time out. Moreover, they are on average $1680$ times slower than the variant that uses the \lstinline?BlackList? exploration strategy combined with the \textit{nof-nodes-simple-type} cost function. However, this value is pushed up by the benchmark \lstinline?factorial?. For half of the $18$ benchmarks all variants can synthesise this value is less than $20$ and $15$ of them are no more than $90$ times slower than the variant that combines \textsc{BlackList} with \textit{nof-nodes-simple-types}.
-
-\subsection{Automatic black list}\label{Automatic black list}
+\subsection{Results}\label{Automatic black list}
 We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s}. Because of their incremental nature, we need $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
 
 For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
@@ -391,7 +390,7 @@ Considering that our tool is just standard type-aware best-first enumeration, it
 	columns/nof-examples-myth/.style = {column type=r,column name=spec},
 	columns/time-myth/.style = {fixed,column type=r,column name=time},
 ]{comparison.dat}
-\caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. \label{fig:comparisontable}}
+\caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. The cells corresponding to benchmarks that were not tested with the respective tool are left empty.\label{fig:comparisontable}}
 \end{table}
 
 
