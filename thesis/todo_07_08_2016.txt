@@ -1,7 +1,6 @@
 Pool of sections to write:
 
 Definitions:
-- type unification --> medium
 - search, exploration --> easy
 - blacklist --> easy
 - templates --> medium
@@ -22,6 +21,11 @@ Implementation:
 
 Conclusion and future work:
 - outline
+
+Done 11.08.2016:
+- improve structure of evaluation
+- proofread first part of definitions (until unification)
+- type unification --> medium
 
 Done 10.08.2016:
 - table of comparison to related work

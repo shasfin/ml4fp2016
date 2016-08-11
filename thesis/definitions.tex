@@ -321,21 +321,19 @@ T-Abs types a lambda abstraction as an arrow type from the type of its variable 
 An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
 \subsection{Type unification}
-\TODO{Write this\\}
 
-Need it to see which component can be used to expand a given hole.
+In order to identify the library components that can be used to instantiate a hole of a given type, we need type unification. Consider, for example, a hole of type \lstinline?List Int -> Int?. We want to instantiate this hole not only with components that have precisely this type, like \lstinline?sum? and \lstinline?prod?, but also components with a more general type that can be matched to the desired type through type application, like \lstinline?head :: $\forall$X. List X -> X? and \lstinline?length :: $\forall$X. List X -> Int?.
 
-Since unification on System F types is undecidable \cite{Huet1975}, we decided to do something simpler. Explain what. Boom, fertig, party.
+Alas, unification on the type system of System F is undecidable \cite{Huet1975}. Therefore we chose to restrict our type system to universally quantified types, that is types whose universal quantifiers are at the toplevel. For example, \lstinline?$\forall$X. $\forall$Y. X -> Y? is such a type, whereas \lstinline?Int -> ($\forall$X. X -> Int)? is not. This allows us to completely ignore universal types during unification. Instead, we represent universal types in the library as not universal types where we replace each universally quantified variable with a fresh hole. That is, the type of \lstinline?length? is stored in the library as \lstinline!List ?X -> Int!.
 
-The unification algorithm is based on the unification algorithm for typed lambda calculus from the book of Pierce \TODO{cite the book properly!!!} and slightly modified to fit our needs.
-  
-How did you do type unification?
-Unification of universal types is not implemented. If you need to unify to universal types, you should transform all bound variables into holes and remove the universal quantifier.
+Our unification algorithm (summarised as Algorithm~\ref{alg:type unification} below) is based on the unification algorithm for typed lambda calculus from \cite{pierce2002types} and slightly modified to fit our needs.
 
-A set of constraints is a set of types that should be equal under a substitution. The unification algorithm is supposed to output a substitution $\sigma$ so that $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$.
+A set of constraints is a set of types that should be equal under a substitution. The unification algorithm is supposed to output a substitution $\sigma$ so that $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$. A substitution maps holes to types.
+
+A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unifies either with a type hole or with another arrow type \lstinline?$T_3$ -> $T_4$? if \lstinline?$T_1$? unifies with \lstinline?$T_3$? and \lstinline?$T_2$? with \lstinline?$T_4$?. A named type applied to all of its parameters \lstinline?C $T_{11}$ $\ldots$ $T_{1k}$? unifies either with a type hole or with the same named type applied to the same number of parameters \lstinline?C $T_{21}$ $\ldots$ $T_{2k}$? if the respective parameters \lstinline?$T_{1j}$? and \lstinline?$T_{2j}$? unify for all $j = 1, \ldots, k$. Universal  types unify only with type holes and should not appear in the set of constraints.
 
 \begin{algorithm}
-\caption{Type unification}
+\caption{Type unification\label{alg:type unification}}
 \KwIn{Set of constraints $\C = \{T_{11} = T_{12}, T_{21} = T_{22}, \ldots\}$}
 \KwOut{Substitution $\sigma$ so that $\sigma(T_{i1}) = \sigma(T_{i2})$ for every constraint $T_{i1} = T_{i2}$ in $\C$}
 
@@ -348,12 +346,12 @@ A set of constraints is a set of types that should be equal under a substitution
 		\uIf{$T_1 = T_2$}{
 			\textit{unify}$(\C')$
 		}\uElseIf{$T_1 = {?X}$ and ${?X}$ does not occur in $T_2$}{
-			\textit{unify}$([X \mapsto T_2]\C') \circ [X \mapsto T_2]$
+			\textit{unify}$([?X \mapsto T_2]\C') \circ [?X \mapsto T_2]$
 		}\uElseIf{$T_2 = {?X}$ and ${?X}$ does not occur in $T_1$}{
-			\textit{unify}$([X \mapsto T_1]\C') \circ [X \mapsto T_1]$
+			\textit{unify}$([?X \mapsto T_1]\C') \circ [?X \mapsto T_1]$
 		}\uElseIf{$T_1 = T_{11} \rightarrow T_{12}$ and $T_2 = T_{21} \rightarrow T_{22}$}{
 			\textit{unify}$(\C' \cup \{T_{11} = T_{21}, T_{12} = T_{22}\})$
-		}\uElseIf{$T_1 = C\;[T_{11}, T_{12}, \ldots, T_{1k}]$ and $T_2 = C\;[T_{21}, T_{22}, \ldots, T_{2k}]$}{
+		}\uElseIf{$T_1 = C\;T_{11}\; T_{12}\; \ldots\; T_{1k}$ and $T_2 = C\; T_{21}\; T_{22}\; \ldots,\; T_{2k}$}{
 			\textit{unify}$(\C' \cup \{T_{11} = T_{21}, T_{12} = T_{22}, \ldots, T_{1k} = T_{2k}\})$
 		}\Else{
 			\textit{fail}
