@@ -460,11 +460,10 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \end{algorithm}
 
 \section{Cost functions}\label{Cost functions}
-\TODO{write this section\\}
-The compare function in the best first search algorithm is \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to implement this cost function. We will present four alternatives.
+The compare function in the best-first search algorithm can be defined as \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to define this cost function. We will present four alternatives. All of them are based on the idea that shorter and simpler programs generalise better to unseen examples, along the lines of the Occam's razor principle \cite{computationalLearningTheory}. The first three alternatives were evaluated on benchmarks and their effect on performance is discussed in Section~\ref{Eval. Cost functions}.
 
   \paragraph{number of nodes}
-The first cost function is based only on the number of nodes of the term. Longer and more complicated terms are disadvantaged.
+The first cost function is based only on the number of nodes of the term. It prioritises shorter programs and prefers input variables over library components over holes.
 %
 \begin{algorithm}
 \caption{Cost function based on the number of nodes}
@@ -474,38 +473,31 @@ The first cost function is based only on the number of nodes of the term. Longer
 \textit{nof-nodes}$(c) = 1$\\
 \textit{nof-nodes}$({?x}) = 2$\\
 \textit{nof-nodes}$(i) = 0$\\
-\textit{nof-nodes}$(x) = 1$\\
-\textit{nof-nodes}$(\lambda x : T.\; t) = 1 + \textit{nof-nodes}(t)$\\
 \textit{nof-nodes}$(t_1\; t_2) = 1 + \textit{nof-nodes}(t_1) + \textit{nof-nodes}(t_2)$\\
-\textit{nof-nodes}$(\Lambda X.\; t) = 1 + \textit{nof-nodes}(t)$\\
 \textit{nof-nodes}$(t\; [T]) = 1 + \textit{nof-nodes}(t)$\\
 
 \end{algorithm} 
 %
-  \paragraph{number of nodes and types}
-The second cost function also adds a factor based on the types appearing in the term, thus penalizing terms with type application and very complicated types.
+  \paragraph{number of nodes and simple types}
+The second cost function also adds a factor based on the size of the types appearing in the term. It penalises thus terms with type application depending on the applied types. In particular, arrow types appearing in type applications are heavily penalised.
 %
 \begin{algorithm}
-\caption{Cost function based on the number of nodes and types}
+\caption{Cost function based on the number of nodes and the size of the types}
 \KwIn{term $t$}
 \KwOut{sum of weighted number of nodes in term $t$ and weighted number of nodes in the types appearing in $t$}
 
 \textit{nof-nodes-type}$(X) = 1$\\
 \textit{nof-nodes-type}$({?X}) = 0$\\
 \textit{nof-nodes-type}$(I) = 0$\\
-\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k]) = 0$\\
+\textit{nof-nodes-type}$(C\; T_1\; \ldots\; T_k) = 0$\\
 \textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
-\textit{nof-nodes-type}$(\forall X.\; T) = 1 + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
 
 \textit{nof-nodes-term}$(c) = 1$\\
 \textit{nof-nodes-term}$({?x}) = 2$\\
 \textit{nof-nodes-term}$(i) = 0$\\
-\textit{nof-nodes-term}$(x) = 1$\\
-\textit{nof-nodes-term}$(\lambda x : T.\; t) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
 \textit{nof-nodes-term}$(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
-\textit{nof-nodes-term}$(\Lambda X.\; t) = 1 + \textit{nof-nodes-term}(t)$\\
 \textit{nof-nodes-term}$(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
@@ -515,29 +507,24 @@ The second cost function also adds a factor based on the types appearing in the 
 %
 
   \paragraph{no same component}
-In the third function we additionally penalize terms using the same component more than once.
+In the third cost function we additionally penalize terms that use the same component more than once.
 %
-\begin{algorithm}[h]
+\begin{algorithm}
 \caption{Cost function based on the number of nodes and types penalizing the use of a library component more than once}
 \KwIn{term $t$}
 \KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
 
-\textit{nof-nodes-type}$(X) = 10$\\
 \textit{nof-nodes-type}$({?X}) = 3$\\
 \textit{nof-nodes-type}$(I) = 0$\\
-\textit{nof-nodes-type}$(C\; [T_1, \ldots, T_k])$= $4 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
+\textit{nof-nodes-type}$(C\; T_1\; \ldots\; T_k)$= $4 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
 \textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 5 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
-\textit{nof-nodes-type}$(\forall X.\; T) = 10 + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
 
 \textit{nof-nodes-term}$(c) = 3$\\
 \textit{nof-nodes-term}$({?x}) = 2$\\
 \textit{nof-nodes-term}$(i) = 0$\\
-\textit{nof-nodes-term}$(x) = 10$\\
-\textit{nof-nodes-term}$(\lambda x : T.\; t) = 10 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
 \textit{nof-nodes-term}$(t_1\; t_2) = 6 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
-\textit{nof-nodes-term}$(\Lambda X.\; t) = 10 + \textit{nof-nodes-term}(t)$\\
 \textit{nof-nodes-term}$(t\; [T]) = 5 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
 
 \BlankLine
@@ -553,7 +540,7 @@ In the third function we additionally penalize terms using the same component mo
 %
 
   \paragraph{length of the string}
-The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term is taking the length of the string of that term.
+The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
 \TODO{Write this section\\}
