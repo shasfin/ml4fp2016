@@ -1,7 +1,6 @@
 Pool of sections to write:
 
 Definitions:
-- blacklist --> easy
 - templates --> medium
 
 
@@ -23,6 +22,7 @@ Done 12.08.2016:
 - notation for deuniversalise and dearrowise, consistent through the whole chapter
 - exploration
 - cost functions --> easy
+- blacklist --> easy
 
 Done 11.08.2016:
 - improve structure of evaluation

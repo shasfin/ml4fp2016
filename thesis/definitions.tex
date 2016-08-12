@@ -543,12 +543,24 @@ In the third cost function we additionally penalize terms that use the same comp
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
-\TODO{Write this section\\}
-  \note{automatic generation of black list discussed in evaluation}
-A black list is a list of terms. Programs containing a black term as a subterm are not allowed to have successors. Thus, the algorithm above is modified as follows.
+Recall the 'replicate' example, where we saw the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
+
+A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
+
+The relation \textit{matches} over terms is inductively defined as follows.
+\begin{lstlisting}[style=algorithm]
+$\textit{matches}({?x},t)$
+$\textit{matches}(i,t)$
+$\textit{matches}(c,c)$
+$\textit{matches}(t_1\; t_2,t_3\; t_4)$ if $\textit{matches}(t_1,t_3)$ and $\textit{matches}(t_2,t_4)$
+$\textit{matches}(t_1\; [T_1],t_2\; [T_1])$ if $\textit{matches}(t_1,t_2)$
+\end{lstlisting}
+As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.
+
+Pruning based on black lists can be easily integrated in Algorithm~\ref{alg:best-first search}. The result is shown in Algorithm~\ref{alg:blacklist pruning}, where the differences to the original best-first search are highlighted in blue.
 
 \begin{algorithm}
-\caption{Best first search with black list}
+\caption{Best first search with black list\label{alg:blacklist pruning}}
 \KwIn{goal type $T$, library components $\Delta$, list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, black list $[b_1, \ldots , b_M]$}
 
 queue $\gets$ PriorityQueue.empty compare\\
@@ -568,7 +580,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \KwOut{PriorityQueue.top queue}
 \end{algorithm}
 
-One could use the synthesis algorithm presented in Section \ref{Exploration} to automatically synthesise black lists. For example,  one could synthesise many programs corresponding to the identity function or to the empty list or to any other term, and add all those programs but one to the black list.
+\TODO{Do I need a forward reference to evaluation? Automatic black lists in sections xy and manual black list in section yz}
 
 \section{Templates}\label{Templates}
 \TODO{Write this section\\}
