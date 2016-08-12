@@ -460,15 +460,16 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \end{algorithm}
 
 \section{Cost functions}\label{Cost functions}
+\TODO{General TODO: decide how do you want to call your cost functions. Now they are everywhere called nof-nodes, nof-nodes-simple-type and no-same-component. Maybe you want some simpler and shorter name.\\}
 The compare function in the best-first search algorithm can be defined as \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to define this cost function. We will present four alternatives. All of them are based on the idea that shorter and simpler programs generalise better to unseen examples, along the lines of the Occam's razor principle \cite{computationalLearningTheory}. The first three alternatives were evaluated on benchmarks and their effect on performance is discussed in Section~\ref{Eval. Cost functions}.
 
-  \paragraph{number of nodes}
+  \paragraph{nof-nodes}
 The first cost function is based only on the number of nodes of the term. It prioritises shorter programs and prefers input variables over library components over holes.
 %
-\begin{algorithm}
-\caption{Cost function based on the number of nodes}
-\KwIn{term $t$}
-\KwOut{weighted number of nodes in $t$}
+\begin{algorithm*}
+%\caption{Cost function based on the number of nodes}
+%\KwIn{term $t$}
+%\KwOut{weighted number of nodes in $t$}
 
 \textit{nof-nodes}$(c) = 1$\\
 \textit{nof-nodes}$({?x}) = 2$\\
@@ -476,15 +477,15 @@ The first cost function is based only on the number of nodes of the term. It pri
 \textit{nof-nodes}$(t_1\; t_2) = 1 + \textit{nof-nodes}(t_1) + \textit{nof-nodes}(t_2)$\\
 \textit{nof-nodes}$(t\; [T]) = 1 + \textit{nof-nodes}(t)$\\
 
-\end{algorithm} 
+\end{algorithm*} 
 %
-  \paragraph{number of nodes and simple types}
+  \paragraph{nof-nodes-simple-type}
 The second cost function also adds a factor based on the size of the types appearing in the term. It penalises thus terms with type application depending on the applied types. In particular, arrow types appearing in type applications are heavily penalised.
 %
-\begin{algorithm}
-\caption{Cost function based on the number of nodes and the size of the types}
-\KwIn{term $t$}
-\KwOut{sum of weighted number of nodes in term $t$ and weighted number of nodes in the types appearing in $t$}
+\begin{algorithm*}
+%\caption{Cost function based on the number of nodes and the size of the types}
+%\KwIn{term $t$}
+%\KwOut{sum of weighted number of nodes in term $t$ and weighted number of nodes in the types appearing in $t$}
 
 \textit{nof-nodes-type}$(X) = 1$\\
 \textit{nof-nodes-type}$({?X}) = 0$\\
@@ -503,16 +504,16 @@ The second cost function also adds a factor based on the size of the types appea
 \BlankLine
 
 \textit{nof-nodes-and-types}$(t) = \textit{nof-nodes-term}(t)$
-\end{algorithm} 
+\end{algorithm*} 
 %
 
-  \paragraph{no same component}
+  \paragraph{no-same-component}
 In the third cost function we additionally penalize terms that use the same component more than once.
 %
-\begin{algorithm}
-\caption{Cost function based on the number of nodes and types penalizing the use of a library component more than once}
-\KwIn{term $t$}
-\KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
+\begin{algorithm*}
+%\caption{Cost function based on the number of nodes and types penalizing the use of a library component more than once}
+%\KwIn{term $t$}
+%\KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
 
 \textit{nof-nodes-type}$({?X}) = 3$\\
 \textit{nof-nodes-type}$(I) = 0$\\
@@ -536,10 +537,10 @@ In the third cost function we additionally penalize terms that use the same comp
 \BlankLine
 
 \textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}(t)$
-\end{algorithm} 
+\end{algorithm*} 
 %
 
-  \paragraph{length of the string}
+  \paragraph{string-length}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
@@ -548,13 +549,13 @@ Recall the 'replicate' example, where we saw the superfluous program \lstinline!
 A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
 
 The relation \textit{matches} over terms is inductively defined as follows.
-\begin{lstlisting}[style=algorithm]
-$\textit{matches}({?x},t)$
-$\textit{matches}(i,t)$
-$\textit{matches}(c,c)$
-$\textit{matches}(t_1\; t_2,t_3\; t_4)$ if $\textit{matches}(t_1,t_3)$ and $\textit{matches}(t_2,t_4)$
-$\textit{matches}(t_1\; [T_1],t_2\; [T_1])$ if $\textit{matches}(t_1,t_2)$
-\end{lstlisting}
+\begin{algorithm*}
+\textit{matches}$({?x},t)$\\
+\textit{matches}$(i,t)$\\
+\textit{matches}$(c,c)$\\
+\textit{matches}$(t_1\; t_2,t_3\; t_4)$ if \textit{matches}$(t_1,t_3)$ and \textit{matches}$(t_2,t_4)$\\
+\textit{matches}$(t_1\; [T_1],t_2\; [T_1])$ if \textit{matches}$(t_1,t_2)$\\
+\end{algorithm*}
 As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.
 
 Pruning based on black lists can be easily integrated in Algorithm~\ref{alg:best-first search}. The result is shown in Algorithm~\ref{alg:blacklist pruning}, where the differences to the original best-first search are highlighted in blue.
@@ -580,15 +581,32 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \KwOut{PriorityQueue.top queue}
 \end{algorithm}
 
-\TODO{Do I need a forward reference to evaluation? Automatic black lists in sections xy and manual black list in section yz}
+In Section~\ref{Black list generation} we discuss how to synthesise such a black list automatically.
 
 \section{Templates}\label{Templates}
+In this section we present a slightly different way to explore the search space. The idea is to fix all higher-order components first, producing a \emph{template} for a program, and then fill in the remaining holes with input variables and first-order components. Since programs usually contain only a few higher-order components, the enumeration of templates takes less time than the enumeration of programs of comparable size. Moreover, templates encode well-known patterns of computation and impose meaningful constraints to the remaining holes. Therefore, it should be easy to find the desired program starting from the right template. This allows us to quickly abandon templates if no program satisfying the input-output examples is found within a short timeout.
+
+Double search
+
+
+
+In order to formally define a template, we must introduce a new term: the \emph{delayed hole} $\underline{?x}$. Intuitively, a delayed hole is a hole, whose instantiation is delayed
 \TODO{Write this section\\}
+
+What do I want to have in this section
+\begin{itemize}
+\item Formal definition of templates.
+\item template
+\item closed hole $\longrightarrow$ why do we need new holes for templates? For the new rules. So that we know which holes are we going to expand later and which now.
+\item Forward reference to evaluation?
+\end{itemize}
+
+
   Top-down type-driven synthesis.
 
 A template is a program with holes. We are interested in templates where all higher-order components are fixed and there are holes for the first-order components.
 The search space is thus similar to the search space described in \ref{Search space}, with the exception that $\Delta$ contains only the higher-order components.
-One of the new things are \emph{closed holes} $\underline{?x}$. Those are holes that are supposed to be filled in later with first-order components.
+One of the new things are \emph{closed holes} $\underline{?x}$. Those are holes that are supposed to be filled in later with first-order components. A template is \emph{closed} if it does not contain open holes. It may contain closed holes.
 
 The idea behind the templates is that once the higher-order components are fixed, it should be easy and fast to find a first-order assignment to get the right program. So we could do a limited search from a template and if we do not find a program satisfying all of the I/O-examples we can move quickly to the next template.
 
