@@ -1,15 +1,15 @@
 Pool of sections to write:
 
-Definitions:
-- templates --> medium
-
-
 Introduction:
 - outline
 
 Related work:
 - outline
 - text
+- Synquid
+- Lambda square
+- Escher
+- Myth
 
 Implementation:
 - outline
@@ -23,6 +23,7 @@ Done 12.08.2016:
 - exploration
 - cost functions --> easy
 - blacklist --> easy
+- templates --> medium
 
 Done 11.08.2016:
 - improve structure of evaluation

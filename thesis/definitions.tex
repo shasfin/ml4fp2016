@@ -466,79 +466,52 @@ The compare function in the best-first search algorithm can be defined as \lstin
   \paragraph{nof-nodes}
 The first cost function is based only on the number of nodes of the term. It prioritises shorter programs and prefers input variables over library components over holes.
 %
-\begin{algorithm*}
-%\caption{Cost function based on the number of nodes}
-%\KwIn{term $t$}
-%\KwOut{weighted number of nodes in $t$}
-
-\textit{nof-nodes}$(c) = 1$\\
-\textit{nof-nodes}$({?x}) = 2$\\
-\textit{nof-nodes}$(i) = 0$\\
-\textit{nof-nodes}$(t_1\; t_2) = 1 + \textit{nof-nodes}(t_1) + \textit{nof-nodes}(t_2)$\\
-\textit{nof-nodes}$(t\; [T]) = 1 + \textit{nof-nodes}(t)$\\
-
-\end{algorithm*} 
+\begin{lstlisting}[style=algorithm]
+$\textit{nof-nodes}(c) = 1$
+$\textit{nof-nodes}({?x}) = 2$
+$\textit{nof-nodes}(i) = 0$
+$\textit{nof-nodes}(t_1\; t_2) = 1 + \textit{nof-nodes}(t_1) + \textit{nof-nodes}(t_2)$
+$\textit{nof-nodes}(t\; [T]) = 1 + \textit{nof-nodes}(t)$
+\end{lstlisting}
 %
   \paragraph{nof-nodes-simple-type}
 The second cost function also adds a factor based on the size of the types appearing in the term. It penalises thus terms with type application depending on the applied types. In particular, arrow types appearing in type applications are heavily penalised.
 %
-\begin{algorithm*}
-%\caption{Cost function based on the number of nodes and the size of the types}
-%\KwIn{term $t$}
-%\KwOut{sum of weighted number of nodes in term $t$ and weighted number of nodes in the types appearing in $t$}
+\begin{lstlisting}[style=algorithm]
+$\textit{nof-nodes-type}(X) = 1$
+$\textit{nof-nodes-type}({?X}) = 0$
+$\textit{nof-nodes-type}(I) = 0$
+$\textit{nof-nodes-type}(C\; T_1\; \ldots\; T_k) = 0$
+$\textit{nof-nodes-type}(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$
 
-\textit{nof-nodes-type}$(X) = 1$\\
-\textit{nof-nodes-type}$({?X}) = 0$\\
-\textit{nof-nodes-type}$(I) = 0$\\
-\textit{nof-nodes-type}$(C\; T_1\; \ldots\; T_k) = 0$\\
-\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 3 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
+$\textit{nof-nodes-term}(c) = 1$
+$\textit{nof-nodes-term}({?x}) = 2$
+$\textit{nof-nodes-term}(i) = 0$
+$\textit{nof-nodes-term}(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$
+$\textit{nof-nodes-term}(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$
 
-\BlankLine
-
-\textit{nof-nodes-term}$(c) = 1$\\
-\textit{nof-nodes-term}$({?x}) = 2$\\
-\textit{nof-nodes-term}$(i) = 0$\\
-\textit{nof-nodes-term}$(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
-\textit{nof-nodes-term}$(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
-
-\BlankLine
-
-\textit{nof-nodes-and-types}$(t) = \textit{nof-nodes-term}(t)$
-\end{algorithm*} 
-%
+$\textit{nof-nodes-and-types}(t) = \textit{nof-nodes-term}(t)$
+\end{lstlisting}
 
   \paragraph{no-same-component}
 In the third cost function we additionally penalize terms that use the same component more than once.
 %
-\begin{algorithm*}
-%\caption{Cost function based on the number of nodes and types penalizing the use of a library component more than once}
-%\KwIn{term $t$}
-%\KwOut{sum of the weighted number of nodes in term $t$, the weighted number of nodes in the types appearing in $t$ and the weighted number of library components appearing more than once in $t$.}
+\begin{lstlisting}[style=algorithm]
+$\textit{nof-nodes-type}({?X}) = 3$
+$\textit{nof-nodes-type}(I) = 0$
+$\textit{nof-nodes-type}(C\; T_1\; \ldots\; T_k)$= $4 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$
+$\textit{nof-nodes-type}(T_1 \rightarrow T_2) = 5 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$
 
-\textit{nof-nodes-type}$({?X}) = 3$\\
-\textit{nof-nodes-type}$(I) = 0$\\
-\textit{nof-nodes-type}$(C\; T_1\; \ldots\; T_k)$= $4 + \textit{nof-nodes-type}(T_1) + \ldots + \textit{nof-nodes-type}(T_k)$\\
-\textit{nof-nodes-type}$(T_1 \rightarrow T_2) = 5 + \textit{nof-nodes-type}(T_1) + \textit{nof-nodes-type}(T_2)$\\
+$\textit{nof-nodes-term}(c) = 3$
+$\textit{nof-nodes-term}({?x}) = 2$
+$\textit{nof-nodes-term}(i) = 0$
+$\textit{nof-nodes-term}(t_1\; t_2) = 6 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$
+$\textit{nof-nodes-term}(t\; [T]) = 5 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$
 
-\BlankLine
+$\textit{count}(t) = \displaystyle \sum_{c_i \text{ appears in } t} \text{(occurrences of } c_1 \text{ in } t) - 1$
 
-\textit{nof-nodes-term}$(c) = 3$\\
-\textit{nof-nodes-term}$({?x}) = 2$\\
-\textit{nof-nodes-term}$(i) = 0$\\
-\textit{nof-nodes-term}$(t_1\; t_2) = 6 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$\\
-\textit{nof-nodes-term}$(t\; [T]) = 5 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$\\
-
-\BlankLine
-
-\textit{count}$(t) = \displaystyle \sum_{c_i \text{ appears in } t} \text{(occurrences of $c_1$ in $t$)} - 1$\\
-%sum of the number of times minus one a component $c_i$ appears in $t$ for each component $c_i$ appearing in $t$.\\
-%number of all occurrences of library components in $t$ minus the number of different components appearing in $t$.
-
-\BlankLine
-
-\textit{no-same-component}$(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}(t)$
-\end{algorithm*} 
-%
+$\textit{no-same-component}(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}(t)$
+\end{lstlisting}
 
   \paragraph{string-length}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
@@ -584,82 +557,56 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 In Section~\ref{Black list generation} we discuss how to synthesise such a black list automatically.
 
 \section{Templates}\label{Templates}
-In this section we present a slightly different way to explore the search space. The idea is to fix all higher-order components first, producing a \emph{template} for a program, and then fill in the remaining holes with input variables and first-order components. Since programs usually contain only a few higher-order components, the enumeration of templates takes less time than the enumeration of programs of comparable size. Moreover, templates encode well-known patterns of computation and impose meaningful constraints to the remaining holes. Therefore, it should be easy to find the desired program starting from the right template. This allows us to quickly abandon templates if no program satisfying the input-output examples is found within a short timeout.
+In this section we present a slightly different way to explore the search space. The idea is to fix all higher-order components first, producing a \emph{template} for a program, and then fill in the remaining holes with input variables and first-order components. Since programs usually contain only a few higher-order components, the enumeration of templates takes less time than the enumeration of programs of comparable size. Moreover, templates encode well-known patterns of computation and impose meaningful constraints on the remaining holes. Therefore, it should be easy to find the desired program starting from the right template. This allows us to quickly abandon templates if no program satisfying the input-output examples is found within a short timeout.
 
-Double search
+Let us formally define a template and describe the procedure.
 
+The library $\Delta$ is split into two contexts: $\Delta_h$, containing all higher-order components, and $\Delta_f$, containing the first-order ones. We also need to introduce a new kind of term: the \emph{delayed hole} $\underline{?x}$. This is a hole, whose instantiation is delayed to the first-order search. The context $\Xi$ binds, additionally to normal holes, delayed holes as well.
+A \emph{template} is a term in the target language that may contain delayed holes but does not contain input variables. A template is called \emph{closed} if it does not contain holes (it may, however, contain delayed holes).
 
+The synthesis procedure iterates between two phases: enumeration of templates and, as soon as a closed template is found, enumeration of programs as in Algorithm~\ref{alg:best-first search} using $\Delta_f$ for a limited period of time or until a program satisfying all input-output examples is found.
 
-In order to formally define a template, we must introduce a new term: the \emph{delayed hole} $\underline{?x}$. Intuitively, a delayed hole is a hole, whose instantiation is delayed
-\TODO{Write this section\\}
+We additionally restrict the space by requiring a template to have no more than $M$ higher-order components and no more than $P$ delayed holes. Templates are enumerated according to the rules listed below. Those are very similar to the ones defined in Section~\ref{Search space}, except that we cannot instantiate a hole with an input variable but we can delay a hole. All the rules are modified to take into account the restriction on the number of components and the number of closed holes. In order to do this, we need to pass along $m$, the number of higher-order components in the term whose subterms we are traversing.
 
-What do I want to have in this section
-\begin{itemize}
-\item Formal definition of templates.
-\item template
-\item closed hole $\longrightarrow$ why do we need new holes for templates? For the new rules. So that we know which holes are we going to expand later and which now.
-\item Forward reference to evaluation?
-\end{itemize}
+Analogously to D-VarLib, the rule G-VarLib instantiates a hole with a type application of a higher-order library components to the right types, if the type of the component unifies with the type of the hole. The rule G-VarDelay delays the instantiation of a hole to the first-order search. G-VarApp replaces a hole with a term application of two fresh holes. G-App expands one of the holes of the template according to one of the three rules listed above. Note that there are no rules to expand a delayed hole.
 
-
-  Top-down type-driven synthesis.
-
-A template is a program with holes. We are interested in templates where all higher-order components are fixed and there are holes for the first-order components.
-The search space is thus similar to the search space described in \ref{Search space}, with the exception that $\Delta$ contains only the higher-order components.
-One of the new things are \emph{closed holes} $\underline{?x}$. Those are holes that are supposed to be filled in later with first-order components. A template is \emph{closed} if it does not contain open holes. It may contain closed holes.
-
-The idea behind the templates is that once the higher-order components are fixed, it should be easy and fast to find a first-order assignment to get the right program. So we could do a limited search from a template and if we do not find a program satisfying all of the I/O-examples we can move quickly to the next template.
-
-We additionally restrict the space by requiring a template to have no more than $M$ higher-order components and no more than $P$ closed holes.
-
-  \subsection{Successor rules}
-
-The successor rules are very similar to the ones defined in \ref{Search space}, apart from little modifications. That is, now we have a successor rule to close a hole, and we can not instantiate a hole with an input variable any more, because that is supposed to be done in the next step. All the rules are modified to take into account the restriction on the number of components and the number of closed holes. In order to do this, we need to pass along $m$, the number of higher-order components in the term whose subterms we are traversing.
-
-
-So we can \emph{close} a hole.
-\begin{prooftree}
-\AxiomC{$|\Xi| \leq P$ and $m \leq M$}
-\noLine
-\UnaryInfC{$T$ is a type a first-order component can have}
-	\RightLabel{G-VarClose}
-	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T \Mapsto \Xi, \Phi, \Delta, m \vdash {\underline{?x}} :: T$}
-\end{prooftree}
-
-We can instantiate a hole with a (higher-order) library component.
 \begin{prooftree}
 \AxiomC{$|\Xi| \leq P$ and $m < M$}
 \noLine
-\UnaryInfC{$c = t_c : T_c \in \Delta$}
+\UnaryInfC{$c : \forall X_1.\; \ldots \forall X_n.\; T_c(X_1, \ldots, X_n) \in \Delta_h$}
 \noLine
-\UnaryInfC{$\sigma$ unifies $T$ with fresh($T_c$)}
+\UnaryInfC{$?X_1, \ldots, ?X_n$ are fresh type holes}
+\noLine
+\UnaryInfC{$\sigma$ unifies $T$ with $T_c(?X_1, \ldots, ?X_n)$}
+\noLine
+\UnaryInfC{$\Xi' = \Xi \cup \{{?X_1}, \ldots, {?X_n}\} \setminus \{{?x} : T\}$}
 	\RightLabel{G-VarLib}
-	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta, m+1 \vdash c :: \sigma(T) $
+	\UnaryInfC{$\Xi, \Phi, \Delta_h \vdash {?x} :: T \Mapsto \sigma(\Xi'), \Phi, \Delta_h \vdash c\; [\sigma(?X_1)]\; \ldots\; [\sigma(?X_n)] :: \sigma(T) $
 	}
 \end{prooftree}
 
-We can instantiate a hole with a function application of two fresh holes.
+\begin{prooftree}
+\AxiomC{$|\Xi| \leq P$ and $m \leq M$}
+	\RightLabel{G-VarDelay}
+	\UnaryInfC{$\Xi, \Phi, \Delta_h, m \vdash {?x} :: T \Mapsto \Xi \setminus \{{?x}:T\} \cup \{\underline{?x}:T\}, \Phi, \Delta_h, m \vdash {\underline{?x}} :: T$}
+\end{prooftree}
+
 \begin{prooftree}
 \AxiomC{$|\Xi| < P$ and $m \leq M$}
 \noLine
-\UnaryInfC{$?X$ is a fresh type hole, $?x_1$ and $?x_2$ are fresh term holes}
+\UnaryInfC{$?X$ is a fresh type variable}
 \noLine
 \UnaryInfC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
 	\RightLabel{G-VarApp}
-	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
+	\UnaryInfC{$\Xi, \Phi, \Delta_h \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta_h \vdash {?x_1}\;{?x_2} :: T$}
 \end{prooftree}
 
-We can expand one of the holes of the program according to one of the three rules above.
+
 \begin{prooftree}
-\AxiomC{$\Xi, \Phi, \Delta, m \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta, m' \vdash t_1' :: T_1'$}
+\AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
 	\RightLabel{G-App}
-	\UnaryInfC{$\Xi, \Phi, \Delta, m \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta, m' \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
-
-
-  
-
-
 
 
 %%% Local Variables:
