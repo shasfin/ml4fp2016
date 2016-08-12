@@ -20,7 +20,7 @@ The goal is to put together components from the library in order to get a list. 
 \begin{lstlisting}[style=plain]
 replicate n x = ?p
 ?p :: List X,
-\end{lstlisting},
+\end{lstlisting}
 where \lstinline!?p! is a \emph{hole}, a new fresh variable whose type is known.
 
 Which components can we use in order to get something of type \lstinline?List X?? We cannot use \lstinline?enumTo?, because it only produces a list of integers, but all other possibilities are open. We could either fold  with an interesting function, or map some function, or even use \lstinline?const? with a smart first argument. But the first and easiest thing that has the type \lstinline?List X? is \lstinline?[]?. That is, our first program looks as follows.
@@ -324,7 +324,9 @@ An application typechecks only if the left hand side has an arrow type and the t
 
 In order to identify the library components that can be used to instantiate a hole of a given type, we need type unification. Consider, for example, a hole of type \lstinline?List Int -> Int?. We want to instantiate this hole not only with components that have precisely this type, like \lstinline?sum? and \lstinline?prod?, but also components with a more general type that can be matched to the desired type through type application, like \lstinline?head :: $\forall$X. List X -> X? and \lstinline?length :: $\forall$X. List X -> Int?.
 
-Alas, unification on the type system of System F is undecidable \cite{Huet1975}. Therefore we chose to restrict our type system to universally quantified types, that is types whose universal quantifiers are at the toplevel. For example, \lstinline?$\forall$X. $\forall$Y. X -> Y? is such a type, whereas \lstinline?Int -> ($\forall$X. X -> Int)? is not. This allows us to completely ignore universal types during unification. Instead, we represent universal types in the library as not universal types where we replace each universally quantified variable with a fresh hole. That is, the type of \lstinline?length? is stored in the library as \lstinline!List ?X -> Int!.
+Alas, unification on the type system of System F is undecidable \cite{Huet1975}.
+Therefore we chose to restrict our type system to universally quantified types, that is types of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? where \lstinline?T($X_1, \ldots, X_n$)? is quantifier-free.
+This allows us to completely ignore universal types during unification. Instead, we can represent \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is leave out all quantifiers and replace the bound variables with fresh type holes.
 
 Our unification algorithm (summarised as Algorithm~\ref{alg:type unification} below) is based on the unification algorithm for typed lambda calculus from \cite{pierce2002types} and slightly modified to fit our needs.
 
@@ -361,20 +363,7 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 \end{algorithm} 
 
 \section{Search}
-\TODO{Find a general notation for the deuniversalise and dearrowise thing, it looks very confusing. Define it somewhere in the beginning and use always the same. A good way is to couple fresh(T) with c [T] [T] [T]. Apply fresh holes to the component, THEN unify.\\}
-I can either say that I apply fresh holes to a library component until no universal quantifiers are left and then unify the type of this new component with the "goal type". I need it in three places:
-\begin{enumerate}
-\item in unification, when I say how I can unify universally quantified variables
-\item in the problem definition, when I relate the goal type with the type of the programs.
-\item in the successor rules, in the rule D-VarLib, when you say that you can replace a hole with a library component with the right type. Well, actually not the component, but the type application of the component to $\sigma$ of the fresh holes we applied to the component in order to make unification possible.
-\end{enumerate}
-
-
-Let $\mathcal{A}$ be the class of quantifier-free types. Try to do it with fresh holes and explicit type holes. You can also need a class of arrow- and quantifier-free types. Say then that the goal type has the form bla bla bla and introduce it like that.
-
-Summary: in unification say that you have unification only for quantifier-free types. Say that this still allows to have universally quantified components and explain the trick with the fresh holes. In the problem definition: see above. In the successor rule: decompose type of component as $T_c = \forall X. \forall Y. T(X,Y)$, then take two fresh holes, unify $T(?X,?Y)$ with the type of the hole and instantiate the hole with $c\; [\sigma(?X)]\; [\sigma(?Y)]$.
-\TODO{End of notation discussion\\}
-After defining the target language, the type checking and the evaluation semantics, we are ready to formally define the problem.
+After defining the target language, the evaluation semantics, the type checking and the type unification, we are ready to formally define the problem.
 
 \paragraph{Problem definition} Given a library $\Delta$, a goal type $T$ and a list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ in the target language such that
 \begin{enumerate}[(i)]
@@ -393,22 +382,30 @@ There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 
 To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
 
 The derive judgement can be summarised by the following four rules.\\
-D-VarLib and D-VarInp replace a hole $?x$ by a library component $c$ from the context $\Delta$ \TODO{type application. For universally typed $c$ it's not $c$ but $c\;[T_1]\;\ldots\;[T_k]$ for some types or fresh type holes}, or an input variable $i$ from the context $\Phi$, respectively, if they have the right type. The procedure fresh($T$) removes the universal quantifiers and replaces the bound type variables $X$ with fresh type holes $?X$ not used in $\Xi$.
-The notation $\sigma(\Delta)$ denotes the application of the substitution $\sigma$ to all types contained in the context $\Delta$.\\
-D-VarApp turns a hole into a term application of two fresh holes.\\
-The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
+D-VarLib replaces a hole $?x$ with a type application of a library component $c$ to the right types, if the type of $c$ unifies with the type of $?x$. D-VarInp replaces a hole $?x$ with an input variable $i$ from the context $\Phi$, if it has the right type. D-VarApp turns a hole into a term application of two fresh holes. The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
+
+\TODO{do we need following paragraph? It adds nothing to the rule.\\}
+The rule D-VarLib might require a more detailed explanation.
+Let $\mathcal{A}$ be the class of quantifier-free types. Let \lstinline?c : $\forall X_1$. $\ldots$ $\forall X_n$. $T_c$($X_1, \ldots, X_n$)? $\in \Delta$ where \lstinline?$T_c$($X_1, \ldots, X_n$)? belongs to class $\mathcal{A}$. Let \lstinline!?$X_1$, $\ldots$, ?$X_n$! be fresh type holes not present in $\Xi$. Let $\sigma$ be the unifier of $T$ with \lstinline!$T_c$(?$X_1$, $\ldots$, ?$X_n$)!. Then we can replace the hole \lstinline!?x! with \lstinline!c [$\sigma$(?$X_1$)] $\ldots$ [$\sigma$(?$X_n$)]!.
+
+The notation $\sigma(\Xi)$ denotes the application of the substitution $\sigma$ to all types appearing in $\Xi$.
 
 \begin{prooftree}
-\AxiomC{$c : T_c \in \Delta$}
-\AxiomC{$\sigma$ unifies $T$ with fresh($T_c$)}
+\AxiomC{$c : \forall X_1.\; \ldots \forall X_n.\; T_c(X_1, \ldots, X_n) \in \Delta$}
+\noLine
+\UnaryInfC{$?X_1, \ldots, ?X_n$ are fresh type holes}
+\noLine
+\UnaryInfC{$\sigma$ unifies $T$ with $T_c(?X_1, \ldots, ?X_n)$}
+\noLine
+\UnaryInfC{$\Xi' = \Xi \cup \{{?X_1}, \ldots, {?X_n}\} \setminus \{{?x} : T\}$}
 	\RightLabel{D-VarLib}
-	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash c :: \sigma(T) $
-	\TODO{type application $c\;[T_1]\;\ldots\;[T_k]$ depending on $T_c$ and $\sigma$}}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi'), \Phi, \Delta \vdash c\; [\sigma(?X_1)]\; \ldots\; [\sigma(?X_n)] :: \sigma(T) $
+	}
 \end{prooftree}
 
 \begin{prooftree}
 \AxiomC{$i : T_i \in \Phi$}
-\AxiomC{$\sigma$ unifies $T$ with fresh($T_i$)}
+\AxiomC{$\sigma$ unifies $T$ with $T_i$}
 	\RightLabel{D-VarInp}
 	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \sigma(\Xi \setminus \{{?x} : T\}), \Phi, \Delta \vdash i :: \sigma(T) $
 	}
@@ -417,9 +414,10 @@ The rule D-App chooses a hole in the program and expands it according to one of 
 
 \begin{prooftree}
 \AxiomC{$?X$ is a fresh type variable}
-\AxiomC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
+\noLine
+\UnaryInfC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
 	\RightLabel{D-VarApp}
-	\BinaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
+	\UnaryInfC{$\Xi, \Phi, \Delta \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta \vdash {?x_1}\;{?x_2} :: T$}
 \end{prooftree}
 
 
@@ -429,38 +427,22 @@ The rule D-App chooses a hole in the program and expands it according to one of 
 	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
 
-Note that the types of all successor programs unify with the types of their ancestors. Thus, the search is type directed. Only programs of the right type are generated.
-
+Note that all derived programs are well-types and, since the types of all derived programs unify with the types of their ancestors, have the right type.
 
 \subsection{Best-first search}\label{Exploration}
-\TODO{Write this section\\}
-  \note{Write also about stack vs queue of open holes}
-Say that it's standard, we just review it.
+Our enumeration procedure traverses the search graph defined in the previous section using standard best-first search. The algorithm maintains a frontier of candidate programs and expands one hole of the most promising program in each iteration. Closed programs are evaluated on the input-output examples. The search terminates when the first program that satisfies all input-output examples is found.
 
-what we want to say in this section
-\begin{itemize}
-\item it's standard
-\item it's best-first search
-\item algorithm
-\item there are two points that can be tweaked
-\item stack vs queue expansion (mention it at least)
-\item mention cost functions and refer to the next section
-\end{itemize}
+There are two points where Algorithm~\ref{alg:best-first search} can be tweaked.
+\begin{enumerate}
+\item Which candidate program is the most promising?
+\item Which hole of the most promising program should be expanded?
+\end{enumerate}
+The first question is addressed by the implementation of the \lstinline?compare? function over programs. Section~\ref{Cost functions} discusses different approaches to define it.
 
-
-what do we want to have in this section
-\begin{itemize}
-\item section Best-first search $\longrightarrow$ standard enumeration. We can tweak it in two points: which hole first and what program first. Write about stack vs queue and refer to next section for cost functions. Or do another sections about it? Section or subsection? In best-first search or already in the search space?
-\end{itemize}
-
-
-We explore the search graph using a best first search.
-We can play with the algorithm in two points (marked in blue): first, we can define which hole to expand first, second, we can choose the compare function of the priority queue.
-Different approaches to define the \lstinline?compare? function are discussed in the next section.
-Concerning the order of expansion of the holes, we tried two strategies: the first one was maintaining a stack of holes ($\Xi$ implemented as a stack), which leads to the expansion of the deepest hole first, the second one was maintaining a queue of holes ($\Xi$ implemented as a queue), which leads to the expansion of the oldest hole first.
+The second question is addressed by the implementation of the \lstinline?successor? function. In particular, the implementation of the D-App rule. There are two easy ways to handle this problem. The first way is to always expand the leftmost hole, the second way is to always expand the oldest hole.
 
 \begin{algorithm}
-\caption{Best first search}
+\caption{Best first search\label{alg:best-first search}}
 \KwIn{goal type $T$, library components $\Delta$, list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$}
 \KwOut{closed program $\{\Xi, \Phi_1, \Delta \vdash t :: T\}$ that satisfies all I/O-examples}
 
