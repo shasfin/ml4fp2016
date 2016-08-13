@@ -65,12 +65,23 @@ This tool is able to synthesise recursive programs, including tail recursive, mu
 Like our work, this tool can handle a flexible set of components. For example, a set of $23$ components was used to evaluate all benchmarks. However, there was no higher-order component among them.
 
 \section{\mdseries\textsc{Myth}}
+
+\begin{itemize}
+\item name and paper
+\item target language (subset of OCaml, no polymorphic types, but it could easily be extended to them)
+\item specification (type signature and a closed set of input-output examples)
+\item what do they do
+\item benchmarks and timing
+\item number of components unknown.
+\end{itemize}
+
 \TODO{Write this section\\}
 Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
 \begin{enumerate}
 \item What is the specification?
 A type signature, the components and a list of input-output examples.
 \item What is the target language?
+subset of OCaml.
 pattern matching, recursion, higher-order functions in typed programming languages. Can synthesise higher-order functions, programs using higher-order functions and work with large algebraic datatypes.
 ML-like language with algebraic data types, match, top-level function definitions and explicitly recursive functions.
 \item What can they do well and fast? How fast?
@@ -82,6 +93,9 @@ Lacks support richer types like products and polymorphic types.
 The tool in \cite{MythPaper} is called \textsc{Myth} and uses not only type information but also input-output examples to restrict the search space. The special data structure used to hold this information is the \emph{refinement tree}. This system can synthesize higher-order functions, programs that use higher order functions and work with large algebraic data types.\\
 There is an ML-like type system that incorporates input-output examples. Two pieces: a \emph{refinement tree} and an enumerative search.\\
 Two major operations: refine the goal type and the examples (push them down in the refinement tree) and guess a term of the right type that matches the examples (for one of the nodes of the refinement tree).\\
+Proof-search-based. Modify typing tules so that they "push" exmples towards the leaves of the typing derivation trees. Permits to evaluate candidate terms early in the search process.\\
+Incorporate the input-output examples in the type system. non-deterministic specification of the synthesis problem, the goal is to find a term that has a valid typing derivation.\\
+Alternate between two major operations: refine the constraints (goal type and examples) and guess a term of the goal type that is consistent with the constraints. Guessing: rule out ill-types terms and terms that are not structurally recursive. To avoid other bad programs, guess only programs in $\beta$-normal form, that is that cannot be reduced further. Match refinement: try to guess a match-statement. First, try to guess a term of an algebraic type to match against. Based on the constructors, send the examples to the branches. So, there are two subgoals in refined worlds. Recursive functions: the input-output examples, interpreted as a partial function, serve as approximation of the function being synthesised.
 \end{enumerate}
 
 
