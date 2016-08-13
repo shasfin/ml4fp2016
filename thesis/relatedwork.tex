@@ -5,26 +5,26 @@
 In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, are based on inductive enumeration and use type information to restrict the search space. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} from \cite{SynquidPaper}.
 
 \section{\mdseries\textsc{Synquid}}
-\TODO{Write this section\\}
-Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting. It is possible to download the tool (put link), try it online and there is even an emacs-mode for it.
-\begin{enumerate}
-\item What is the specification?
-The refinement type of the desired program, that is a type decorated with logical predicates. Can bring the replicate example.
-\item What is the target language?
-Haskell, I think. I saw lambda abstractions and recursion. Can generate and use higher-order components. You can specify own datatypes and own components.
-Pattern matching, structural recursion, ability to use and generate polymorphic higher-order functions, reasoning about universal and recursive properties of data structures.\\
-The Synquid language has lambda expressions, pattern matching, conditional and fixpoint.
-\item What can it do well and fast? How fast?
-Most advanced benchmark: generate various sorting algorithms for data structures with complex invariants (search trees, heaps, balanced trees). This is out of scope of my synthesis procedure.
-For the "easy" benchmarks (what I have) everything under 0.4~s. For more complicated stuff like sorting and tree insertion under 5 seconds. For most complicated stuff (red-black trees) under 20~s.
-\item What is the difficulty? What can they not generate (or take a long time to generate)? How much time do they need?
-It is not always easy for an inexperienced user to specify a program and to find the right 'measure' function for a datatype.\\
-They need up to 20~s to generate balance over red-black trees. They usually don't give more than 5 components and 6 measure functions over the needed data types.\\
-The specification is quite big compared to the synthesised program, half of the programs the specification is one third of the generated program or more.
-\item What do they do?
-In \cite{SynquidPaper} \textsc{Synquid} is proposed.
-Refinement types (types decorated with logical predicates) are used to prune the search space. SMT-solvers are used to satisfy the logical predicates. The key is the new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
-\end{enumerate}
+
+In \cite{SynquidPaper} \textsc{Synquid} is proposed. The code can be found online\footnote{https://bitbucket.org/nadiapolikarpova/synquid} and there is the possibility to try it in the browser.
+This tool uses \emph{refinement types} (types decorated with logical predicates) to prune the search space and to specify programs. SMT-solvers are used to satisfy the logical predicates appearing in the types.\\
+Refinement types were already successfully used for verification. In particular, the tool builds upon the liquid types framework \cite{LiquidTypes}. However, it proposes a new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
+
+This tool targets a language that includes lambda expressions, pattern matching, structural recursion, conditionals and fixpoint.
+The user can define custom functions and inductive datatypes that can be passed to the synthesiser as components.
+
+A program is specified by providing a type signature. For example, the synthesis goal \lstinline!replicate! can be specified as follows.
+\begin{lstlisting}[style=plain]
+n : Nat -> x : $\alpha$ -> {List $\alpha$ | len $\nu$ = n}
+\end{lstlisting}
+This is a dependent function type that denotes functions that, given a natural number $n$ and an $x$ of type $\alpha$, return a list of $\alpha$ of length $n$. Here $\nu$ is a special logical value variable that in this case denotes the runtime return value of the functions and \lstinline!len! is a measure function defined over lists.
+
+This form of specification can be a disadvantage, since it is not that accessible to users with a lower level of expertise as input-output examples. It is not always easy to see which measure function for a custom datatype will lead to the most simple and intuitive specification.
+On the other hand, refinement types allow to express programs that manipulate data structures with non-trivial universal and inductive invariants in a concise way. This allows to synthesise programs on sorted lists, unique lists, binary search trees, heaps and red-black trees.
+
+This tool synthesises simple programs over lists and integers in under \SI{0.4}{s}. It can also handle more complex benchmarks that are out of the scope of this thesis, such as different sorting algorithms and manipulations of data structures with complex invariants. Various sorting algorithms over lists and trees are synthesised in under \SI{5}{s}. The synthesis of the most complex benchmark, the balancing of a red-black tree, takes up to \SI{20}{s}.
+
+In contrast to our tool, the number of components provided to the synthesiser for evaluation is small.
 
 \section{$\lambda^2$}
 \TODO{Write this section\\}

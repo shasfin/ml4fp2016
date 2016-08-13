@@ -354,7 +354,7 @@ isEven n = match n with
 
 It might be a consequence of the simplicity of our target language, but as we can see in Table~\ref{fig:comparisontable}, our tool needs less input-output examples to synthesise the benchmarks than the other example-based tools. \textsc{Synquid} relies on a different specification that requires a higher level of expertise, which makes direct comparison difficult.
 
-The number of provided components also changes across the tools. With $36$ to $37$ components, we provide the largest library to our tool. On the second place, \textsc{Escher} uses a library of $23$ components to evaluate all benchmarks. Other tools handle less components.
+The number of provided components also changes across the tools. With $36$ to $37$ components, we provide the largest library to our tool. On the second place, \textsc{Escher} uses a library of $23$ components to evaluate all benchmarks. Other tools handle less components. For example \textsc{Synquid} does not provide more than 5 components and 6 measure functions over the needed data types to any of its benchmarks.
 
 Considering that our tool is just standard type-aware best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
 

@@ -4,7 +4,6 @@ Introduction:
 - outline
 
 Related work:
-- Synquid
 - Lambda square
 - Escher
 - Myth
@@ -19,6 +18,7 @@ Conclusion and future work:
 Done 13.08.2016:
 - outline and TODOs
 - introductory words
+- Synquid
 
 Done 12.08.2016:
 - notation for deuniversalise and dearrowise, consistent through the whole chapter
