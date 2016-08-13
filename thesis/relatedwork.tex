@@ -27,32 +27,20 @@ This tool synthesises simple programs over lists and integers in under \SI{0.4}{
 In contrast to our tool, the number of components provided to the synthesiser for evaluation is small.
 
 \section{$\lambda^2$}
-\TODO{Write this section\\}
-Lambda square (Feser). How would you specify replicate? Give an idea of how it is generated. User friendly, as only I/O-examples need to be specified, type is reconstructed automatically.
-\begin{enumerate}
-\item What is the specification?
-I/O-examples
-\item What is the target language?
-Their synthesis algorithm targets a functional programming language that permits higher-order functions, combinators like map, fold and filter, pattern-matching, recursion, and a flexible set of primitive operators and constants. Actually, lambda calculus with algebraid data types and recursion.
-\item What can it do well and fast? How fast?
-Generating programs over nested structures like trees of lists, lists of lists and lists of trees. They generate the half of the benchmarks in under 0.43~s.
-\item What is the difficulty? What can they not generate (or take a long time)? How much time do they need?
-Only 7 higher-order combinators and not much more first-order components.\\
-They use relatively many examples (between 3 and 12, mostly 4 to 6).\\
-They need up to 320~s to generate \lstinline?droplast?. Other benchmarks that take more than 100~s to synthesise are removing duplicates from a list, inserting a tree under each leaf of another tree and dropping the smallest number in a list of lists.
-\item What do they do?
-Inductive generalization, deduction, enumerative search.
-First, generate \emph{hypotheses} (that is, programs with free variables like \lstinline!$\lambda$x. map ?f x! where \lstinline!?f! is a placeholder for an unknown program that needs to be generated) in a type-aware manner (the type is inferred from the I/O-examples). Then deduction based on the semantics of the higher-order combinators is used either to quickly refute a hypothesis or infer new I/O-examples to guide the synthesis of missing functions. Best-first enumerative search is used to enumerate candidate programs to fill in the missing parts of hypotheses.\\
-The tool proposed in \cite{LambdaSquarePaper} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion.
-%If the tool does not time out on a set of input-output examples, it generates the least-cost program.
-The user specifies the desired program providing input-output examples.  
-No particular knowledge is required from the user, as was demonstrated using random input-output examples.
-The examples are inductively generalized in a type-aware manner to a set of hypotheses (programs that possibly have free variables).
-The key idea are the hard-coded deduction rules used to prune the search space depending on the semantics of some of the higher-order combinators (map, fold, filter and a few others).
-Deduction is also used to infer new input-output examples in order to generate the programs needed to fill in the holes in the hypotheses.
+The tool proposed in \cite{LambdaSquarePaper} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion. The target language also includes $7$ higher-order combinators such as \lstinline!map!, \lstinline!fold! and \lstinline!filter! and a flexible set of primitive operators and constants.
+
+The user specifies the desired program providing only input-output examples. No particular knowledge is required from the user, as was demonstrated using randomly generated input-output examples. The goal type is inferred from the examples.
+
+The synthesis algorithm is a combination of inductive generalisation, a limited form of deduction and enumerative search.
+First, it generates \emph{hypotheses} in a type-aware manner, that is programs with free variables such as \lstinline!$\lambda$x. map ?f x! where \lstinline!?f! is a placeholder for an unknown program to be synthesised.
+Then deduction in form of hand-coded rules about the higher-order combinators is used either to refute a hypothesis or infer new input-output examples to guide the synthesis of missing functions. For example, the hypothesis \lstinline!$\lambda$x. map ?f x! will be refuted if the length of the input list does not match the length of the output length.
+Enumerative search is used to enumerate candidate programs to fill in the missing parts of hypotheses. Hypotheses and candidate programs are organised in a priority queue and, at each point of the search, the least-cost candidate is picked.
+
 This tool is able to synthesize programs manipulating recursive data structures like lists, trees and nested data structures such as lists of lists and trees of lists.
-The tool is able to synthesise all benchmark programs in under 7~minutes.
-\end{enumerate}
+It synthesises all benchmark programs in under 7~minutes. Half of the benchmarks is synthesised in under \SI{0.43}{s}. However, the synthesis of \lstinline!droplast!, the program that drops the last element of a list, takes up to \SI{320}{s}. The program that removes duplicates from a list, the program that drops the smallest elements of each list of a list of lists and the program that inserts a tree under each leaf of another tree take more than \SI{100}{s} to synthesise.
+
+Unlike \textsc{Synquid} and our work, this tool can only use the $7$ hard-coded higher-order combinators. The extension of the set of higher-order combinators with own functions is not easily supported.
+
 
 \section{\mdseries\textsc{Escher}}
 \TODO{Write this section}
