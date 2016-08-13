@@ -17,9 +17,20 @@
 for motivation you could write something about the extremely restricted list library in ocaml :)\\
 Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
 
+input-output examples are an intuitive and simple way to specify programs and make synthesis more accessible to users with a lower level of expertise.
+
 
 \section{Problem definition}
   \note{have many components, put them together into a program, no lambdas, no if-then-else, no recursion}
+  
+Unlike our synthesis procedure, all of these tools are capable of synthesising recursive programs. This is not really a limitation, since common recursive patterns can be encoded as components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the recursive program
+\TODO{Make sure it is \lstinline!f (n-1) (p (n-1))! and not \lstinline!f n (p (n-1))!, correct if needed\\}
+\begin{lstlisting}[style=plain]
+p n = match n with
+  | 0 -> init
+  | n -> f (n-1) (p (n-1))
+\end{lstlisting}  
+  
   
 \section{Contributions}
   \note{Evaluation, exploring the baseline algorithm, exploring the search space}
