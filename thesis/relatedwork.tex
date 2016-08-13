@@ -1,11 +1,15 @@
 \chapter{Related Work} \label{ch:relatedwork}
 
-Here discuss only synthesis of functional programs. Input-output examples are an intuitive and easy way to specify programs. Types are good to prune the search space, but simple types are not enough to specify a program. So the research went in two directions: on one side, there was the need to do something to the I/O-examples to make the search more efficient, on the other side more complex and expressive types that can act as a specification, for example the \emph{refinement types} from \cite{SynquidPaper}. Lately, there was the idea that one can automatically generate those ty[pes from I/O-examples, to have both the advantages of an intuitive and easy specification and the research done on type systems, liquid types and something like that.
+\TODO{Write introductory words}
 
+In this chapter we look at four state-of-the-art tools that do something similar. They all target the synthesis of functional programs and use input-output examples or types as a specification. Like our synthesis procedure, they all make use of inductive enumeration. 
 
-Let's start. My 5 papers, organize some information about them.
-\begin{itemize}
-\item Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting. It is possible to download the tool (put link), try it online and there is even an emacs-mode for it.
+\TODO{Maybe put this into the background section of introduction?\\}
+Here discuss only synthesis of functional programs. Input-output examples are an intuitive and easy way to specify programs. Types are good to prune the search space, but simple types are not enough to specify a program. So the research went in two directions: on one side, there was the need to do something to the I/O-examples to make the search more efficient, on the other side more complex and expressive types that can act as a specification, for example the \emph{refinement types} from \cite{SynquidPaper}. Lately, there was the idea that one can automatically generate those types from I/O-examples, to have both the advantages of an intuitive and easy specification and the research done on type systems, liquid types and something like that.
+
+\section{\textsc{Synquid}}
+\TODO{Write this section\\}
+Synquid (Nadia) put the replicate example if you can (should not be that difficult). Not that "user friendly". Lambda, conditionals, recursion, components. Synthesis starting from a partial program possible. Fast, good for sorting. It is possible to download the tool (put link), try it online and there is even an emacs-mode for it.
 \begin{enumerate}
 \item What is the specification?
 The refinement type of the desired program, that is a type decorated with logical predicates. Can bring the replicate example.
@@ -24,7 +28,10 @@ The specification is quite big compared to the synthesised program, half of the 
 In \cite{SynquidPaper} \textsc{Synquid} is proposed.
 Refinement types (types decorated with logical predicates) are used to prune the search space. SMT-solvers are used to satisfy the logical predicates. The key is the new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
 \end{enumerate}
-\item Lambda square (Feser). How would you specify replicate? Give an idea of how it is generated. User friendly, as only I/O-examples need to be specified, type is reconstructed automatically.
+
+\section{$\lambda^2$}
+\TODO{Write this section\\}
+Lambda square (Feser). How would you specify replicate? Give an idea of how it is generated. User friendly, as only I/O-examples need to be specified, type is reconstructed automatically.
 \begin{enumerate}
 \item What is the specification?
 I/O-examples
@@ -49,7 +56,10 @@ Deduction is also used to infer new input-output examples in order to generate t
 This tool is able to synthesize programs manipulating recursive data structures like lists, trees and nested data structures such as lists of lists and trees of lists.
 The tool is able to synthesise all benchmark programs in under 7~minutes.
 \end{enumerate}
-\item Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
+
+\section{\textsc{Escher}}
+\TODO{Write this section}
+Escher (Kincaid). User friendly, as untyped and only I/O-examples need to be specifies. Powerful (recursion, special if-then-else, components) Goal graph.
 \begin{enumerate}
 \item What is the specification?
 I/O-examples. Oracle simulating interaction with the user.
@@ -74,7 +84,10 @@ An implementation of the tool was tested on a benchmark consisting of recursive 
 For all examples the same fixed set of components was used.
 The tool is able to synthesize all of them quickly. \note{There is very little information on how many input-output examples were needed to synthesize the benchmarks and how difficult it is for a non-experienced user to come up with a "closed" set of examples.}
 \end{enumerate}
-\item Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
+
+\section{\textsc{Myth}}
+\TODO{Write this section\\}
+Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
 \begin{enumerate}
 \item What is the specification?
 A type signature, the components and a list of input-output examples.
@@ -91,10 +104,6 @@ The tool in \cite{MythPaper} is called \textsc{Myth} and uses not only type info
 There is an ML-like type system that incorporates input-output examples. Two pieces: a \emph{refinement tree} and an enumerative search.\\
 Two major operations: refine the goal type and the examples (push them down in the refinement tree) and guess a term of the right type that matches the examples (for one of the nodes of the refinement tree).\\
 \end{enumerate}
-
-
-\end{itemize}
-
 
 
 
