@@ -3,26 +3,22 @@
 
 \chapter{Introduction}\label{ch:introduction}
 
-\section{About program synthesis in general}
-  \note{put in some context, link \ref{relatedwork}}
+\TODO{Write this chapter\\}
 
+\section{What is program synthesis?}
+
+Plain and simple definition. Program synthesis is the automatic generation of programs. That's what programmers usually do: translate a, mostly oral and ambiguous, specification into a program that satisfies the specification. Wouldn't it be great, if computers once could do the same? (not really, but we leave the ethic and economic reasons out of scope. On the other hand, it would be just like compilers).
+
+What's the problem? Why don't you know what to write in this chapter? It shouldn't be that difficult. You need
 \begin{itemize}
-\item What is program synthesis
-\item Problem too general, needs to be restricted. In Chapter 2 we will see how other restrict the search space. Restrict to components.
-\item Motivate why it is still interesting to have such a synthesiser (thin interfaces and so on?)
-\item List of contributions
-\item Explain the structure of the thesis. (maybe merge with the contributions?)
-\end{itemize}
-
-for motivation you could write something about the extremely restricted list library in ocaml :)\\
-Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
-
-input-output examples are an intuitive and simple way to specify programs and make synthesis more accessible to users with a lower level of expertise.
+\item general introduction/motivation. Don't forget to say what is program synthesis. "What is program synthesis"
+\item background section "The problem is too general. Other restricted it in this and this way, tried this and this approach. Logical specification and deduction, input-output examples and induction, restrict to a particular domain like sketch and the bit-manipulating things or igor for number series. flashfill in excel gibt es auch noch. For functional programs we have this and this approaches and this and this restrictions"
+\item intuitive description of the problem statement and a motivation why something that restricted should be interesting (encode computational patterns as components, thin interfaces, SKI as components). Bring the replicate example. Type-driven, example-based, from components. Should be stated clearly. "How I restrict the search space and what specification do I choose. Replicate example. Motivate why it could be useful and why this is not too restricted." Don't forget the main hypothesis, that higher-order components help.
+\item list of contributions (what are my contributions? The algorithm is standard, the implementation is not really a contribution. Evaluation? Should I stress that this is empirical work?) "Move on to the contributions. Implementation and extensive empirical evaluation".
+\item structure of the thesis (formal definition of the synthesis procedure, implementation, four closely related tools, evaluation). Well, you know how to write those sections :)
+\end{itemize} 
 
 
-\section{Problem definition}
-  \note{have many components, put them together into a program, no lambdas, no if-then-else, no recursion}
-  
 Unlike our synthesis procedure, all of these tools are capable of synthesising recursive programs. This is not really a limitation, since common recursive patterns can be encoded as components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the recursive program
 \TODO{Make sure it is \lstinline!f (n-1) (p (n-1))! and not \lstinline!f n (p (n-1))!, correct if needed\\}
 \begin{lstlisting}[style=plain]
@@ -30,7 +26,16 @@ p n = match n with
   | 0 -> init
   | n -> f (n-1) (p (n-1))
 \end{lstlisting}  
+
+for motivation you could write something about the extremely restricted list library in ocaml :)\\
+Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
+
+input-output examples are an intuitive and simple way to specify programs and make synthesis more accessible to users with a lower level of expertise.
+
+
+Problem definition: have many components, put them together into a program, no lambdas, no if-then-else, no recursion
+  
+
   
   
-\section{Contributions}
-  \note{Evaluation, exploring the baseline algorithm, exploring the search space}
+Contributions: Evaluation, exploring the baseline algorithm, exploring the search space

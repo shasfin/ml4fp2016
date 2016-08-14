@@ -6,7 +6,7 @@ In this chapter we will formally define our type-directed top-down synthesis pro
 
 \section{The 'replicate' example}
 
-Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise \lstinline?replicate.? As our synthesis procedure is type-driven and example-based, the user specifies a program by providing its type along with a few I/O-examples.\\
+Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise the program corresponding to \lstinline?replicate.? As our synthesis procedure is type-driven and example-based, the user specifies a program by providing its type along with a few I/O-examples.\\
 Let us specify \lstinline?replicate? as follows.
 \begin{lstlisting}[style=plain]
 replicate :: $\forall$X. Int -> X -> List X
