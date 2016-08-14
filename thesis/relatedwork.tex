@@ -27,6 +27,7 @@ This tool synthesises simple programs over lists and integers in under \SI{0.4}{
 In contrast to our tool, the number of components provided to the synthesiser for evaluation is small.
 
 \section{$\lambda^2$}
+
 The tool proposed in \cite{LambdaSquarePaper} is called $\lambda^2$ and generates its output in $\lambda$-calculus with algebraic types and recursion. The target language also includes $7$ higher-order combinators such as \lstinline!map!, \lstinline!fold! and \lstinline!filter! and a flexible set of primitive operators and constants.
 
 The user specifies the desired program providing only input-output examples. No particular knowledge is required from the user, as was demonstrated using randomly generated input-output examples. The goal type is inferred from the examples.
@@ -66,39 +67,13 @@ Like our work, this tool can handle a flexible set of components. For example, a
 
 \section{\mdseries\textsc{Myth}}
 
-\begin{itemize}
-\item name and paper
-\item target language (subset of OCaml, no polymorphic types, but it could easily be extended to them)
-\item specification (type signature and a closed set of input-output examples)
-\item what do they do
-\item benchmarks and timing
-\item number of components unknown.
-\end{itemize}
+The tool proposed in \cite{MythPaper} is called \textsc{Myth} and targets a subset of OCaml including pattern matching, recursive functions, higher-order functions and algebraic datatypes. The prototype lacks support for polymorphic and product types, but can be extended to handle them as well.
 
-\TODO{Write this section\\}
-Myth (Osera). Like mine, requires type and I/O-examples. Refinement tree.
-\begin{enumerate}
-\item What is the specification?
-A type signature, the components and a list of input-output examples.
-\item What is the target language?
-subset of OCaml.
-pattern matching, recursion, higher-order functions in typed programming languages. Can synthesise higher-order functions, programs using higher-order functions and work with large algebraic datatypes.
-ML-like language with algebraic data types, match, top-level function definitions and explicitly recursive functions.
-\item What can they do well and fast? How fast?
-Recursive programs with pattern matching. It's very fast, many programs are synthesised in around 0.1~s. It can also generate larger programs (75 AST nodes) in reasonable time (3~s for calculating the set of free variables in an untyped lambda-calculus).
-\item What is the difficulty? What can they not generate (or take a long time)? How much time do they need?
-To generate recursive functions, they also need a closed set of examples, so that a recursive call to the function being synthesised can be answered by an input-output example. They also require relatively many examples. They use a relatively large context, but they do not say how big it is.
-Lacks support richer types like products and polymorphic types.
-\item What do they do?
-The tool in \cite{MythPaper} is called \textsc{Myth} and uses not only type information but also input-output examples to restrict the search space. The special data structure used to hold this information is the \emph{refinement tree}. This system can synthesize higher-order functions, programs that use higher order functions and work with large algebraic data types.\\
-There is an ML-like type system that incorporates input-output examples. Two pieces: a \emph{refinement tree} and an enumerative search.\\
-Two major operations: refine the goal type and the examples (push them down in the refinement tree) and guess a term of the right type that matches the examples (for one of the nodes of the refinement tree).\\
-Proof-search-based. Modify typing tules so that they "push" exmples towards the leaves of the typing derivation trees. Permits to evaluate candidate terms early in the search process.\\
-Incorporate the input-output examples in the type system. non-deterministic specification of the synthesis problem, the goal is to find a term that has a valid typing derivation.\\
-Alternate between two major operations: refine the constraints (goal type and examples) and guess a term of the goal type that is consistent with the constraints. Guessing: rule out ill-types terms and terms that are not structurally recursive. To avoid other bad programs, guess only programs in $\beta$-normal form, that is that cannot be reduced further. Match refinement: try to guess a match-statement. First, try to guess a term of an algebraic type to match against. Based on the constructors, send the examples to the branches. So, there are two subgoals in refined worlds. Recursive functions: the input-output examples, interpreted as a partial function, serve as approximation of the function being synthesised.
-\end{enumerate}
+The user specifies the desired program by providing a type signature and several input-output examples. Like in \textsc{Escher}, in order to generate recursive functions, the set of input-output examples must be \emph{closed}. Unlike \textsc{Escher}, the user can easily extend the set of library components with own higher-order functions and define own algebraic datatypes.
 
+The technique is inspired by proof search and searches for a term in the target language that has a valid typing derivation. The typing rules are modified to incorporate input-output examples and to push them towards the leaves of the derivation tree. That is, the information contained in the input-output examples is used to prune the search space even before a program that can be evaluated on the examples is generated. The tool also makes use of well-typed term enumeration to guess a term of the goal type that is consistent with the examples. Since enumeration is used to fill in the branches of a pattern matching or the arguments to a constructor, the size of enumerated term is considerably smaller than the size of the program being generated.
 
+This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. 
 
 
 
