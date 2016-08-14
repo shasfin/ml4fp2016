@@ -2,9 +2,8 @@ Pool of sections to write:
 
 Introduction:
 - outline
-
-Related work:
-- Myth
+- motivation
+- background
 
 Implementation:
 - outline
@@ -12,6 +11,9 @@ Implementation:
 Conclusion and future work:
 - outline
 
+
+Done 14.08.2016:
+- Myth
 
 Done 13.08.2016:
 - outline and TODOs

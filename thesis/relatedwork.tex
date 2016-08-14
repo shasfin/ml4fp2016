@@ -73,8 +73,7 @@ The user specifies the desired program by providing a type signature and several
 
 The technique is inspired by proof search and searches for a term in the target language that has a valid typing derivation. The typing rules are modified to incorporate input-output examples and to push them towards the leaves of the derivation tree. That is, the information contained in the input-output examples is used to prune the search space even before a program that can be evaluated on the examples is generated. The tool also makes use of well-typed term enumeration to guess a term of the goal type that is consistent with the examples. Since enumeration is used to fill in the branches of a pattern matching or the arguments to a constructor, the size of enumerated term is considerably smaller than the size of the program being generated.
 
-This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. 
-
+This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. The benchmarks include programs over booleans, natural numbers, lists and trees. The tool is able to synthesise all benchmark programs in less than \SI{2.5}{min}, $70\%$ of them are synthesised in less than \SI{0.4}{s}. The only benchmark that takes more than \SI{1}{min} to synthesise is \lstinline!list-compress!.
 
 
 %Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs. No, I have nothing to compare. The benchmark is too different.) \cite{LeonPaper}
