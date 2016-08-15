@@ -15,6 +15,8 @@ The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions}
 
 \section{Problem}
 We restrict ourselves to purely functional programs without pattern matching, without recursion, without conditionals, just application of library components and input variables. Handle many components. Reuse common knowledge. Computational patterns encoded as components.
+The main task of the project is to design and implement an algorithm for program synthesis from a library of computational concepts represented as first or higher-order pure functions.
+We consider the synthesis of straight-line functional programs from a library of functional components.  For the time being, we would like to further restrict ourselves to purely applicative programs, i.e. programs having no lambda subexpressions. In principle, these restrictions do not limit program expressivity because adding a suitable higher-order definitions to the library allows one to express all computable functions.  In order to avoid synthesizing programs having errors due to bad typing we assume all the library components are explicitly typed in the Hindley-Milner type system.  From them the synthesizer should build a well-typed program.
 
 
 
