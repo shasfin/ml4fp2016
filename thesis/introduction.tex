@@ -3,6 +3,10 @@
 
 \chapter{Introduction}\label{ch:introduction}
 
+Let us move on to the contributions. We implemented in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis tool and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
+
+The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{Mythpaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
+
 \TODO{Write this chapter\\}
 
 \section{What is program synthesis?}
@@ -10,15 +14,10 @@
 \section{Background}
 
 \section{Problem}
+We restrict ourselves to purely functional programs without pattern matching, without recursion, without conditionals, just application of library components and input variables. Handle many components. Reuse common knowledge. Computational patterns encoded as components.
 
 
-\section{Contributions}
 
-Let us move on to the contributions. We implemented in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis tool and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
-
-\section{Structure of the thesis}
-
-The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{Mythpaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
 
 
 
