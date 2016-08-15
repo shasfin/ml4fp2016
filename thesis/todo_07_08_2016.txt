@@ -4,8 +4,6 @@ Introduction:
 - what is program synthesis --> hard
 - background --> hard
 - problem description --> medium
-- contributions --> easy
-- thesis structure --> easy
 
 Implementation:
 - outline
@@ -13,6 +11,9 @@ Implementation:
 Conclusion and future work:
 - outline
 
+Done 15.08.2016:
+- contributions --> easy
+- thesis structure --> easy
 
 Done 14.08.2016:
 - Myth
