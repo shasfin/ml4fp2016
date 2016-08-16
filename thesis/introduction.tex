@@ -58,36 +58,15 @@ for synthesis from scratch" Combine I/O and types.
 
 Ok, I have many papers, I want to classify them. In groups of at most five.
 \begin{itemize}
-\item those for a concrete domain (autobayes, fftw, streamit). Don't you have something more modern? (gulwani has something for string programming \cite{Gulwani:2011:ASP:1926385.1926423}, the ruler/compass thing \cite{Gulwani:2011:SGC:1993498.1993505})
-\item those parametrised by a domain. That is, you can instantiate it with a domain of your choice and get the synthesiser for your domain (\cite{Perelman:2014:TS:2594291.2594297}) 
-\item relies on theorem proving (manna)
-\item from the verification side, specification in form of assertions, pre-conditions and post-conditions, counter-example guided. \cite{LeonPaper} \cite{DBLP:journals/corr/InalaQLS15}
-\item relies on transformation of the input-output examples according to some rules (summers) (Kitzelmann \cite{Kitzelmann:2009:AIF:1530575.1530582})
-\item classical work (summers, manna)
-\item generalise input-output examples (summers, \cite{Gulwani:2011:ASP:1926385.1926423}
-\item search satisfying from input-output examples (Feser, Myth, Escher)
-\item help from the programmer in form of a template (or sketch) (\cite{Solar-Lezama:2006:CSF:1168857.1168907})
-\item combine input-output examples and type (Feser, Myth, \cite{Jha:2010:OCP:1806799.1806833})
-\item deductive
-\item use SMT solvers (\cite{Jha:2010:OCP:1806799.1806833} also component-based, Nadia from some point of view)
-\item requires a complete logical specification (\cite{Kuncak:2010:CFS:1806596.1806632})
-\item refinement types (Nadia) and inference of refinement types from examples (\cite{Frankle:2016:EST:2837614.2837629})
-\end{itemize}
-
-\begin{itemize}
-\item The five papers restricted to a domain are %\cite{Fischer:2003:ASG:967842.967845, Frigo98fftw:an, Thies2002, Gulwani:2011:ASP:1926385.1926423, Gulwani:2011:SGC:1993498.1993505}.
+\item The five papers restricted to a domain are \cite{Fischer:2003:ASG:967842.967845,Frigo98fftw:an,Thies2002,Gulwani:2011:ASP:1926385.1926423,Gulwani:2011:SGC:1993498.1993505}.
 \item \cite{Perelman:2014:TS:2594291.2594297} is parametrised by a domain. That is, you can instantiate it with a domain of your choice and get the synthesiser for your domain.
 \item \cite{Manna:1980:DAP:357084.357090} relies on theorem proving
-\item from the verification side, specification in form of assertions, pre-conditions and post-conditions, counter-example guided. \cite{LeonPaper, DBLP:journals/corr/InalaQLS15}
-\item relies on transformation of the input-output examples according to some rules %\cite{\cite{Summers:1977:MLP:321992.322002}, Kitzelmann:2009:AIF:1530575.1530582}). Maybe cite Summers as classical work and Kitzelmann as a modern example?
-\item classical work (summers, manna)
-\item generalise input-output examples (summers, \cite{Gulwani:2011:ASP:1926385.1926423}
-\item search satisfying from input-output examples (Feser, Myth, Escher)
-\item help from the programmer in form of a template (or sketch) (\cite{Solar-Lezama:2006:CSF:1168857.1168907})
-\item combine input-output examples and type (Feser, Myth, \cite{Jha:2010:OCP:1806799.1806833})
-\item deductive
-\item use SMT solvers (\cite{Jha:2010:OCP:1806799.1806833} also component-based, Nadia from some point of view)
+\item from the verification side, specification in form of assertions, pre-conditions and post-conditions, counter-example guided. \cite{LeonPaper,DBLP:journals/corr/InalaQLS15}
 \item requires a complete logical specification (\cite{Kuncak:2010:CFS:1806596.1806632})
+\item relies on transformation of the input-output examples according to some rules \cite{Summers:1977:MLP:321992.322002,Kitzelmann:2009:AIF:1530575.1530582}).
+\item search satisfying from input-output examples (Feser, Myth, Escher)
+\item combine input-output examples and type (Feser, Myth, \cite{Jha:2010:OCP:1806799.1806833})
+\item help from the programmer in form of a template (or sketch) (\cite{Solar-Lezama:2006:CSF:1168857.1168907})
 \item refinement types (Nadia) and inference of refinement types from examples (\cite{Frankle:2016:EST:2837614.2837629})
 \end{itemize}
 
