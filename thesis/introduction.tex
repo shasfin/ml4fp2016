@@ -3,11 +3,111 @@
 
 \chapter{Introduction}\label{ch:introduction}
 
+Program synthesis, also known as automatic programming, is the automatic generation of programs from specifications.
+
 Let us move on to the contributions. We implemented in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis tool and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
 
-The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{Mythpaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
+The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{MythPaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
 
 \TODO{Write this chapter\\}
+
+Papers to cite:
+\begin{enumerate}
+\item AutoBayes \cite{Fischer:2003:ASG:967842.967845} which produces data analysis programs from statistical models
+\item FFTW \cite{Frigo98fftw:an} which produces fast Fourier transforms optimized for specific architectures
+\item StreamIt \cite{Thies2002} which can produce very efficient signal processing kernels from a high-level
+\item \cite{Manna:1980:DAP:357084.357090}, relies on theorem proving: "A deductive approach to program synthesis is presented for the construction of recursive programs. This approach regards program synthesis as a theorem-proving task and relies on a theorem-proving method that combines the features of transformation rules, unification, and mathematical induction within a single framework."
+\item Summers \cite{Summers:1977:MLP:321992.322002}. "The construction methodology is illustrated as a series of transformations from the set of examples to a program satisfying the examples. The transformations consist of (1) deriving the specific computation associated with a specific example, (2) deriving control flow predicates, and (3) deriving an equivalent program specification in the form of recurrence relations."
+\item \cite{Gulwani:2011:ASP:1926385.1926423} "We describe the design of a string programming/expression language that supports restricted forms of regular expressions, conditionals and loops. The language is expressive enough to represent a wide variety of string manipulation tasks that end-users struggle with. We describe an algorithm based on several novel concepts for synthesizing a desired program in this language from input-output examples. The synthesis algorithm is very efficient taking a fraction of a second for various benchmark examples. The synthesis algorithm is interactive and has several desirable features: it can rank multiple solutions and has fast convergence, it can detect noise in the user input, and it supports an active interaction model wherein the user is prompted to provide outputs on inputs that may have multiple computational interpretations."
+\item \cite{Jha:2010:OCP:1806799.1806833} "We present a novel approach to automatic synthesis of loop-free programs. The approach is based on a combination of oracle-guided learning from examples, and constraint-based synthesis from components using satisfiability modulo theories (SMT) solvers." Can do bit-manipulations.
+\item \cite{Gulwani:2011:SGC:1993498.1993505} "In this paper, we study the problem of automatically solving ruler/compass based geometry construction problems. We then describe a new program synthesis technique based on three key insights: (i) reduction of symbolic reasoning to concrete reasoning (based on a deep theoretical result that reduces verification to random testing), (ii) extending the instruction set of the programming language with higher level primitives (representing basic constructions found in textbook chapters, inspired by how humans use their experience and knowledge gained from chapters to perform complicated constructions), and (iii) pruning the forward exhaustive search using a goal-directed heuristic (simulating backward reasoning performed by humans)."
+\item \cite{Kuncak:2010:CFS:1806596.1806632} "Synthesis of program fragments from specifications can make programs easier to write and easier to reason about. To integrate synthesis into programming languages, synthesis algorithms should behave in a predictable way - they should succeed for a well-defined class of specifications. They should also support unbounded data types such as numbers and data structures. We propose to generalize decision procedures into predictable and complete synthesis procedures. Such procedures are guaranteed to find code that satisfies the specification if such code exists. Moreover, we identify conditions under which synthesis will statically decide whether the solution is guaranteed to exist, and whether it is unique. We demonstrate our approach by starting from decision procedures for linear arithmetic and data structures and transforming them into synthesis procedures. We establish results on the size and the efficiency of the synthesized code. We show that such procedures are useful as a language extension with implicit value definitions, and we show how to extend a compiler to support such definitions. Our constructs provide the benefits of synthesis to programmers, without requiring them to learn new concepts or give up a deterministic execution model."
+\item \textsc{Leon} Deductive synthesis, counterexample-guided.
+That's from the verification side: the point is to deliver \emph{verified} software that satisfies some specifications such as assertions, pre-conditions and post-conditions.
+"We describe techniques for synthesis and verification of re-
+cursive functional programs over unbounded domains. Our
+techniques build on top of an algorithm for satisfiability
+modulo recursive functions, a framework for deductive syn-
+thesis, and complete synthesis procedures for algebraic data
+types. We present new counterexample-guided algorithms
+for constructing verified programs. We have implemented
+these algorithms in an integrated environment for interac-
+tive verification and synthesis from relational specifications.
+Our system was able to synthesize a number of useful recur-
+sive functions that manipulate unbounded numbers and data
+structures."
+\item \cite{Perelman:2014:TS:2594291.2594297} "Programming-by-example technologies empower end-users to create simple programs merely by providing input/output examples. Existing systems are designed around solvers specialized for a specific set of data types or domain-specific language (DSL). We present a program synthesizer which can be parameterized by an arbitrary DSL that may contain conditionals and loops and therefore is able to synthesize programs in any domain. In order to use our synthesizer, the user provides a sequence of increasingly sophisticated input/output examples along with an expert-written DSL definition. These two inputs correspond to the two key ideas that allow our synthesizer to work in arbitrary domains. First, we developed a novel iterative synthesis technique inspired by test-driven development---which also gives our technique the name of test-driven synthesis---where the input/output examples are consumed one at a time as the program is refined. Second, the DSL allows our system to take an efficient component-based approach to enumerating possible programs. We present applications of our synthesis methodology to end-user programming for transformations over strings, XML, and table layouts. We compare our synthesizer on these applications to state-of-the-art DSL-specific synthesizers as well to the general purpose synthesizer Sketch."
+\item Sketch!!! \cite{Solar-Lezama:2006:CSF:1168857.1168907} "Sketching is a software synthesis approach where the programmer develops a partial implementation - a sketch - and a separate specification of the desired functionality. The synthesizer then completes the sketch to behave like the specification. The correctness of the synthesized implementation is guaranteed by the compiler, which allows, among other benefits, rapid development of highly tuned implementations without the fear of introducing bugs.We develop SKETCH, a language for finite programs with linguistic support for sketching. Finite programs include many highperformance kernels, including cryptocodes. In contrast to prior synthesizers, which had to be equipped with domain-specific rules, SKETCH completes sketches by means of a combinatorial search based on generalized boolean satisfiability. Consequently, our combinatorial synthesizer is complete for the class of finite programs: it is guaranteed to complete any sketch in theory, and in practice has scaled to realistic programming problems.Freed from domain rules, we can now write sketches as simpleto-understand partial programs, which are regular programs in which difficult code fragments are replaced with holes to be filled by the synthesizer. Holes may stand for index expressions, lookup tables, or bitmasks, but the programmer can easily define new kinds of holes using a single versatile synthesis operator.We have used SKETCH to synthesize an efficient implementation of the AES cipher standard. The synthesizer produces the most complex part of the implementation and runs in about an hour."
+\item \cite{Kitzelmann:2009:AIF:1530575.1530582} "We describe a new method to induce functional programs from small sets of non-recursive equations representing a subset of their input-output behaviour. Classical attempts to construct functional <Emphasis Type="SmallCaps">Lisp</Emphasis> programs from input/output-examples are <em>analytical</em> , i.e., a <Emphasis Type="SmallCaps">Lisp</Emphasis> program belonging to a strongly restricted program class is algorithmically derived from examples. More recent approaches enumerate candidate programs and only <em>test</em> them against the examples until a program which correctly computes the examples is found. Theoretically, large program classes can be induced generate-and-test based, yet this approach suffers from combinatorial explosion. We propose a combination of search and analytical techniques. The method described in this paper is search based in order to avoid strong a-priori restrictions as imposed by the classical analytical approach. Yet candidate programs are computed based on analytical techniques from the examples instead of being generated independently from the examples. A prototypical implementation shows first that programs are inducible which are not in scope of classical purely analytical techniques and second that the induction times are shorter than in recent generate-and-test based methods."
+\item \cite{DBLP:journals/corr/InalaQLS15} "In this paper, we show how synthesis can help implement interesting functions involving pattern matching and algebraic data types. One of the novel aspects of this work is the combination of type inference and counterexample-guided inductive synthesis (CEGIS) in order to support very high-level notations for describing the space of possible implementations that the synthesizer should consider. The paper also describes a set of optimizations that significantly improve the performance and scalability of the system.
+The approach is evaluated on a set of case studies which most notably include synthesizing desugaring functions for lambda calculus that force the synthesizer to discover Church encodings for pairs and boolean operations, as well as a procedure to generate constraints for type inference. " Uses executable assertions???
+\item \cite{Frankle:2016:EST:2837614.2837629} "Input-output examples have emerged as a practical and user-friendly
+specification mechanism for program synthesis in many environ-
+ments. While example-driven tools have demonstrated tangible im-
+pact that has inspired adoption in industry, their underlying seman-
+tics are less well-understood: what are “examples” and how do they
+relate to other kinds of specifications? This paper demonstrates that
+examples can, in general, be interpreted as refinement types. Seen
+in this light, program synthesis is the task of finding an inhabitant
+of such a type. This insight provides an immediate semantic inter-
+pretation for examples. Moreover, it enables us to exploit decades
+of research in type theory as well as its correspondence with intu-
+itionistic logic rather than designing ad hoc theoretical frameworks
+for synthesis from scratch" Combine I/O and types.
+\end{enumerate}
+
+Ok, I have many papers, I want to classify them. In groups of at most five.
+\begin{itemize}
+\item those for a concrete domain (autobayes, fftw, streamit). Don't you have something more modern? (gulwani has something for string programming \cite{Gulwani:2011:ASP:1926385.1926423}, the ruler/compass thing \cite{Gulwani:2011:SGC:1993498.1993505})
+\item those parametrised by a domain. That is, you can instantiate it with a domain of your choice and get the synthesiser for your domain (\cite{Perelman:2014:TS:2594291.2594297}) 
+\item relies on theorem proving (manna)
+\item from the verification side, specification in form of assertions, pre-conditions and post-conditions, counter-example guided. \cite{LeonPaper} \cite{DBLP:journals/corr/InalaQLS15}
+\item relies on transformation of the input-output examples according to some rules (summers) (Kitzelmann \cite{Kitzelmann:2009:AIF:1530575.1530582})
+\item classical work (summers, manna)
+\item generalise input-output examples (summers, \cite{Gulwani:2011:ASP:1926385.1926423}
+\item search satisfying from input-output examples (Feser, Myth, Escher)
+\item help from the programmer in form of a template (or sketch) (\cite{Solar-Lezama:2006:CSF:1168857.1168907})
+\item combine input-output examples and type (Feser, Myth, \cite{Jha:2010:OCP:1806799.1806833})
+\item deductive
+\item use SMT solvers (\cite{Jha:2010:OCP:1806799.1806833} also component-based, Nadia from some point of view)
+\item requires a complete logical specification (\cite{Kuncak:2010:CFS:1806596.1806632})
+\item refinement types (Nadia) and inference of refinement types from examples (\cite{Frankle:2016:EST:2837614.2837629})
+\end{itemize}
+
+\begin{itemize}
+\item The five papers restricted to a domain are %\cite{Fischer:2003:ASG:967842.967845, Frigo98fftw:an, Thies2002, Gulwani:2011:ASP:1926385.1926423, Gulwani:2011:SGC:1993498.1993505}.
+\item \cite{Perelman:2014:TS:2594291.2594297} is parametrised by a domain. That is, you can instantiate it with a domain of your choice and get the synthesiser for your domain.
+\item \cite{Manna:1980:DAP:357084.357090} relies on theorem proving
+\item from the verification side, specification in form of assertions, pre-conditions and post-conditions, counter-example guided. \cite{LeonPaper, DBLP:journals/corr/InalaQLS15}
+\item relies on transformation of the input-output examples according to some rules %\cite{\cite{Summers:1977:MLP:321992.322002}, Kitzelmann:2009:AIF:1530575.1530582}). Maybe cite Summers as classical work and Kitzelmann as a modern example?
+\item classical work (summers, manna)
+\item generalise input-output examples (summers, \cite{Gulwani:2011:ASP:1926385.1926423}
+\item search satisfying from input-output examples (Feser, Myth, Escher)
+\item help from the programmer in form of a template (or sketch) (\cite{Solar-Lezama:2006:CSF:1168857.1168907})
+\item combine input-output examples and type (Feser, Myth, \cite{Jha:2010:OCP:1806799.1806833})
+\item deductive
+\item use SMT solvers (\cite{Jha:2010:OCP:1806799.1806833} also component-based, Nadia from some point of view)
+\item requires a complete logical specification (\cite{Kuncak:2010:CFS:1806596.1806632})
+\item refinement types (Nadia) and inference of refinement types from examples (\cite{Frankle:2016:EST:2837614.2837629})
+\end{itemize}
+
+What do I want to say and when
+\begin{itemize}
+\item at least since the late 60s
+\item problem too difficult: either restrict the domain (Igor for number series, 
+
+specification)
+or 
+\item inductive (became possible after computational success of computers) vs deductive (requires complete logical specification)
+\item logical specification:
+early classical work 
+\item recent, input-output based
+\end{itemize}
+
+As the problem is very difficult, researches tried to make it manageable in different ways. Some of them \cite{Gulwani:2011:ASP:1926385.1926423, Gulwani:2011:SGC:1993498.1993505} restricted themselves to a domain. Other systems \cite{Perelman:2014:TS:2594291.2594297} are parametrised by a domain and can be instantiated with a DSL of choice to get a synthesiser for the desired domain.
+
+
+
 
 \section{What is program synthesis?}
 
