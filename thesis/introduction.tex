@@ -6,7 +6,7 @@ Program synthesis, also known as automatic programming, is the automatic generat
 
 In this thesis we consider inductive synthesis of purely functional programs from components. We specify the desired program through input-output examples, that is pairs of inputs with their corresponding expected outputs. This is an intuitive and simple way to specify programs and makes synthesis more accessible to users with a lower level of expertise.
 
-When solving programming tasks, human programmers rely on prior knowledge of computational patterns. Such well-known computational patterns are reflected by library components, both first- and higher-order. For example, \lstinline!map! corresponds to the transformation of each element of a list according to a function and \lstinline!foldr! easily translates to recursive programs on lists. The program \lstinline!foldr f init xs! corresponds to the following recursive program with Haskell-like syntax.
+When solving programming tasks, human programmers rely on prior knowledge in form of computational patterns. Such well-known computational patterns are reflected by library components, both first- and higher-order. For example, \lstinline!map! corresponds to the transformation of each element of a list according to a function and \lstinline!foldr! easily translates to recursive programs on lists. The program \lstinline!foldr f init xs! corresponds to the following recursive program. Here and in Section~\ref{Example} we use Haskell-like syntax for programs.
 \begin{lstlisting}[style=plain]
 prog [] = init
 prog (x:xs) = f x (prog xs)
@@ -25,74 +25,47 @@ Good results were obtained by restricting the programs being synthesised to a sp
 
 Another way to simplify the problem is explicitly asking the programmer for help, as in \textsc{Sketch} \cite{Solar-Lezama:2006:CSF:1168857.1168907}, where the programmer provides the high-level structure of the program and the synthesiser is asked to fill in the low-level details.
 
-Different approaches has been explored.
+The approaches explored in the past $50$ years were inspired by different areas of research.
 Early approaches \cite{Manna:1980:DAP:357084.357090} were based on automatic theorem proving and the Curry–Howard correspondence. A complete logical specification of a program is translated into a theorem and a proof of this theorem is then translated into a program satisfying the specification.
 A drawback of these approaches is that a high level of mathematical maturity is required to formulate a specification as a logical formula.
 
-A more accessible specification, which we use in our synthesis procedure, is represented by input-output examples. Two kinds of approaches has been explored with this specification: the first one tries to derive a formula or a set of relations from the input-output examples that can be then transformed into a program \cite{Summers:1977:MLP:321992.322002,Kitzelmann:2009:AIF:1530575.1530582,Jha:2010:OCP:1806799.1806833}; the second one became interesting as the processor speed increased. It is based, like our approach, on enumeration of programs \cite{LambdaSquarePaper,EscherPaper,MythPaper}.
+A more accessible specification, which we use in our synthesis procedure, is represented by input-output examples. Using this specification, two kinds of approaches has been explored: the first one strives to derive a formula or a set of relations from the input-output examples that can be then transformed into a program \cite{Summers:1977:MLP:321992.322002,Kitzelmann:2009:AIF:1530575.1530582,Jha:2010:OCP:1806799.1806833}; the second one, based on program enumeration  \cite{LambdaSquarePaper,EscherPaper,MythPaper}, became popular as the processor speed increased. Our approach is of this kind.
 
-Automatic theorem proving is not the only field that inspired program synthesis. Recently ideas from program verification made their way into synthesis \cite{LeonPaper,DBLP:journals/corr/InalaQLS15,Kuncak:2010:CFS:1806596.1806632}. Type theory also contributes to program synthesis. Recent inductive systems from input-output examples \cite{LambdaSquarePaper,MythPaper} along with our system use simple types to prune the search space. More advanced types are even used as a specification \cite{SynquidPaper}. Because of the advantages offered by input-output examples as a specification, a recent system \cite{Frankle:2016:EST:2837614.2837629} infers those advanced types from input-output examples.
+Automatic theorem proving is not the only field that inspired program synthesis. Recently ideas from program verification made their way into synthesis \cite{LeonPaper,DBLP:journals/corr/InalaQLS15,Kuncak:2010:CFS:1806596.1806632}. Type theory also contributes to program synthesis. Recent inductive systems from input-output examples, \cite{LambdaSquarePaper,MythPaper} along with our system, use simple types to prune the search space. More advanced types are even used as a specification \cite{SynquidPaper}. Because of the advantages offered by input-output examples as a specification, a recent system \cite{Frankle:2016:EST:2837614.2837629} infers those advanced types from input-output examples.
 
 \section{Problem statement}\label{Problem}
 
 The synthesis procedure we define and evaluate in this thesis aims to synthesise straight-line purely applicative functional programs specified by input-output examples. We use a simple enumerate-and-test approach. In order to avoid errors due to bad typing, we enumerate only well-typed programs. We rely on a large library of first- and higher-order components reflecting common computational patterns.
 The synthesiser should compose a program from library components that agrees with the given input-output examples and generalises well to unseen examples.
 
-For example, \TODO{replicate example}
+For example, consider we want to generate \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! of any type and returns the list \lstinline![x, x, $\ldots$, x]! of length \lstinline!n!. A straight-line purely applicative functional solution composed from standard first- and higher-order components would be:
+\begin{lstlisting}[style=plain]
+replicate n x = map (const x) (enumTo n)
+\end{lstlisting}
+In the above program, \lstinline!map! is the higher-order function that applies its first argument, a function, to every element of its second argument, a list; \lstinline!const! is the function that takes two arguments and always returns the first one; \lstinline!enumTo! is the function that takes an integer \lstinline!m! and returns the list \lstinline![1, 2, $\ldots$, m]!.
+The above program encodes the following insight: in order to generate a list consisting of \lstinline!n! copies of \lstinline!x!, we can first generate a list of length \lstinline!n!, in this case \lstinline![1, 2, $\ldots$, n]!, and then transform each element of this list into \lstinline!x!.
 
 In contrast to other systems based on enumeration \cite{MythPaper, LambdaSquarePaper}, we do not target recursive programs or programs containing lambda expressions, conditionals or pattern matching. However, those restrictions theoretically do not limit the set of functions we can express, since adding suitable higher-order components\footnote{For example, the $S, K, I$ combinators introduced by Schönfinkel in \cite{Schonfinkel1924}.} to the library makes it possible to express all computable functions.
 
-In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the following recursive program. Again, we use Haskell-like syntax for pattern matching.
+In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNat f init n! can be translated into the following recursive program.
+\begin{lstlisting}[style=plain]
+p 0 = init
+p n = f (p (n-1))
+\end{lstlisting}
+Instantiating \lstinline!init! with \lstinline![]! and \lstinline!f! with \lstinline!(x:)! leads to a solution for \lstinline!replicate! corresponding to the recursive program:
+\begin{lstlisting}[style=plain]
+replicate 0 x = []
+replicate n x = x:(replicate (n-1))
+\end{lstlisting}
+
+Analogously, the component \lstinline!foldNatNat! mimics the recursive pattern:
 \begin{lstlisting}[style=plain]
 p 0 = init
 p n = f n (p (n-1))
 \end{lstlisting}
-This pattern is used in the definition of \lstinline!replicate!, \lstinline!enumTo!, \lstinline!sumUnder! and \lstinline!factorial!.
+This common pattern is used in the recursive definitions of \lstinline!enumTo!, \lstinline!sumUnder! and \lstinline!factorial!.
 
-
-
-
-\TODO{Describe the problem again, add the replicate example\\}
-
-
-
-
-The goal of this project is to study how an inductive synthesis algorithm can effectively apply such knowledge in a synthesis task. In particular, higher-order functions represent well-known patterns and we are interested in how a library of such function definitions can be used to guide and speed up the synthesis process.
-
-The goal of the project is to design an inductive synthesis algorithm for the first-order $\lambda$-free expressions of System F. A synthesis task specifies a library of components and a set of input-output examples. 
-
------------------------------------------
-
-Let us move on to the contributions. We implemented in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis tool and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
+We are interested in studying how an inductive synthesis algorithm can apply this knowledge in a synthesis task. In particular, we are interested how a library of first- and higher-order components can guide and speed up the synthesis process.
+To that end, we implement in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis procedure and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
 
 The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{MythPaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
-
----------------------------------
-
-
-\begin{itemize}
-\item (maybe move general introduction/motivation to the beginning? State your problem as early as possbible!)
-\item intuitive description of the problem statement and a motivation why something that restricted should be interesting (encode computational patterns as components, thin interfaces, SKI as components). Bring the replicate example. Type-driven, example-based, from components. Should be stated clearly. "How I restrict the search space and what specification do I choose. Replicate example. Motivate why it could be useful and why this is not too restricted." Don't forget the main hypothesis, that higher-order components help.
-\end{itemize} 
-
-
-This is not really a limitation, since common recursive patterns can be encoded as components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the recursive program
-\TODO{Make sure it is \lstinline!f (n-1) (p (n-1))! and not \lstinline!f n (p (n-1))!, correct if needed\\}
-\begin{lstlisting}[style=plain]
-p n = match n with
-  | 0 -> init
-  | n -> f (n-1) (p (n-1))
-\end{lstlisting}  
-
-for motivation you could write something about the extremely restricted list library in ocaml :)\\
-Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
-
-
-
-
-Problem definition: have many components, put them together into a program, no lambdas, no if-then-else, no recursion
-  
-
-  
-  
-Contributions: Evaluation, exploring the baseline algorithm, exploring the search space, see if higher-order components are a good way to communicate knowledge.
