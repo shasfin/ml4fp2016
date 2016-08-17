@@ -9,7 +9,7 @@ In this chapter we will formally define our type-directed top-down synthesis pro
 \section{Calculus}
 
 This section formally defines the language of our synthesiser. The goal programs consist of applications of library components and input variables, and are based on the terms of System F. During synthesis we also use an additional syntactic construct: the hole. We denote the language based on the application of library components, input variables and holes as the \emph{target language} of our synthesiser.
-But also need another language: the language in which the library components are defined and the programs are evaluated on the input-output examples. We call this language \emph{internal language}. It extends System F with holes, parametric types and recursion.
+However, we also need another language: the language in which the library components are defined and the programs are evaluated on the input-output examples. In the rest of the chapter we will call this language the \emph{internal language}. It extends System F with holes, parametric types and recursion.
 
 In Section~\ref{Term and types} we present the syntax of the following three calculi.
 \begin{enumerate}[1.]
@@ -17,10 +17,10 @@ In Section~\ref{Term and types} we present the syntax of the following three cal
 \item The internal language: an extension of System F with holes, input variables, library components, parametric types and recursive terms and types
 \item The target language: a subset of the internal language, featuring only application of components, holes and input variables
 \end{enumerate}
-We provide the syntax of System F only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
+We provide the syntax of System F only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems by Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
 
-Since the target language is a subset of the internal language, Section~\ref{Typing} and Section~\ref{Evaluation} show the typing and, respectively, the evaluation rules only for the internal language.
-Section~\ref{Encodings} discusses how to encode integers and lists in the internal language. Section~\ref{Unification} addresses unification over the types of the internal language, needed to determine which library components can be used to fill in a hole of a particular type.
+Since the target language is a subset of the internal language, Section~\ref{Evaluation} and Section~\ref{Typing} show the evaluation and, respectively, the typing rules only for the internal language.
+Section~\ref{Encodings} discusses how to encode integers and lists in the internal language. In Section~\ref{Unification} we address unification over the types of the internal language, needed to determine which library components can be used to fill in a hole of a particular type.
 
   \subsection{Terms and Types}\label{Term and types}
 This section presents the syntax of three different calculi: System F, the internal language and the target language.
@@ -46,12 +46,13 @@ The syntax of our calculus is summarised below. Evaluation and typing rules for 
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
-Note that we have three additional contexts. The first one, $\Xi$, binds term holes to their types and type holes.
+Note that we have three additional contexts.
+The first one, $\Xi$, collects type and term holes. Moreover, it binds term holes to their types.
 The second one, $\Phi$, is the library of input variables. It contains one concrete instantiation of the input variables. It binds a definition and a type signature to each input term variable and a definition to each input type variable.
 The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
 
 
-\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the \lstinline!replicate! example, but there all type applications were omitted for the sake of clarity.
+\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the 'replicate' example, but there all type applications were omitted for the sake of clarity.
 Formally, the target language restricts the internal language to term and type application of library components, input variables and holes as follows.
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
@@ -67,6 +68,7 @@ Since this is a proper subset of the internal language, we do not need separate 
 
   \subsection{Encodings}\label{Encodings}
 Familiar types such as booleans, integers or lists do not appear in the definition of the types of the internal language. All these types can be encoded in the type system of the internal language using either Church's or Scott's encoding \cite{ScottNumerals}. We opt for Scott's encoding because it is more efficient in our case.
+
 Scott's booleans coincide with Church's booleans and are encoded as follows.
 \begin{lstlisting}[style=plain, mathescape]
 Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
@@ -100,10 +102,10 @@ case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\r
      : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
 \end{lstlisting} 
 
-Other algebraic datatypes, such as trees, can be easily encoded in the same style.
+Other algebraic datatypes, such as trees, can be easily encoded in an analogous manner.
 
   \subsection{Evaluation semantics}\label{Evaluation}
-In this section we present the evaluation semantics of our internal language, that is the second calculus introduced in Section~\ref{Term and types}. The evaluation semantics is a standard eager evaluation and we refer to the excellent book of Benjamin Pierce about type systems \cite{pierce2002types} for an introduction to the evaluation semantics of System F and evaluation rules in general.
+In this section we present the evaluation semantics of our internal language, that is the second calculus introduced in Section~\ref{Term and types}. The evaluation semantics is a standard eager evaluation and we refer to the excellent book by Benjamin Pierce about type systems \cite{pierce2002types} for an introduction to the evaluation semantics of System F and evaluation rules in general.
 
 The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that the term $t$ evaluates in one step to the term $t'$ under the free variable bindings library $\Phi$, that contains concrete instantiations for the input variables, and the component library $\Delta$, that contains the definitions of the library components. Before listing the evaluation rules, let us define \emph{value} $v$ to be a term to which no evaluation rules apply.
 
@@ -148,7 +150,7 @@ Note that E-App2 applies only if the left hand side of the application cannot be
 
 \subsection{Type checking}\label{Typing}
 
-In this sections we will present the typing rules of our internal language, that is the second calculus presented in Section~\ref{Term and types}. The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$ means the term $t$ has type $T$ in the contexts $\Gamma$ and $\Xi$, binding respectively variables and holes, and $\Phi$ and $\Delta$, containing signatures and definitions of respectively input variables and library components. The typing judgement is similar to the typing judgement of System F. As usual, we refer to \cite{pierce2002types} for more details.
+In this section we will present the typing rules of the internal language, that is the second calculus presented in Section~\ref{Term and types}. The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$ means the term $t$ has type $T$ in the contexts $\Gamma$ and $\Xi$, binding respectively variables and holes, and $\Phi$ and $\Delta$, containing signatures and definitions of respectively input variables and library components. The typing judgement is similar to the typing judgement of System F. As usual, we refer to \cite{pierce2002types} for more details.
   
 \begin{prooftree}
 \AxiomC{$x : T \in \Gamma$}
@@ -199,7 +201,7 @@ In this sections we will present the typing rules of our internal language, that
 	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1\;[T_2] : [X \mapsto T_2]T_{12}$}
 \end{prooftree}
 
-The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, input variables and, respectively, library components from the respective contexts.
+The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, input variables and library components respectively from their contexts.
 T-Abs types a lambda abstraction as an arrow type from the type of its variable to the type of its body. \textsc{T-Abs} gives a type abstraction a universal type in accordance to the type of its body.
 An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
@@ -208,12 +210,13 @@ An application typechecks only if the left hand side has an arrow type and the t
 In order to identify the library components that can be used to instantiate a hole of a given type, we need type unification. Consider, for example, a hole of type \lstinline?List Int -> Int?. We want to instantiate this hole not only with components that have precisely this type, like \lstinline?sum? and \lstinline?prod?, but also components with a more general type that can be matched to the desired type through type application, like \lstinline?head :: $\forall$X. List X -> X? and \lstinline?length :: $\forall$X. List X -> Int?.
 
 However, unification on the type system of System F is undecidable \cite{Huet1975}.
-Therefore we chose to restrict our type system to quantifier-free forms.
-This allows us to completely ignore universal types during unification. However, we still want to handle universally quantified library components, that is components whose type has the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? where \lstinline?T($X_1, \ldots, X_n$)? is quantifier-free. To this end, we represent type of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is we leave out all quantifiers and replace the bound variables with fresh type holes.
+Therefore we choose to restrict our type system to quantifier-free forms.
+This allows us to completely ignore universal types during unification. Nonetheless, we still want to handle universally quantified library components, that is components whose type has the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? with a quantifier-free \lstinline?T($X_1, \ldots, X_n$)?. Towards this end, we represent types of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is we leave out all quantifiers and replace the bound variables with fresh type holes.
+
+The goal of unification is to find a substitution $\sigma$ that unifies all pairs of types of a set of constraints.
+A set of constraints $\C$ is a set containing pairs of types $(S, T)$ that should be equal under a \emph{substitution} (a mapping from holes to types). That is, for the output of the unification algorithm $\sigma$ it must hold $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$.
 
 Our unification algorithm (summarised as Algorithm~\ref{alg:type unification} below) is based on the unification algorithm for typed lambda calculus from \cite{pierce2002types} and slightly modified to fit our needs.
-
-A set of constraints is a set of types that should be equal under a substitution. The unification algorithm is supposed to output a substitution $\sigma$ so that $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$. A substitution maps holes to types.
 
 A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unifies either with a type hole or with another arrow type \lstinline?$T_3$ -> $T_4$? if \lstinline?$T_1$? unifies with \lstinline?$T_3$? and \lstinline?$T_2$? with \lstinline?$T_4$?. A named type applied to all of its parameters \lstinline?C $T_{11}$ $\ldots$ $T_{1k}$? unifies either with a type hole or with the same named type applied to the same number of parameters \lstinline?C $T_{21}$ $\ldots$ $T_{2k}$? if the respective parameters \lstinline?$T_{1j}$? and \lstinline?$T_{2j}$? unify for all $j = 1, \ldots, k$. Universal  types unify only with type holes and should not appear in the set of constraints.
 
