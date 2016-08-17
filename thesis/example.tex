@@ -1,36 +1,44 @@
-\section{The 'replicate' example}
+%Naturally, we would prefer smaller programs to larger ones, becuase they are easier for the user to inspect, but most importantly, because they are more likely to generalize the intended input-output behaviours outside of the examples specified by the user.  This is a crude instance of Occam's razor: from the multitude of possible explainations we prefer the one that is simplest\footnote{If it turns out that the found program does not have proper behavour beyond the given input-output examples, then the user can provide more examples to further guide the search.}.
 
-Recall the example from Chapter~\ref{ch:introduction} where we wanted to synthesise the program corresponding to \lstinline?replicate.? As our synthesis procedure is type-driven and example-based, the user specifies a program by providing its type along with a few I/O-examples.\\
-Let us specify \lstinline?replicate? as follows.
+%A crucial aspect in that we don't enumerate candidate programs blindly, but we take into account the type of the program to be synthesized, and also the types of the components in the library.  This is very important to reduce the space of candidate programs.
+
+%The goal is to put together components from the library in a type-aware manner in order to get a list. More concretely, we fix \lstinline?X? to be a fixed input type variable, we fix \lstinline?n? to be an integer and \lstinline?x? to be a fixed input variable of type \lstinline?X?.
+
+\section{The 'replicate' example}
+Let us illustrate our synthesis procedure with the `replicate' example from Chapter~\ref{ch:introduction}.  We want to synthesise a program that takes a number $n$ and an element $x$, and returns the list $[x, \dots, x]$ that consists of $n$ copies of $x$.  A typical synthesis task would be specified like this:
 \begin{lstlisting}[style=plain]
 replicate :: $\forall$X. Int -> X -> List X
-replicate 3 1 = [1,1,1]
+replicate 3  1 = [1,1,1]
 replicate 2 [] = [[],[]]
 \end{lstlisting}
+Here, the user specifies the input-output signature of the program (its type), and a few input-output examples of its intended behaviour.  In this case, the user desires that the program can replicate elements of any type $X$, hence the type signature is prefixed with the $\forall X$ quantifier.  The ability to work with any type of elements is made evident by the two examples presented after the type signature.  In the first one, the number $1$ gets replicated three times; in the second one, the empty list \lstinline|[]| gets replicated twice.
 
-We also need a library of components from which we are going to compose our program. Let us assume that our library contains the standard list combinators \lstinline?map? and \lstinline?foldr?, \lstinline?enumTo?, that is the function that returns a list from $1$ up to its argument, and \lstinline?const?, that is the function that always returns its first argument. Moreover, the library also contains the list constructors \lstinline?cons? and \lstinline?[]? and the integer constructors \lstinline?succ? and \lstinline?0?. Even with so few library components, the search space is quite big.
+In order to solve the synthesis task, we look for a program composed of components from a user-specified \emph{library of components}.  Let us assume that in our case the library consists of the standard list combinators \lstinline|map| and \lstinline|foldr|.  In addition, we include the \lstinline|enumTo| function that returns a list with the numbers from $1$ up to its argument, and also the \lstinline|const| function that always returns its first argument.  We will also need the standard list constructors \lstinline|cons| and \lstinline|[]|, and the standard integer constructors \lstinline|succ| and \lstinline|0|.
 
-The goal is to put together components from the library in a type-aware manner in order to get a list. More concretely, we fix \lstinline?X? to be a fixed input type variable, we fix \lstinline?n? to be an integer and \lstinline?x? to be a fixed input variable of type \lstinline?X?.
+We search for the goal program by enumerating plausible programs, starting from simpler ones and moving to more complex ones (c.f., Occam's razor).  In the process, we test whether the enumerated programs meet the specified input-output behaviours.  Once we find such a program, we give it to the user for approval.  The main difficulty with this approach is that the number of candidate programs of a given size grows exponentially, but on the other hand very few of them make sense for the synthesis task.  For example, the program \lstinline|replicate n x = n| returns the integer $n$ instead of a list of elements, contradicting the specified type signature of `replicate'.
+
+We address this problem by enumerating only well-typed programs that meet the user-specified type-signature.  We do that by actually enumerating \emph{partial programs}.  Partial programs are just programs with \emph{holes} that are to be filled-in later.  Every hole has a type that \emph{drives} subsequent search steps: they fill the hole with a partial program matching its type.  In our particular example, the search would start with the partial program:
 \begin{lstlisting}[style=plain]
 replicate n x = ?p
 ?p :: List X
 \end{lstlisting}
-In the program above \lstinline!?p! is a \emph{hole}, that is a fresh variable starting with \lstinline!?! whose type is known. The goal is to find an instantiation for all holes and end up with a \emph{closed} program, that is a program without holes, that satisfies all input-output examples.
+The hole \lstinline|?p| is treated as a typed fresh symbol that has to be filled-in with another partial program.  Thus, our task is to find an instantiation for all holes recursively until we end up with a \emph{closed} program (all holes filled-in) that satisfies all the input-output examples provided by the user.
 
-In this initial state, \lstinline!?p! is the only hole. We look for an instantiation of type \lstinline!List X!. To that end, we search for library components that return something of type \lstinline?List X?. We exclude \lstinline?enumTo?, because it only produces a list of integers, but all other possibilities are open. Namely, we could fold some list, map some function on a list or even use \lstinline?const? with a suitable first argument. But the first and easiest instantiation of type \lstinline?List X? is \lstinline?[]?. That is, our first program looks as follows.
+We structure the recursive enumeration process as a best-first search.  We maintain a set of current partial programs, the \emph{frontier}, whose holes are to be expanded.  At each step we select and remove a partial program of minimum \emph{cost} (e.g., size) from the frontier.  Then, we fill-in one of the holes in the selected program according to a set of rules.  The rules produce a set of \emph{successors} that are then added to the frontier.  The search continues until we select a closed programs that meets all the given input-output examples.
+
+The tricky part in the search are the rules that determine the successors of the selected program.  The rules must ensure that only well-typed programs are enumerated.  For example, in the above partial program we expand the lone hole \lstinline|?p|.  This hole has type \lstinline|List X| and we need to find a component in the library that is of this type.  This immediately excludes the integer constructors \lstinline|succ| and \lstinline|0|.  However, it also excludes \lstinline|enumTo|, as it produces a list of integers, while we need a list of \lstinline|X|, and \lstinline|X| could be any type, not necessarily \lstinline|Int|.  All other possibilities are open: we can fill \lstinline|?p| with the result of a \lstinline|fold|, a \lstinline|map|, a \lstinline|const|, or with the empty list \lstinline|[]|.  Let us begin with \lstinline|[]|:
 \begin{lstlisting}[style=plain]
 replicate n x = []
 ?p = [] :: List X
 \end{lstlisting}
-Since this program is closed, we can evaluate it on the input-output examples. However, it does not satisfy any of them. Therefore we must try the other four possible instantiations of \lstinline!?p! as well.
 
+Since this program is closed, we can test it on the input-output examples, but it satisfies none of them.  Therefore, we consider the other four possible instantiations of \lstinline!?p! as well:
 \begin{lstlisting}[style=plain]
 replicate n x = cons ?x ?xs
 ?p = cons ?x ?xs :: List X
 ?x :: X
 ?xs :: List X
 \end{lstlisting}
-
 \begin{lstlisting}[style=plain]
 replicate n x = foldr ?f ?init ?xs
 ?p = foldr ?f ?init ?xs :: List X
@@ -38,29 +46,21 @@ replicate n x = foldr ?f ?init ?xs
 ?init :: List X
 ?xs :: List ?Y
 \end{lstlisting}
-Here \lstinline!?Y! is a fresh type variable that will be instantiated later. As of now we have no idea about the type of the first argument of \lstinline!?f!. The only thing we know is that it has to match the type of the elements of \lstinline!?xs!.
-
-The other two possibilities to fill in \lstinline!?p! follow.
-
 \begin{lstlisting}[style=plain]
 replicate n x = const ?xs ?s
 ?p = const ?xs ?s :: List X
 ?xs :: List X
 ?s :: ?Y
 \end{lstlisting}
-
 \begin{lstlisting}[style=plain]
 replicate n x = map ?f ?xs
 ?p = map ?f ?xs :: List X
 ?f :: ?Y -> X
 ?xs :: List ?Y
 \end{lstlisting}
+In these programs, \lstinline!?Y! is a fresh type variable that will be instantiated later.  It indicates that we do not know the type of the first argument of \lstinline!?f!. The only thing we know is that it has to match the type of the elements of \lstinline!?xs!.
 
-The synthesis procedure is based on \emph{best-first search}. That is, we maintain a frontier candidate solutions, in this case program with holes, and at each iteration we expand one of the holes of the most promising candidate program. At this point, the frontier of candidate solutions contains the four programs listed above.
-The next step in the procedure, as already stated, is to expand one of the holes of the most promising candidate program.
-Let us decide that the most promising program is the last one. In Section~\ref{Cost functions} we define cost functions on programs and define the most promising program to be the one with the smallest cost. For now we just choose the one that will lead us to the solution.
-
-The most promising candidate program, \lstinline!replicate n x = map ?f ?xs!, has two holes to fill in: a function \lstinline!?f! that takes something and returns an \lstinline?X? and a list \lstinline!?xs! of something. We decide to expand the hole \lstinline!?f! first. Obviously, we cannot use \lstinline?map? or \lstinline?enumTo?, because they return lists, whereas \lstinline!?f! must return an \lstinline!X!. However, all other possibilities are open. We have to add following two programs to the frontier of candidate programs.
+The next step in the procedure is to expand some hole in the program of least cost.  In Section~\ref{Cost functions} we discuss several choices for a cost function, but here we just select programs that will lead us to the solution.  Let us select the last program for expansion, i.e., \lstinline|map ?f ?xs|.  We have two holes to fill-in: a function \lstinline!?f! that takes a \lstinline|?Y| and returns an \lstinline|X|, and a list \lstinline!?xs! of \lstinline|?Y|.  We decide to expand the hole \lstinline|?f| first.  Obviously, for that we cannot use \lstinline|map| or \lstinline|enumTo|, because they return lists, whereas \lstinline|?f| must return an \lstinline|X|.  The other two possibilities are \lstinline|foldr| and \lstinline|const|, which we add the to the frontier:
 
 \begin{lstlisting}[style=plain]
 replicate n x = map (foldr ?g ?init) ?xs
@@ -70,7 +70,6 @@ replicate n x = map (foldr ?g ?init) ?xs
 ?init :: X
 ?xs :: List (List ?Z)
 \end{lstlisting}
-Note that we instantiated \lstinline!?Y! with \lstinline!List ?Z!, because \lstinline?foldr? takes a list as its last argument.
 
 \begin{lstlisting}[style=plain]
 replicate n x = map (const ?x) ?xs
@@ -78,10 +77,9 @@ replicate n x = map (const ?x) ?xs
 ?x :: X
 ?xs :: List ?Y
 \end{lstlisting}
+Note that in the first case we instantiated \lstinline|?Y| with \lstinline|List ?Z|, because \lstinline|foldr|takes a list as its last argument.  This indicates that type-instantiation is a non-trivial task.  In particular, it requires solving \emph{unification} constraints between arguments and return values, as discussed in \verb|TODO:PUT-REFERENCE|.
 
-After adding the new candidate programs to the frontier, we expand one of the holes of the most promising candidate program. Let us decide that the most promising program is the last one.
-There are two holes to fill in: \lstinline!?x! of type \lstinline!X! and \lstinline!?xs! of type \lstinline!List ?Y!. For the first hole we have only one possibility: the second argument to \lstinline!replicate!, \lstinline!x!. Therefore we add following program to the frontier of candidate solutions.
-
+Now, we need to expand a program in the frontier again.  Let us assume that the program of least cost is \lstinline|map (const ?x) ?xs|.  There are two holes to fill-in: \lstinline|?x| of type \lstinline|X| and \lstinline|?xs| of type \lstinline|List ?Y|.  Interestingly, we have only one option for the first hole, and so we take it: \lstinline|replicate|'s second argument \lstinline|x|:
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) ?xs
 ?p = map ?f ?xs :: List X
@@ -90,13 +88,9 @@ replicate n x = map (const x) ?xs
 ?xs :: List ?Y
 \end{lstlisting}
 
-Let us directly decide that this is the most promising candidate program and let us expand its only hole, \lstinline!?xs!.
-As in the beginning, we have to generate a list. However, since this time the type of the elements is not fixed, we cannot rule out  \lstinline?enumTo?.
-Therefore we have a lot of possibilities to instantiate this hole, starting with \lstinline?[]? and ending with \lstinline!enumTo ?n! where \lstinline!?n! is a fresh hole of type \lstinline!Int!.
+We select this newly added program from the frontier, and fill-in its only hole \lstinline|?xs|.  We are now in a situation similar to where the whole search started: we have to generate a list.  However, this time the type of the elements is not fixed, and we cannot rule out \lstinline|enumTo|.  Therefore we have a lot of possibilities to instantiate this hole, starting with \lstinline|[]| and ending with \lstinline|enumTo ?n| where \lstinline|?n| is a fresh hole of type \lstinline|Int|.
 
-One of the candidate programs, \lstinline?replicate n x = map (const x) []?, is closed, therefore we evaluate it on the input-output examples. However, this program does not satisfy any of them.
-
-For the sake of brevity and clarity, we omit all candidate solutions added to the frontier at this step except for the most promising program, that is
+One of the candidate programs, \lstinline|map (const x) []|, is closed, and we evaluate it on the input-output examples.  However, this program does not satisfy any of them, thus we rule it out.  Several candidate solutions are added to the frontier at this step, but let us focus on the most promising one:
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) (enumTo ?n)
 ?p = map ?f ?xs :: List X
@@ -105,26 +99,23 @@ replicate n x = map (const x) (enumTo ?n)
 ?xs = enumTo ?n :: List Int
 ?n :: Int.
 \end{lstlisting}
-The only hole to expand is \lstinline!?n! and has type \lstinline!Int!. An integer hole can be instantiated by the constructor \lstinline?0?, the constructor \lstinline?succ? applied to another integer hole, the first argument of \lstinline?replicate?, or \lstinline?const? applied to an integer hole and some second argument.
 
-The following two closed programs are among the candidate solutions added to the frontier at this step.
+The only hole to expand is \lstinline|?n| and has type \lstinline|Int|.  Again, we have a lot of possibilities: the number \lstinline|0|, \lstinline|replicate|'s first argument \lstinline|n|, the constructor \lstinline|succ| applied to another integer hole, or the result of invoking \lstinline|const|.  We again look at the closed successors, namely the first two:
 \begin{lstlisting}
 replicate n x = map (const x) (enumTo 0)
 \end{lstlisting}
 \begin{lstlisting}
 replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
-Evaluation shows that only the second one satisfies the I/O-examples.
+The first successor does not satisfy the input-output examples.  On the other hand, the second one does, and we finally arrived at a solution.  Further inspection by the user shows that this program indeed captures the desired `replicate' functionality.  Our synthesis task is complete.
 
-This example showed how we use best-first search to generate a program from components that satisfies the input-output examples. Even if type-aware expansion of holes helped to rule out ill-typed programs, the search space is quite big. Moreover, not all well-typed programs we generated are equally good. For example, the program \lstinline!replicate n x = const ?xs ?s! is \emph{superfluous} in that it is fully equivalent to the shorter program \lstinline!replicate n x = ?xs!. Superfluous programs can be ruled out based on the semantics of the components. In Section~\ref{Black list} we show one way to do it.
+This example showed how to use type-directed best-first search to generate a program with specified input-output behaviour, given a library of basic components.  The many search choices that we left unexplored, indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  In Section~\ref{Black list} we show an additional way to rule out superfluous programs from the search space, by blacklisting hole instantiations that have the same (or similar) input-output behaviour.
 
 \subsection{Summary}
-
-This example shows some important concepts that are defined formally in the next sections of this chapter.
 \begin{description}
 \item[Hole] unknown part of a program that can be instantiated with some other programs. Only its type is known.
 \item[Closed program] a program without holes that can be evaluated on the input-output examples. The terms and the types of our calculus are formally defined in Section~\ref{Term and types}.
 \item[Type-aware expansion of holes] we expand holes based on their type. In Section~\ref{Search space} we can find the rules according to which a program is expanded.
 \item[Best first search] a frontier of programs with holes is maintained, one hole of the most promising is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and a notion of most promising program is presented in Section~\ref{Cost functions}.
-\item[Superfluous program] a program that is equivalent to a shorter program. Section~\ref{Black list} shows one way to rule out superfluous programs.
+\item[Superfluous program] a program that is equivalent to a shorter program. 
 \end{description}
