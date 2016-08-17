@@ -137,19 +137,22 @@ This example shows some important concepts that are defined formally in the next
  
 \section{Calculus}
 
-\TODO{fix the rest of it\\}
+This section formally defines the language of our synthesiser.
+
+In this section we formally define the internal language of our synthesiser.
+\TODO{TODO introducting words to the whole section.\\}
 We represent our
 
-In this section we will look at three different calculi.
+We provide the first calculus only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
+
+The third calculus is the target language of our synthesiser. However, we still need the more powerful second calculus to define the library components and evaluate them on the input-output examples.
+
+To summarise, in this section we will look at the following three calculi.
 \begin{enumerate}[1.]
 \item System F
 \item The internal language: an extension of System F with holes, input variables, library components, parametric types and recursive terms and types
 \item The target language: a subset of the internal language, featuring only application of components, holes and input variables
 \end{enumerate}
-
-We provide the first calculus only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
-
-The third calculus is the target language of our synthesiser. However, we still need the more powerful second calculus to define the library components and evaluate them on the input-output examples.
 
 
   \subsection{Terms and Types}\label{Term and types}
@@ -174,12 +177,12 @@ The syntax of our calculus is summarised below. Evaluation and typing rules for 
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
-Note that we have three additional contexts. $\Xi$ binds term holes to their types and type holes.
-$\Phi$ is the library of input variables. It contains one concrete instantiation of the input variables. It binds a definition and a type signature to each input term variable and a definition to each input type variable.
-$\Delta$ is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
+Note that we have three additional contexts. The first one, $\Xi$, binds term holes to their types and type holes.
+The second one, $\Phi$, is the library of input variables. It contains one concrete instantiation of the input variables. It binds a definition and a type signature to each input term variable and a definition to each input type variable.
+The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
 
 
-\paragraph{Target language} The target language of our synthesiser is a subset of the previous calculus. We are only interested in term and type application of library components, input variables and holes. Therefore, the syntax is restricted as follows.
+\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We are only interested in term and type application of library components, input variables and holes. Therefore, the syntax is restricted as follows.
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
 (types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\; T\;\ldots\; T\\
@@ -193,7 +196,7 @@ Since this is a proper subset of the second calculus presented in this section, 
 
 
   \subsection{Encodings}
-Note that in the definition of types we do not see familiar types such as booleans, integers or lists. All these types can be encoded in System F using either the Church's or the Scott's encoding \cite{ScottNumerals}. We opted for the Scott's encoding because it is more efficient in our case.
+In the definition of types familiar types such as booleans, integers or lists do not appear. All these types can be encoded in System F using either Church's or Scott's encoding \cite{ScottNumerals}. We opt for Scott's encoding because it is more efficient in our case.
 Scott's booleans coincide with Church's booleans and are encoded as follows.
 \begin{lstlisting}[style=plain, mathescape]
 Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
@@ -324,7 +327,7 @@ In this sections we will present the typing rules of our internal language, that
 	\UnaryInfC{$\Gamma, \Xi, \Phi, \Delta \vdash t_1\;[T_2] : [X \mapsto T_2]T_{12}$}
 \end{prooftree}
 
-The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, input variables or library components from the respective context.
+The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, input variables and, respectively, library components from the respective contexts.
 T-Abs types a lambda abstraction as an arrow type from the type of its variable to the type of its body. \textsc{T-Abs} gives a type abstraction a universal type in accordance to the type of its body.
 An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
@@ -332,9 +335,9 @@ An application typechecks only if the left hand side has an arrow type and the t
 
 In order to identify the library components that can be used to instantiate a hole of a given type, we need type unification. Consider, for example, a hole of type \lstinline?List Int -> Int?. We want to instantiate this hole not only with components that have precisely this type, like \lstinline?sum? and \lstinline?prod?, but also components with a more general type that can be matched to the desired type through type application, like \lstinline?head :: $\forall$X. List X -> X? and \lstinline?length :: $\forall$X. List X -> Int?.
 
-Alas, unification on the type system of System F is undecidable \cite{Huet1975}.
-Therefore we chose to restrict our type system to universally quantified types, that is types of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? where \lstinline?T($X_1, \ldots, X_n$)? is quantifier-free.
-This allows us to completely ignore universal types during unification. Instead, we can represent \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is leave out all quantifiers and replace the bound variables with fresh type holes.
+However, unification on the type system of System F is undecidable \cite{Huet1975}.
+Therefore we chose to restrict our type system to quantifier-free forms.
+This allows us to completely ignore universal types during unification. However, we still want to handle universally quantified library components, that is components whose type has the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? where \lstinline?T($X_1, \ldots, X_n$)? is quantifier-free. To this end, we represent type of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is we leave out all quantifiers and replace the bound variables with fresh type holes.
 
 Our unification algorithm (summarised as Algorithm~\ref{alg:type unification} below) is based on the unification algorithm for typed lambda calculus from \cite{pierce2002types} and slightly modified to fit our needs.
 
@@ -382,7 +385,7 @@ After defining the target language, the evaluation semantics, the type checking 
 In Section~\ref{Search space} we define the search space and in Section~\ref{Exploration} we describe the main enumeration algorithm, a standard best-first search.
 
 \subsection{Search space}\label{Search space}
-We see the search space as a graph, where the vertices correspond to \emph{programs}. Recall that a program is the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T'\}$, where $t$ is a term of the target language. The type $T'$ can be transformed into the goal type $T$ abstracting over all type and term input variables. That is, if $\Phi$ contains the type input variables $I_1, \ldots, I_j$ and the signatures of the term input variables $i_1 : T_1, \ldots, i_k : T_k$, then the goal type $T$ should be equal to
+The search space is structured as a graph, where the vertices correspond to \emph{programs}. Recall that a program is the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T'\}$, where $t$ is a term of the target language. The type $T'$ can be transformed into the goal type $T$ abstracting over all type and term input variables. That is, if $\Phi$ contains the type input variables $I_1, \ldots, I_j$ and the signatures of the term input variables $i_1 : T_1, \ldots, i_k : T_k$, then the goal type $T$ should be equal to
 \[\forall X_1.\; \ldots \forall X_j.\; [I_1 \mapsto X_1, \ldots, I_j \mapsto X_j] (T_1 \rightarrow \ldots \rightarrow T_k \rightarrow T').\]
 
 There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 :: T'\}$ and $\{\Xi_2, \Phi, \Delta \vdash t_2 :: T'\}$ if and only if the judgement \emph{derive} (defined below) $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
@@ -390,11 +393,7 @@ There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 
 To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
 
 The derive judgement can be summarised by the following four rules.\\
-D-VarLib replaces a hole $?x$ with a type application of a library component $c$ to the right types, if the type of $c$ unifies with the type of $?x$. D-VarInp replaces a hole $?x$ with an input variable $i$ from the context $\Phi$, if it has the right type. D-VarApp turns a hole into a term application of two fresh holes. The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
-
-\TODO{do we need following paragraph? It adds nothing to the rule.\\}
-The rule D-VarLib might require a more detailed explanation.
-Let $\mathcal{A}$ be the class of quantifier-free types. Let \lstinline?c : $\forall X_1$. $\ldots$ $\forall X_n$. $T_c$($X_1, \ldots, X_n$)? $\in \Delta$ where \lstinline?$T_c$($X_1, \ldots, X_n$)? belongs to class $\mathcal{A}$. Let \lstinline!?$X_1$, $\ldots$, ?$X_n$! be fresh type holes not present in $\Xi$. Let $\sigma$ be the unifier of $T$ with \lstinline!$T_c$(?$X_1$, $\ldots$, ?$X_n$)!. Then we can replace the hole \lstinline!?x! with \lstinline!c [$\sigma$(?$X_1$)] $\ldots$ [$\sigma$(?$X_n$)]!.
+D-VarLib replaces a hole $?x$ with a type application of a library component $c$ to suitable types, if the type of $c$ unifies with the type of $?x$. D-VarInp replaces a hole $?x$ with an input variable $i$ from the context $\Phi$, if its type unifies with the type of the hole. D-VarApp turns a hole into a term application of two fresh holes. The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
 
 The notation $\sigma(\Xi)$ denotes the application of the substitution $\sigma$ to all types appearing in $\Xi$.
 
@@ -435,12 +434,12 @@ The notation $\sigma(\Xi)$ denotes the application of the substitution $\sigma$ 
 	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
 
-Note that all derived programs are well-types and, since the types of all derived programs unify with the types of their ancestors, have the right type.
+All derived programs are well-typed and, since the types of all derived programs unify with the types of their ancestors, have the desired type.
 
 \subsection{Best-first search}\label{Exploration}
-Our enumeration procedure traverses the search graph defined in the previous section using standard best-first search. The algorithm maintains a frontier of candidate programs and expands one hole of the most promising program in each iteration. Closed programs are evaluated on the input-output examples. The search terminates when the first program that satisfies all input-output examples is found.
+Our enumeration procedure traverses the search graph defined in the previous section using a standard best-first search. The algorithm maintains a frontier of candidate programs and expands one hole of the most promising program in each iteration. Closed programs are evaluated on the input-output examples. The search terminates when the first program that satisfies all input-output examples is found.
 
-There are two points where Algorithm~\ref{alg:best-first search} can be tweaked.
+Algorithm~\ref{alg:best-first search} is parametrised with respect to the following two questions.
 \begin{enumerate}
 \item Which candidate program is the most promising?
 \item Which hole of the most promising program should be expanded?
