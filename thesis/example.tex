@@ -112,14 +112,12 @@ The first successor does not satisfy the input-output examples.  On the other ha
 \subsection{Superfluous instantiations}
 The many search choices that we left unexplored indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  That is why, in addition to the type-driven search, we include another mechanism for pruning the search space.
 
-This mechanism (Section~\ref{Black list}) blacklists \emph{superfluous} hole instantiations that have the same or similar input-output behaviour to instantiations of lower cost.  For example, consider expanding \lstinline|?xs| in the following partial program:
+This mechanism (Section~\ref{Black list}) blacklists \emph{superfluous} hole instantiations that have the same or similar input-output behaviour to instantiations of lower cost.  For example, let's go back to the initial partial program:
 \begin{lstlisting}[style=plain]
-replicate n x = const ?xs ?s
-?p = const ?xs ?s :: List X
-?xs :: List X
-?s :: ?Y
+replicate n x = ?p
+?p :: List X
 \end{lstlisting}
-If we put \lstinline|?xs = []|, then we get the program \lstinline|const [] ?s|.  No matter how we fill \lstinline|?s|, the result would be equivalent to the shorter program \lstinline|[]| that we ruled-out earlier.  We can, therefore, safely rule-out this instantiation too.
+Recall that one possible way to instantiate \lstinline|?p| is with the partial program \lstinline|const ?xs ?s|.  Then, we would need to instantiate \lstinline|?xs| as well.  But in this case we could have instantiated \lstinline|?p| the same way and get exactly the same effect.  Thus, we conclude that \lstinline|const ?xs ?s| is superfluous and so we can safely skip it during search.
 
 \subsection{Summary}
 \begin{description}
