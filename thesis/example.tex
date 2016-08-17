@@ -24,7 +24,7 @@ replicate n x = ?p
 \end{lstlisting}
 The hole \lstinline|?p| is treated as a typed fresh symbol that has to be filled-in with another partial program.  Thus, our task is to find an instantiation for all holes recursively until we end up with a \emph{closed} program (all holes filled-in) that satisfies all the input-output examples provided by the user.
 
-We structure the recursive enumeration process as a best-first search.  We maintain a set of current partial programs, the \emph{frontier}, whose holes are to be expanded.  At each step we select and remove a partial program of minimum \emph{cost} (e.g., size) from the frontier.  Then, we fill-in one of the holes in the selected program according to a set of rules.  The rules produce a set of \emph{successors} that are then added to the frontier.  The search continues until we select a closed programs that meets all the given input-output examples.
+We structure the recursive enumeration process as a best-first search.  We maintain a set of current partial programs, the \emph{frontier}, whose holes are to be expanded.  At each step we select and remove a partial program of minimum \emph{cost} (e.g., size) from the frontier.  Then, we fill-in one of the holes in the selected program according to a set of rules.  The rules produce a set of \emph{successors} that are then added to the frontier.  The search continues until we select a closed program that meets all the given input-output examples.
 
 The tricky part in the search are the rules that determine the successors of the selected program.  The rules must ensure that only well-typed programs are enumerated.  For example, in the above partial program we expand the lone hole \lstinline|?p|.  This hole has type \lstinline|List X| and we need to find a component in the library that is of this type.  This immediately excludes the integer constructors \lstinline|succ| and \lstinline|0|.  However, it also excludes \lstinline|enumTo|, as it produces a list of integers, while we need a list of \lstinline|X|, and \lstinline|X| could be any type, not necessarily \lstinline|Int|.  All other possibilities are open: we can fill \lstinline|?p| with the result of a \lstinline|fold|, a \lstinline|map|, a \lstinline|const|, or with the empty list \lstinline|[]|.  Let us begin with \lstinline|[]|:
 \begin{lstlisting}[style=plain]
@@ -77,7 +77,7 @@ replicate n x = map (const ?x) ?xs
 ?x :: X
 ?xs :: List ?Y
 \end{lstlisting}
-Note that in the first case we instantiated \lstinline|?Y| with \lstinline|List ?Z|, because \lstinline|foldr|takes a list as its last argument.  This indicates that type-instantiation is a non-trivial task.  In particular, it requires solving \emph{unification} constraints between arguments and return values, as discussed in \verb|TODO:PUT-REFERENCE|.
+Note that in the first case we instantiated \lstinline|?Y| with \lstinline|List ?Z|, because \lstinline|foldr|takes a list as its last argument.  This indicates that type-instantiation is a non-trivial task.  In particular, it requires solving \emph{unification} constraints between arguments and return values, as discussed in Section~\ref{Unification}.
 
 Now, we need to expand a program in the frontier again.  Let us assume that the program of least cost is \lstinline|map (const ?x) ?xs|.  There are two holes to fill-in: \lstinline|?x| of type \lstinline|X| and \lstinline|?xs| of type \lstinline|List ?Y|.  Interestingly, we have only one option for the first hole, and so we take it: \lstinline|replicate|'s second argument \lstinline|x|:
 \begin{lstlisting}[style=plain]
@@ -109,13 +109,13 @@ replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
 The first successor does not satisfy the input-output examples.  On the other hand, the second one does, and we finally arrived at a solution.  Further inspection by the user shows that this program indeed captures the desired `replicate' functionality.  Our synthesis task is complete.
 
-This example showed how to use type-directed best-first search to generate a program with specified input-output behaviour, given a library of basic components.  The many search choices that we left unexplored, indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  In Section~\ref{Black list} we show an additional way to rule out superfluous programs from the search space, by blacklisting hole instantiations that have the same (or similar) input-output behaviour.
+This example showed how to use type-directed best-first search to generate a program with specified input-output behaviour, given a library of basic components.  The many search choices that we left unexplored indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  In Section~\ref{Black list} we show an additional way to rule out superfluous programs from the search space, by blacklisting hole instantiations that have the same (or similar) input-output behaviour.
 
 \subsection{Summary}
 \begin{description}
 \item[Hole] unknown part of a program that can be instantiated with some other programs. Only its type is known.
 \item[Closed program] a program without holes that can be evaluated on the input-output examples. The terms and the types of our calculus are formally defined in Section~\ref{Term and types}.
 \item[Type-aware expansion of holes] we expand holes based on their type. In Section~\ref{Search space} we can find the rules according to which a program is expanded.
-\item[Best first search] a frontier of programs with holes is maintained, one hole of the most promising is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and a notion of most promising program is presented in Section~\ref{Cost functions}.
-\item[Superfluous program] a program that is equivalent to a shorter program. 
+\item[Best first search] a frontier of programs with holes is maintained, one hole of the least cost program is expanded in every iteration. The best first search algorithm is defined in Section~\ref{Exploration} and some cost functions are presented in Section~\ref{Cost functions}.
+\item[Superfluous program] a program that is equivalent to a shorter program.
 \end{description}

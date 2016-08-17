@@ -6,11 +6,10 @@ Program synthesis, also known as automatic programming, is the automatic generat
 
 In this thesis we consider inductive synthesis of purely functional programs from components. We specify the desired program through input-output examples, that is pairs of inputs with their corresponding expected outputs. This is an intuitive and simple way to specify programs and makes synthesis more accessible to users with a lower level of expertise.
 
-When solving programming tasks, human programmers rely on prior knowledge of computational patterns. Such well-known computational patterns are reflected by library components, both first- and higher-order. For example, \lstinline!map! corresponds to the transformation of each element of a list according to a function and \lstinline!foldr! easily translates to recursive programs on lists. The program \lstinline!foldr f init xs! corresponds to the following recursive program with ML-style pattern matching.
+When solving programming tasks, human programmers rely on prior knowledge of computational patterns. Such well-known computational patterns are reflected by library components, both first- and higher-order. For example, \lstinline!map! corresponds to the transformation of each element of a list according to a function and \lstinline!foldr! easily translates to recursive programs on lists. The program \lstinline!foldr f init xs! corresponds to the following recursive program with Haskell-like syntax.
 \begin{lstlisting}[style=plain]
-prog xs = match xs with
-  | [] -> init
-  | (x::xs) -> f x (prog xs)
+prog [] = init
+prog (x:xs) = f x (prog xs)
 \end{lstlisting}
 The goal of this thesis is to assess how well the information encoded by such library components can be reused by an automatic synthesiser.
 We restrict the space of target programs to straight-line functional programs composed from library components. We do not consider the synthesis of lambda expressions, recursive functions, conditionals and pattern matching.
@@ -41,13 +40,12 @@ The synthesiser should compose a program from library components that agrees wit
 
 For example, \TODO{replicate example}
 
-In contrast to other systems based on enumeration \cite{MythPaper, LambdaSquarePaper}, we do not target recursive programs or programs containing lambda expressions, conditionals or pattern matching. However, those restrictions theoretically do not limit the set of functions we can express, since adding suitable higher-order components\footnote{For example, the $S, K, I$ combinators introduced by Schönfinkel in \cite{Schönfinkel1924}.} to the library makes it possible to express all computable functions.
+In contrast to other systems based on enumeration \cite{MythPaper, LambdaSquarePaper}, we do not target recursive programs or programs containing lambda expressions, conditionals or pattern matching. However, those restrictions theoretically do not limit the set of functions we can express, since adding suitable higher-order components\footnote{For example, the $S, K, I$ combinators introduced by Schönfinkel in \cite{Schonfinkel1924}.} to the library makes it possible to express all computable functions.
 
-In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the following recursive program. Again, we use ML-style syntax for pattern matching.
+In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the following recursive program. Again, we use Haskell-like syntax for pattern matching.
 \begin{lstlisting}[style=plain]
-p n = match n with
-  | 0 -> init
-  | n -> f n (p (n-1))
+p 0 = init
+p n = f n (p (n-1))
 \end{lstlisting}
 This pattern is used in the definition of \lstinline!replicate!, \lstinline!enumTo!, \lstinline!sumUnder! and \lstinline!factorial!.
 
