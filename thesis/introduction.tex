@@ -36,10 +36,34 @@ Automatic theorem proving is not the only field that inspired program synthesis.
 
 \section{Problem statement}\label{Problem}
 
+The synthesis procedure we define and evaluate in this thesis aims to synthesise straight-line purely applicative functional programs specified by input-output examples. We use a simple enumerate-and-test approach. In order to avoid errors due to bad typing, we enumerate only well-typed programs. We rely on a large library of first- and higher-order components reflecting common computational patterns.
+The synthesiser should compose a program from library components that agrees with the given input-output examples and generalises well to unseen examples.
+
+For example, \TODO{replicate example}
+
+In contrast to other systems based on enumeration \cite{MythPaper, LambdaSquarePaper}, we do not target recursive programs or programs containing lambda expressions, conditionals or pattern matching. However, those restrictions theoretically do not limit the set of functions we can express, since adding suitable higher-order components\footnote{For example, the $S, K, I$ combinators introduced by Schönfinkel in \cite{Schönfinkel1924}.} to the library makes it possible to express all computable functions.
+
+In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNatNat f init n! can be translated into the following recursive program. Again, we use ML-style syntax for pattern matching.
+\begin{lstlisting}[style=plain]
+p n = match n with
+  | 0 -> init
+  | n -> f n (p (n-1))
+\end{lstlisting}
+This pattern is used in the definition of \lstinline!replicate!, \lstinline!enumTo!, \lstinline!sumUnder! and \lstinline!factorial!.
+
+
+
+
 \TODO{Describe the problem again, add the replicate example\\}
-We restrict ourselves to straight-line functional programs without lambda subexpressions, pattern matching, recursion and conditional but with a large component-library.
 
 
+
+
+The goal of this project is to study how an inductive synthesis algorithm can effectively apply such knowledge in a synthesis task. In particular, higher-order functions represent well-known patterns and we are interested in how a library of such function definitions can be used to guide and speed up the synthesis process.
+
+The goal of the project is to design an inductive synthesis algorithm for the first-order $\lambda$-free expressions of System F. A synthesis task specifies a library of components and a set of input-output examples. 
+
+-----------------------------------------
 
 Let us move on to the contributions. We implemented in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis tool and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
 
@@ -47,33 +71,6 @@ The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions}
 
 ---------------------------------
 
-
-We consider the synthesis of straight-line functional programs from a library of functional components.  For the time being, we would like to further restrict ourselves to purely applicative programs, i.e. programs having no lambda subexpressions.  In principle, these restrictions do not limit program expressivity because adding a suitable higher-order definitions to the library allows one to express all computable functions.
-
-
-The approach that we would like to explore is an inductive, examples-based program synthesis, but one that incorporates a limited form of deductive inference, in order to prune the program search space. 
-
-The main task of the project is to design and implement an algorithm for program synthesis from a library of computational concepts represented as first or higher-order pure functions.  This requires implementing a small inductive program synthesis framework in which experimentation should be carried in.  As a starting point we suggest implementing a synthesis algorithm based on program enumeration.
-
- In order to avoid synthesizing programs having errors due to bad typing we assume all the library components are explicitly typed in the Hindley-Milner type system.  From them the synthesizer should build a well-typed program.
-
-Once a basic implementation is done, extensive experimentation should be carried out.
-
-Inductive program synthesis strives to automatically derive a program from a finite set of examples what the program should do.  When solving such tasks humans rely on prior knowledge of well-known computational patterns. The goal of this project is to study how an inductive synthesis algorithm can effectively apply such knowledge in a synthesis task. In particular, higher-order functions represent well-known patterns and we are interested in how a library of such function definitions can be used to guide and speed up the synthesis process.
-
-The goal of the project is to design an inductive synthesis algorithm for the first-order $\lambda$-free expressions of System F. A synthesis task specifies a library of components and a set of input-output examples. The algorithm should compose a subset of the components into an expression that reproduces the input-output examples, and moreover, generalizes well to unseen examples.
-
-\section{Problem}
-We restrict ourselves to purely functional programs without pattern matching, without recursion, without conditionals, just application of library components and input variables. Handle many components. Reuse common knowledge. Computational patterns encoded as components.
-The main task of the project is to design and implement an algorithm for program synthesis from a library of computational concepts represented as first or higher-order pure functions.
-We consider the synthesis of straight-line functional programs from a library of functional components.  For the time being, we would like to further restrict ourselves to purely applicative programs, i.e. programs having no lambda subexpressions. In principle, these restrictions do not limit program expressivity because adding a suitable higher-order definitions to the library allows one to express all computable functions.  In order to avoid synthesizing programs having errors due to bad typing we assume all the library components are explicitly typed in the Hindley-Milner type system.  From them the synthesizer should build a well-typed program.
-
-
-
-
-
-
-----------------------------------
 
 \begin{itemize}
 \item (maybe move general introduction/motivation to the beginning? State your problem as early as possbible!)
@@ -92,7 +89,7 @@ p n = match n with
 for motivation you could write something about the extremely restricted list library in ocaml :)\\
 Consider you are writing code in a functional programming language with a smaller choice of library functions than you are used to. For example (true story), if you are using OCaml and you are surprised that \lstinline?replicate? is missing even in the more complete core library \note{cite jane street core}, you could spend a couple of minutes writing your recursive version of \lstinline?replicate?. Or you can synthesize it with \textsc{Tamandu} in less than one second from other components. \TODO{rewrite without 'you' and maybe don't mention ocaml, core and all that thing?}.
 
-input-output examples are an intuitive and simple way to specify programs and make synthesis more accessible to users with a lower level of expertise.
+
 
 
 Problem definition: have many components, put them together into a program, no lambdas, no if-then-else, no recursion
