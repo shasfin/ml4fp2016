@@ -109,7 +109,17 @@ replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
 The first successor does not satisfy the input-output examples.  On the other hand, the second one does, and we finally arrived at a solution.  Further inspection by the user shows that this program indeed captures the desired `replicate' functionality.  Our synthesis task is complete.
 
-This example showed how to use type-directed best-first search to generate a program with specified input-output behaviour, given a library of basic components.  The many search choices that we left unexplored, indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  In Section~\ref{Black list} we show an additional way to rule out superfluous programs from the search space, by blacklisting hole instantiations that have the same (or similar) input-output behaviour.
+\subsection{Superfluous instnatiations}
+The many search choices that we left unexplored, indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  That is why, in addition to the type-driven search, we include another mechanism for pruning the search space.
+
+This mechanism (Section~\ref{Black list}) blacklists \emph{superfluous} hole instantiations that have the same or similar input-output behaviour to instantiations of lower cost.  For example, consider expanding \lstinline|?xs| in the following partial program:
+\begin{lstlisting}[style=plain]
+replicate n x = const ?xs ?s
+?p = const ?xs ?s :: List X
+?xs :: List X
+?s :: ?Y
+\end{lstlisting}
+If we put \lstinline|?xs = []|, then we get the program \lstinline|const [] ?s|.  No matter how we fill \lstinline|?s|, the result would be equivalent to the shorter program \lstinline|[]| that we ruled-out earlier.  We can, therefore, safely rule-out this instantiation too.
 
 \subsection{Summary}
 \begin{description}
