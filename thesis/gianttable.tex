@@ -1,7 +1,13 @@
 
 
 {\footnotesize
-\begin{longtable}{@{}l@{\hspace{4pt}}cr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}r@{}} \toprule
+\LTcapwidth=0.95\textwidth
+\begin{longtable}{@{}l@{\hspace{4pt}}cr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}r@{}}
+\caption{Runtime of nine variants of our synthesis procedure on $23$ benchmarks. Each cell is organised in a $3\times3$ square. The rows of the square are labelled with the exploration strategies and the columns of the square are labelled with the cost functions.
+The first column shows the runtimes in seconds when 36 to 37 components are provided. 
+The $j$-th entry in the $i$-th square of the second column is the ratio of the $j$-th entry and the minimum of the $i$-th square of the first column.
+The third column shows the speedup with respect to the first column if we provide only $18$-$19$ library components.\label{fig:gianttable}}\\
+\toprule
 Name & M. & \multicolumn{3}{c}{Time} & \multicolumn{3}{c}{\emph{Vs.} 37-group} & \multicolumn{3}{c}{\emph{Vs.} 19-self} \\
 \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(l){9-11}
      &    & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} \\
@@ -98,10 +104,11 @@ Name & M. & \multicolumn{3}{c}{Time} & \multicolumn{3}{c}{\emph{Vs.} 37-group} &
  & \textsf{B} & $0.34$ & $0.32$ & $0.58$ & $1.08$ & $1.00$ & $1.84$ & $13.92$ & $13.25$ & $8.69$ \\
  & \textsf{T} & $1.91$ & $2.11$ & $30.20$ & $1.00$ & $1.11$ & $15.85$ & $2.76$ & $2.98$ & $31.26$ \\
 \bottomrule
-\caption{Runtime of nine variants of our synthesis procedure on $23$ benchmarks. Each cell shows nine numbers corresponding to the different variants, organised in a $3\times3$ square. The rows of the square a labeled with the exploration strategies: \textsc{P} for \textsc{Plain}, \textsc{B} for \textsc{BlackList}  and \textsc{T} for \textsc{Template}; the columns of the square are labeled with the cost functions: \textsc{Nodes} for \textit{nof-nodes}, \textsc{Types} for \textit{nof-nodes-simple-type} and \textsc{NoDup} for \textit{no-same-component}. The first column shows the runtimes in seconds when 36 to 37 components are provided to the synthesiser. The second column is the ratio between the running times of the first column and the minimum synthesis time for that benchmark. The third column shows the speedup with respect to the first column if we reduce the number of library components to $18$-$19$.\label{fig:gianttable}}
 \end{longtable}}
 {\footnotesize
 \begin{longtable}{@{}lr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}rr@{\hspace{2pt}}r@{\hspace{2pt}}r@{}}
+\caption{Number of nodes of the synthesised solution.\label{fig:nofnodestable}}\\
+\toprule
 Name & \multicolumn{3}{c}{\textsf{Plain}} & \multicolumn{3}{c}{\textsf{Blacklist}} & \multicolumn{3}{c}{\textsf{Templates}} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(l){8-10}
      & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} & \textsc{Nodes} & \textsc{Types} & \textsc{NoDup} \\
@@ -113,30 +120,28 @@ Name & \multicolumn{3}{c}{\textsf{Plain}} & \multicolumn{3}{c}{\textsf{Blacklist
 \verb|dropmax| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
 \verb|enumFromTo| & -- & -- & -- & 13 & 13 & -- & -- & -- & -- \\
 \verb|enumTo| & 7 & 7 & 7 & 7 & 7 & 9 & 7 & 7 & 7 \\
-\verb|factorial| & 5 & 5 & 5 & 5 & 5 & 5 & 13 & 13 & 5 \\
-\verb|isEven| & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 \\
-\verb|isNil| & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 \\
-\verb|last| & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 \\
-\verb|length| & 9 & 11 & 9 & 9 & 11 & 9 & 9 & 9 & 9 \\
-\verb|mapAdd| & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 \\
-\verb|mapDouble| & 11 & 11 & 11 & 11 & 11 & 11 & -- & -- & 11 \\
-\verb|maximum| & 7 & 7 & 7 & 7 & 7 & 7 & -- & -- & 7 \\
-\verb|member| & 11 & 11 & 11 & 11 & 11 & 11 & 11 & 11 & 11 \\
-\verb|multfirst| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
-\verb|multlast| & 11 & 11 & 11 & 11 & 11 & 11 & 13 & 11 & 11 \\
-\verb|nth| & 13 & 13 & 13 & 13 & 13 & 13 & -- & -- & 13 \\
-\verb|replicate| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
-\verb|reverse| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
-\verb|stutter| & -- & 13 & 13 & 13 & 13 & 13 & -- & -- & 13 \\
-\verb|sum| & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 \\
+\lstinline|factorial| & 5 & 5 & 5 & 5 & 5 & 5 & 13 & 13 & 5 \\
+\lstinline|isEven| & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 & 3 \\
+\lstinline|isNil| & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 \\
+\lstinline|last| & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 & 5 \\
+\lstinline|length| & 9 & 11 & 9 & 9 & 11 & 9 & 9 & 9 & 9 \\
+\lstinline|mapAdd| & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 \\
+\lstinline|mapDouble| & 11 & 11 & 11 & 11 & 11 & 11 & -- & -- & 11 \\
+\lstinline|maximum| & 7 & 7 & 7 & 7 & 7 & 7 & -- & -- & 7 \\
+\lstinline|member| & 11 & 11 & 11 & 11 & 11 & 11 & 11 & 11 & 11 \\
+\lstinline|multfirst| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
+\lstinline|multlast| & 11 & 11 & 11 & 11 & 11 & 11 & 13 & 11 & 11 \\
+\lstinline|nth| & 13 & 13 & 13 & 13 & 13 & 13 & -- & -- & 13 \\
+\lstinline|replicate| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
+\lstinline|reverse| & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 & 9 \\
+\lstinline|stutter| & -- & 13 & 13 & 13 & 13 & 13 & -- & -- & 13 \\
+\lstinline|sum| & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 & 7 \\
 \bottomrule
-\caption{Number of nodes of the synthesised solution.\label{fig:nofnodestable}}
 \end{longtable}}
 
-\begin{longtable}{l  p{0.5\textwidth}}
+\begin{longtable}{@{}l  p{0.5\textwidth}}
+\caption{37 library components used for synthesis\label{fig:library-components}}\\
 \toprule
- & library components\\
-\midrule
 general functions & \lstinline!const!, \lstinline?flip?\\
 booleans & \lstinline?true?, \lstinline?false?, \lstinline?not?\\
 integer constructors & \lstinline?zero?, \lstinline?succ?\\
@@ -149,5 +154,4 @@ list combinators & \lstinline?map?, \lstinline?foldr?, \lstinline?foldl?, \lstin
 list functions & \lstinline?length?, \lstinline?append?, \lstinline?reverse?, \lstinline?replicate?, \lstinline?concat?\\
 list of integers functions & \lstinline?sum?, \lstinline?prod?, \lstinline?maximum?, \lstinline?member?, \lstinline?enumTo?, \lstinline?enumFromTo?\\
 \bottomrule
-\caption{37 library components used for synthesis\label{fig:library-components}}
 \end{longtable}

@@ -195,7 +195,9 @@ tetration a n =
 \end{lstlisting}
 
 
-\begin{longtable}{l l}
+\begin{longtable}{@{} l l@{}}
+\caption{Manually compiled black list patterns used for evaluation in the \textsc{BlackList} exploration strategy.\label{fig:manual_blacklist}}\\
+\toprule
 \lstinline?append nil? & \lstinline?head (enumFromTo _ _)?\\
 \lstinline?append _ nil? & \lstinline?head (enumTo _)?\\
 \lstinline?add _ zero? & \lstinline?head (map _ _)?\\
@@ -226,7 +228,7 @@ tetration a n =
 \lstinline?foldr con nil? & \lstinline?tail (con _ nil)?\\
 \lstinline?foldr _ _ nil? & \lstinline?tail (enumFromTo _ _)?\\
 \lstinline?head (con _ _)? & \lstinline?tail nil?\\
-\caption{Manually compiled black list patterns used for evaluation in the \textsc{BlackList} exploration strategy.\label{fig:manual_blacklist}}
+\bottomrule
 \end{longtable}
 
 In Table~\ref{fig:gianttable} we see that the runtime profits the most from the introduction of black list pruning when we use the cost function \textit{nof-nodes}.
@@ -359,38 +361,38 @@ The number of provided components also changes across the tools. With $36$ to $3
 Considering that our tool is just standard type-aware best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
 
 \begin{table}
+\caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. The cells corresponding to benchmarks that were not tested with the respective tool are left empty.\label{fig:comparisontable}}
 \pgfplotstabletypeset[
     col sep=comma,
-	column type=l,
+	column type={@{}lrrrrrrrrrr@{}},
 	every head row/.style={
 		before row={%
 			\toprule
 			% program name
 		    %& % base
-			& \multicolumn{2}{c}{Our tool}
-			& \multicolumn{2}{c}{\textsc{Synquid}}
-			& \multicolumn{2}{c}{$\lambda^2$}
-			& \multicolumn{2}{c}{\textsc{Escher}}
-			& \multicolumn{2}{c}{\textsc{Myth}}\\
+			& \multicolumn{2}{@{}c@{}}{Our tool}
+			& \multicolumn{2}{@{}c@{}}{\textsc{Synquid}}
+			& \multicolumn{2}{@{}c@{}}{$\lambda^2$}
+			& \multicolumn{2}{@{}c@{}}{\textsc{Escher}}
+			& \multicolumn{2}{@{}c@{}}{\textsc{Myth}}\\
 			\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
 		},
 		after row=\midrule,
 	},
 	every last row/.style={
 		after row=\bottomrule},
-	columns/name/.style = {string type,column name=name},
-	columns/nof-examples-tamandu/.style = {column type=r,column name=spec},
-	columns/time-tamandu/.style = {fixed,column type=r,column name=time},
-	columns/spec-size-synquid/.style = {column type=r,column name=spec},
-	columns/time-synquid/.style = {fixed,column type=r,column name=time},
-	columns/nof-examples-lambda/.style = {column type=r,column name=spec},
-	columns/time-lambda/.style = {fixed,column type=r,column name=time},
-	columns/nof-examples-escher/.style = {column type=r,string type,column name=spec},
-	columns/time-escher/.style = {fixed,column type=r,column name=time},
-	columns/nof-examples-myth/.style = {column type=r,column name=spec},
-	columns/time-myth/.style = {fixed,column type=r,column name=time},
+	columns/name/.style = {string type,column name=Name},
+	columns/nof-examples-tamandu/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
+	columns/time-tamandu/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
+	columns/spec-size-synquid/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
+	columns/time-synquid/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-lambda/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
+	columns/time-lambda/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-escher/.style = {string type,column type=r,column type/.add={>{\small}}{},column name=spec},
+	columns/time-escher/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-myth/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
+	columns/time-myth/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
 ]{comparison.dat}
-\caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. The cells corresponding to benchmarks that were not tested with the respective tool are left empty.\label{fig:comparisontable}}
 \end{table}
 
 
