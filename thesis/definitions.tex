@@ -8,25 +8,23 @@ In this chapter we will formally define our type-directed top-down synthesis pro
  
 \section{Calculus}
 
-This section formally defines the language of our synthesiser.
+This section formally defines the language of our synthesiser. The goal programs consist of applications of library components and input variables, and are based on the terms of System F. During synthesis we also use an additional syntactic construct: the hole. We denote the language based on the application of library components, input variables and holes as the \emph{target language} of our synthesiser.
+But also need another language: the language in which the library components are defined and the programs are evaluated on the input-output examples. We call this language \emph{internal language}. It extends System F with holes, parametric types and recursion.
 
-In this section we formally define the internal language of our synthesiser.
-\TODO{TODO introducting words to the whole section.\\}
-We represent our
-
-We provide the first calculus only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
-
-The third calculus is the target language of our synthesiser. However, we still need the more powerful second calculus to define the library components and evaluate them on the input-output examples.
-
-To summarise, in this section we will look at the following three calculi.
+In Section~\ref{Term and types} we present the syntax of the following three calculi.
 \begin{enumerate}[1.]
 \item System F
 \item The internal language: an extension of System F with holes, input variables, library components, parametric types and recursive terms and types
 \item The target language: a subset of the internal language, featuring only application of components, holes and input variables
 \end{enumerate}
+We provide the syntax of System F only for the sake of completeness, as the other two calculi build upon it. The notation and the exposition follow the excellent book on type systems of Benjamin Pierce \cite{pierce2002types}. We refer to the book for a thorough introduction to System F and to type systems in general.
 
+Since the target language is a subset of the internal language, Section~\ref{Typing} and Section~\ref{Evaluation} show the typing and, respectively, the evaluation rules only for the internal language.
+Section~\ref{Encodings} discusses how to encode integers and lists in the internal language. Section~\ref{Unification} addresses unification over the types of the internal language, needed to determine which library components can be used to fill in a hole of a particular type.
 
   \subsection{Terms and Types}\label{Term and types}
+This section presents the syntax of three different calculi: System F, the internal language and the target language.
+
 \paragraph{System F} System F, also known as the polymorphic lambda calculus, is a calculus that, additionally to term abstraction and term application, features two new kinds of terms: type abstraction \lstinline!$\Lambda$X. t! and type application \lstinline!t [T]!. This allows to express polymorphic functions. For example, the polymorphic identity function is defined as \lstinline!$\Lambda$X. $\lambda$x:X. x!.
 Polymorphic functions, defined as type abstractions, have a special type: the \emph{universal} type \lstinline!$\forall$X. T!. For a more detailed introduction to System F we refer to \cite{pierce2002types}. The syntax is summarized below.
 
@@ -53,7 +51,8 @@ The second one, $\Phi$, is the library of input variables. It contains one concr
 The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
 
 
-\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We are only interested in term and type application of library components, input variables and holes. Therefore, the syntax is restricted as follows.
+\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the \lstinline!replicate! example, but there all type applications were omitted for the sake of clarity.
+Formally, the target language restricts the internal language to term and type application of library components, input variables and holes as follows.
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
 (types): T ::= X | T \rightarrow T | \forall X.\; T | ?X | I | C\; T\;\ldots\; T\\
@@ -61,13 +60,13 @@ The third one, $\Delta$, is the library of components. Each named term is bound 
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
-Since this is a proper subset of the second calculus presented in this section, we do not need separate typing and evaluation rules.
+Since this is a proper subset of the internal language, we do not need separate typing and evaluation rules.
 
 \paragraph{Program} A program is defined as the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T\}$, where $t$ is a term of the target language. A program is called \emph{closed} if $\Xi$ is empty and $t$ and $T$ do not contain holes.
 
 
-  \subsection{Encodings}
-In the definition of types familiar types such as booleans, integers or lists do not appear. All these types can be encoded in System F using either Church's or Scott's encoding \cite{ScottNumerals}. We opt for Scott's encoding because it is more efficient in our case.
+  \subsection{Encodings}\label{Encodings}
+Familiar types such as booleans, integers or lists do not appear in the definition of the types of the internal language. All these types can be encoded in the type system of the internal language using either Church's or Scott's encoding \cite{ScottNumerals}. We opt for Scott's encoding because it is more efficient in our case.
 Scott's booleans coincide with Church's booleans and are encoded as follows.
 \begin{lstlisting}[style=plain, mathescape]
 Bool  = $\forall$R. R $\rightarrow$ R $\rightarrow$ R
@@ -90,7 +89,7 @@ case = $\Lambda$R. $\lambda$n:Int. $\lambda$a:R. $\lambda$f:Int $\rightarrow$ R.
      : $\forall$R. Int $\rightarrow$ R $\rightarrow$ (Int $\rightarrow$ R) $\rightarrow$ R
 \end{lstlisting}
 
-Analogously, Scott's lists are a recursive type and naturally support pattern matching.
+Analogously to integers, Scott's lists are a recursive type and naturally support pattern matching.
 \begin{lstlisting}[style=plain, mathescape]
 List X = $\forall$R. R $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ R) $\rightarrow$ R
 nil = $\Lambda$X. $\Lambda$R. $\lambda$n:R. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ R. n
@@ -100,11 +99,13 @@ con = $\Lambda$X. $\lambda$x:X. $\lambda$xs:List X. $\Lambda$R. $\lambda$n:R. $\
 case = $\Lambda$X. $\Lambda$Y. $\lambda$l:List X. $\lambda$n:Y. $\lambda$c:X $\rightarrow$ List X $\rightarrow$ Y. l [Y] n c
      : $\forall$X. $\forall$Y. List X $\rightarrow$ Y $\rightarrow$ (X $\rightarrow$ List X $\rightarrow$ Y) $\rightarrow$ Y
 \end{lstlisting} 
- 
-  \subsection{Evaluation semantics}
+
+Other algebraic datatypes, such as trees, can be easily encoded in the same style.
+
+  \subsection{Evaluation semantics}\label{Evaluation}
 In this section we present the evaluation semantics of our internal language, that is the second calculus introduced in Section~\ref{Term and types}. The evaluation semantics is a standard eager evaluation and we refer to the excellent book of Benjamin Pierce about type systems \cite{pierce2002types} for an introduction to the evaluation semantics of System F and evaluation rules in general.
 
-The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that the term $t$ evaluates in one step to the term $t'$ under the free variable bindings library $\Phi$, that contains concrete instantiations for the input variables, and the component library $\Delta$, that contains the definitions of the library components. Before listing the evaluation rules, let us define \emph{value} $v$ to be a term to which no evaluation rule apply.
+The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that the term $t$ evaluates in one step to the term $t'$ under the free variable bindings library $\Phi$, that contains concrete instantiations for the input variables, and the component library $\Delta$, that contains the definitions of the library components. Before listing the evaluation rules, let us define \emph{value} $v$ to be a term to which no evaluation rules apply.
 
 \begin{prooftree}
 \AxiomC{$c = t : T \in \Delta$}
@@ -142,12 +143,12 @@ The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that t
 	\UnaryInfC{$\Phi, \Delta \vdash (\Lambda X.\; t_2)\; [T_2] \longrightarrow [X \mapsto T_2]t_2$}
 \end{prooftree}  
   
-Rules E-Lib and E-Inp load the definitions of library components or input variables from the respective library. E-App1 and E-App2 evaluate the left hand side, respectively the right hand side, of an application. E-AppAbs and \textsc{E-AppAbs} get rid of an abstraction and substitute the argument into the body.\\
+Rules E-Lib and E-Inp load the definitions of library components or input variables from the respective library. E-App1 and E-App2 evaluate the left hand side, respectively the right hand side, of a term application. E-AppAbs and \textsc{E-AppAbs} get rid of a term and, respectively, type abstraction and substitute the argument into the body.\\
 Note that E-App2 applies only if the left hand side of the application cannot be evaluated further and that E-AppAbs applies only when the argument of the lambda abstraction is a value, determining the order of evaluation.
 
-\subsection{Type checking}
+\subsection{Type checking}\label{Typing}
 
-In this sections we will present the typing rules of our internal language, that is the second calculus presented in Section~\ref{Term and types}. The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$ means the term $t$ has type $T$ in the contexts $\Gamma$ and $\Xi$, binding respectively variables and holes, and $\Phi$ and $\Delta$, containing signatures and definitions of respectively input variables and library components. The typing judgement is similar to the typing judgement of System F presented in the book about type systems of Benjamin Pierce \cite{pierce2002types}. As usual, we refer to the book for more details.
+In this sections we will present the typing rules of our internal language, that is the second calculus presented in Section~\ref{Term and types}. The typing judgement $\Gamma, \Xi, \Phi, \Delta \vdash t : T$ means the term $t$ has type $T$ in the contexts $\Gamma$ and $\Xi$, binding respectively variables and holes, and $\Phi$ and $\Delta$, containing signatures and definitions of respectively input variables and library components. The typing judgement is similar to the typing judgement of System F. As usual, we refer to \cite{pierce2002types} for more details.
   
 \begin{prooftree}
 \AxiomC{$x : T \in \Gamma$}
@@ -202,7 +203,7 @@ The rules T-Var, T-Hol, T-Inp and T-Lib load the signature of variables, holes, 
 T-Abs types a lambda abstraction as an arrow type from the type of its variable to the type of its body. \textsc{T-Abs} gives a type abstraction a universal type in accordance to the type of its body.
 An application typechecks only if the left hand side has an arrow type and the type of the argument is equal to the type of the argument of the left hand side. Analogously, a type application typechecks only if the left hand side has a universal type.
 
-\subsection{Type unification}
+\subsection{Type unification}\label{Unification}
 
 In order to identify the library components that can be used to instantiate a hole of a given type, we need type unification. Consider, for example, a hole of type \lstinline?List Int -> Int?. We want to instantiate this hole not only with components that have precisely this type, like \lstinline?sum? and \lstinline?prod?, but also components with a more general type that can be matched to the desired type through type application, like \lstinline?head :: $\forall$X. List X -> X? and \lstinline?length :: $\forall$X. List X -> Int?.
 
@@ -245,7 +246,7 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 \end{algorithm} 
 
 \section{Search}
-After defining the target language, the evaluation semantics, the type checking and the type unification, we are ready to formally define the problem.
+After defining the target language, the evaluation semantics, the type checking and the type unification, we are ready to formally define the problem, the search space and the synthesis procedure.
 
 \paragraph{Problem definition} Given a library $\Delta$, a goal type $T$ and a list of input-output examples $[(\Phi_1, o_1), \ldots , (\Phi_N, o_N)]$, find a closed term $t$ in the target language such that
 \begin{enumerate}[(i)]
@@ -400,13 +401,14 @@ Recall the 'replicate' example, where we saw the superfluous program \lstinline!
 A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
 
 The relation \textit{matches} over terms is inductively defined as follows.
-\begin{algorithm*}
-\textit{matches}$({?x},t)$\\
-\textit{matches}$(i,t)$\\
-\textit{matches}$(c,c)$\\
-\textit{matches}$(t_1\; t_2,t_3\; t_4)$ if \textit{matches}$(t_1,t_3)$ and \textit{matches}$(t_2,t_4)$\\
-\textit{matches}$(t_1\; [T_1],t_2\; [T_1])$ if \textit{matches}$(t_1,t_2)$\\
-\end{algorithm*}
+\begin{lstlisting}[style=algorithm]
+$\textit{matches}({?x},t)$
+$\textit{matches}(i,t)$
+$\textit{matches}(c,c)$
+$\textit{matches}(t_1\; t_2,t_3\; t_4)$ if $\textit{matches}(t_1,t_3)$ and $\textit{matches}(t_2,t_4)$
+$\textit{matches}(t_1\; [T_1],t_2\; [T_1])$ if $\textit{matches}(t_1,t_2)$
+\end{lstlisting}
+
 As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.
 
 Pruning based on black lists can be easily integrated in Algorithm~\ref{alg:best-first search}. The result is shown in Algorithm~\ref{alg:blacklist pruning}, where the differences to the original best-first search are highlighted in blue.
