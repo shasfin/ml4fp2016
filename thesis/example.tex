@@ -5,17 +5,17 @@
 %The goal is to put together components from the library in a type-aware manner in order to get a list. More concretely, we fix \lstinline?X? to be a fixed input type variable, we fix \lstinline?n? to be an integer and \lstinline?x? to be a fixed input variable of type \lstinline?X?.
 
 \section{The 'replicate' example}
-Let us illustrate our synthesis procedure with the `replicate' example from Chapter~\ref{ch:introduction}.  We want to synthesise a program that takes a number $n$ and an element $x$, and returns the list $[x, \dots, x]$ that consists of $n$ copies of $x$.  A typical synthesis task would be specified like this:
+Let us illustrate our synthesis procedure with the `replicate' example from Chapter~\ref{ch:introduction}.  We want to synthesise a program that takes a number \lstinline!n! and an element \lstinline!x!, and returns the list \lstinline![x, $\dots$, x]! that consists of \lstinline!n! copies of \lstinline!x!.  A typical synthesis task would be specified like this:
 \begin{lstlisting}[style=plain]
 replicate :: $\forall$X. Int -> X -> List X
 replicate 3  1 = [1,1,1]
 replicate 2 [] = [[],[]]
 \end{lstlisting}
-Here, the user specifies the input-output signature of the program (its type), and a few input-output examples of its intended behaviour.  In this case, the user desires that the program can replicate elements of any type $X$, hence the type signature is prefixed with the $\forall X$ quantifier.  The ability to work with any type of elements is made evident by the two examples presented after the type signature.  In the first one, the number $1$ gets replicated three times; in the second one, the empty list \lstinline|[]| gets replicated twice.
+Here, the user specifies the input-output signature of the program (its type), and a few input-output examples of its intended behaviour.  In this case, the user desires that the program can replicate elements of any type \lstinline!X!, hence the type signature is prefixed with the \lstinline!$\forall$ X! quantifier.  The ability to work with any type of elements is made evident by the two examples presented after the type signature. In the first one, the number $1$ gets replicated three times; in the second one, the empty list \lstinline|[]| gets replicated twice.
 
 In order to solve the synthesis task, we look for a program composed of components from a user-specified \emph{library of components}.  Let us assume that in our case the library consists of the standard list combinators \lstinline|map| and \lstinline|foldr|.  In addition, we include the \lstinline|enumTo| function that returns a list with the numbers from $1$ up to its argument, and also the \lstinline|const| function that always returns its first argument.  We will also need the standard list constructors \lstinline|cons| and \lstinline|[]|, and the standard integer constructors \lstinline|succ| and \lstinline|0|.
 
-We search for the goal program by enumerating plausible programs, starting from simpler ones and moving to more complex ones (c.f., Occam's razor).  In the process, we test whether the enumerated programs meet the specified input-output behaviours.  Once we find such a program, we give it to the user for approval.  The main difficulty with this approach is that the number of candidate programs of a given size grows exponentially, but on the other hand very few of them make sense for the synthesis task.  For example, the program \lstinline|replicate n x = n| returns the integer $n$ instead of a list of elements, contradicting the specified type signature of `replicate'.
+We search for the goal program by enumerating plausible programs, starting from simpler ones and moving to more complex ones (c.f., Occam's razor).  In the process, we test whether the enumerated programs meet the specified input-output behaviours.  Once we find such a program, we give it to the user for approval.  The main difficulty with this approach is that the number of candidate programs of a given size grows exponentially, but on the other hand very few of them make sense for the synthesis task.  For example, the program \lstinline|replicate n x = n| returns the integer \lstinline!n! instead of a list of elements, contradicting the specified type signature of `replicate'.
 
 We address this problem by enumerating only well-typed programs that meet the user-specified type-signature.  We do that by actually enumerating \emph{partial programs}.  Partial programs are just programs with \emph{holes} that are to be filled-in later.  Every hole has a type that \emph{drives} subsequent search steps: they fill the hole with a partial program matching its type.  In our particular example, the search would start with the partial program:
 \begin{lstlisting}[style=plain]
@@ -109,8 +109,8 @@ replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
 The first successor does not satisfy the input-output examples.  On the other hand, the second one does, and we finally arrived at a solution.  Further inspection by the user shows that this program indeed captures the desired `replicate' functionality.  Our synthesis task is complete.
 
-\subsection{Superfluous instnatiations}
-The many search choices that we left unexplored, indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  That is why, in addition to the type-driven search, we include another mechanism for pruning the search space.
+\subsection{Superfluous instantiations}
+The many search choices that we left unexplored indicate that the search space remains quite big even if with the type-directed search that rules out ill-typed programs.  That is why, in addition to the type-driven search, we include another mechanism for pruning the search space.
 
 This mechanism (Section~\ref{Black list}) blacklists \emph{superfluous} hole instantiations that have the same or similar input-output behaviour to instantiations of lower cost.  For example, consider expanding \lstinline|?xs| in the following partial program:
 \begin{lstlisting}[style=plain]
