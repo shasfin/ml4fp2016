@@ -133,11 +133,11 @@ The impact on the runtime of this cost function is comparable to the introductio
 \item[no-same-component] prioritises smaller programs with simpler types and additionally penalises the use of the same component more than once. The hope is that without having to inspect programs that take a long time to evaluate like \lstinline?enumTo (prod (enumTo (prod xs)))?, running times will sink. Against expectations, this is usually not the case. The reason could be that the synthesis procedures that use this cost function examine many larger programs that do not contain any type applications, like \lstinline!enumTo (mul (succ (div n m)) (succ ?x))!.
 \end{description}
 
-\subsection{Stack vs Queue expansion}
+\subsection{Stack vs Queue expansion}\label{Stack vs Queue}
 As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
 \begin{enumerate}[a.]
-\item what program to expand next
-\item which hole of this program to expand first
+\item which program should be expanded first
+\item which hole of this program should be expanded first
 \end{enumerate}
 In the previous section we addressed the first question with different cost functions. In this section we focus on the second one.
 
