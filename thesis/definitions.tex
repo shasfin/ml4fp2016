@@ -223,7 +223,7 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 \begin{algorithm}
 \caption{Type unification\label{alg:type unification}}
 \KwIn{Set of constraints $\C = \{(T_{11}, T_{12}), (T_{21}, T_{22}), \ldots\}$}
-\KwOut{Substitution $\sigma$ so that $\sigma(T_{i1}) = \sigma(T_{i2})$ for every constraint $T_{i1} = T_{i2}$ in $\C$}
+\KwOut{Substitution $\sigma$ so that $\sigma(T_{i1}) = \sigma(T_{i2})$ for every constraint $(T_{i1}, T_{i2})$ in $\C$}
 
 \SetKwProg{Fn}{Function}{ is}{end}
 \Fn{unify($\C$)}{
@@ -321,7 +321,7 @@ Algorithm~\ref{alg:best-first search} is parametrised with respect to the follow
 \end{enumerate}
 The first question is addressed by the implementation of the \lstinline?compare? function over programs. We compare programs based on their \emph{cost}. Section~\ref{Cost functions} presents several cost functions.
 
-The second question is addressed by the implementation of the \lstinline?successor? function. In particular, the implementation of the D-App rule. There are two easy ways to handle this problem. The first way is to always expand the leftmost hole, the second way is to always expand the oldest hole. Section~\ref[Stack vs Queue} discusses the advantages and disadvantages of these two choices.
+The second question is addressed by the implementation of the \lstinline?successor? function. In particular, the implementation of the D-App rule. There are two easy ways to handle this situation. The first way is to always expand the leftmost hole, the second way is to always expand the oldest hole. Section~\ref{Stack vs Queue} discusses the advantages and disadvantages of these two choices.
 
 \begin{algorithm}
 \caption{Best first search\label{alg:best-first search}}
@@ -399,7 +399,7 @@ $\textit{no-same-component}(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
-Recall the 'replicate' example, where we saw the superfluous program: \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
+Recall the 'replicate' example, where we saw the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
 
 A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
 
