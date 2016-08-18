@@ -214,7 +214,7 @@ Therefore we choose to restrict our type system to quantifier-free forms.
 This allows us to completely ignore universal types during unification. Nonetheless, we still want to handle universally quantified library components, that is components whose type has the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? with a quantifier-free \lstinline?T($X_1, \ldots, X_n$)?. Towards this end, we represent types of the form \lstinline?$\forall X_1$. $\ldots$ $\forall X_n$. T($X_1, \ldots, X_n$)? as \lstinline!T(?$X_1$, $\ldots$, ?$X_n$)!, that is we leave out all quantifiers and replace the bound variables with fresh type holes.
 
 The goal of unification is to find a substitution $\sigma$ that unifies all pairs of types of a set of constraints.
-A set of constraints $\C$ is a set containing pairs of types $(S, T)$ that should be equal under a \emph{substitution} (a mapping from holes to types). That is, for the output of the unification algorithm $\sigma$ it must hold $\sigma(S) = \sigma(T)$ for every constraint $S = T$ in $\C$.
+A set of constraints $\C$ is a set containing pairs of types $(S, T)$ that should be equal under a \emph{substitution} (a mapping from holes to types). That is, for the output of the unification algorithm $\sigma$ it must hold $\sigma(S) = \sigma(T)$ for every constraint $(S, T)$ in $\C$.
 
 Our unification algorithm (summarised as Algorithm~\ref{alg:type unification} below) is based on the unification algorithm for typed lambda calculus from \cite{pierce2002types} and slightly modified to fit our needs.
 
@@ -222,7 +222,7 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 
 \begin{algorithm}
 \caption{Type unification\label{alg:type unification}}
-\KwIn{Set of constraints $\C = \{T_{11} = T_{12}, T_{21} = T_{22}, \ldots\}$}
+\KwIn{Set of constraints $\C = \{(T_{11}, T_{12}), (T_{21}, T_{22}), \ldots\}$}
 \KwOut{Substitution $\sigma$ so that $\sigma(T_{i1}) = \sigma(T_{i2})$ for every constraint $T_{i1} = T_{i2}$ in $\C$}
 
 \SetKwProg{Fn}{Function}{ is}{end}
@@ -230,7 +230,7 @@ A type hole unifies with anything. An arrow type \lstinline?$T_1$ -> $T_2$? unif
 	\DontPrintSemicolon
 	\lIf{$\C = \emptyset$}{
 		[]
-	}\Else{let $\{T_1 = T_2\} \cup \C' = \C$ in\\
+	}\Else{let $\{(T_1, T_2)\} \cup \C' = \C$ in\\
 		\uIf{$T_1 = T_2$}{
 			\textit{unify}$(\C')$
 		}\uElseIf{$T_1 = {?X}$ and ${?X}$ does not occur in $T_2$}{
@@ -319,9 +319,9 @@ Algorithm~\ref{alg:best-first search} is parametrised with respect to the follow
 \item Which candidate program is the most promising?
 \item Which hole of the most promising program should be expanded?
 \end{enumerate}
-The first question is addressed by the implementation of the \lstinline?compare? function over programs. Section~\ref{Cost functions} discusses different approaches to define it.
+The first question is addressed by the implementation of the \lstinline?compare? function over programs. We compare programs based on their \emph{cost}. Section~\ref{Cost functions} presents several cost functions.
 
-The second question is addressed by the implementation of the \lstinline?successor? function. In particular, the implementation of the D-App rule. There are two easy ways to handle this problem. The first way is to always expand the leftmost hole, the second way is to always expand the oldest hole.
+The second question is addressed by the implementation of the \lstinline?successor? function. In particular, the implementation of the D-App rule. There are two easy ways to handle this problem. The first way is to always expand the leftmost hole, the second way is to always expand the oldest hole. Section~\ref[Stack vs Queue} discusses the advantages and disadvantages of these two choices.
 
 \begin{algorithm}
 \caption{Best first search\label{alg:best-first search}}
@@ -343,10 +343,10 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 
 \section{Cost functions}\label{Cost functions}
 \TODO{General TODO: decide how do you want to call your cost functions. Now they are everywhere called nof-nodes, nof-nodes-simple-type and no-same-component. Maybe you want some simpler and shorter name.\\}
-The compare function in the best-first search algorithm can be defined as \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to define this cost function. We will present four alternatives. All of them are based on the idea that shorter and simpler programs generalise better to unseen examples, along the lines of the Occam's razor principle \cite{computationalLearningTheory}. The first three alternatives were evaluated on benchmarks and their effect on performance is discussed in Section~\ref{Eval. Cost functions}.
+The compare function in the best-first search algorithm can be defined as \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to define this cost function. We will present four alternatives. All of them are based on the idea that shorter and simpler programs generalise better to unseen examples, along the lines of the Occam's razor principle \cite{computationalLearningTheory}. The first three alternatives are evaluated on benchmarks and their effect on performance is discussed in Section~\ref{Eval. Cost functions}.
 
   \paragraph{nof-nodes}
-The first cost function is based only on the number of nodes of the term. It prioritises shorter programs and prefers input variables over library components over holes.
+The first cost function is based only on the number of nodes of the term. It prioritises shorter programs and prefers input variables over library components over holes. It is inductively defined over the terms of the target language as follows.
 %
 \begin{lstlisting}[style=algorithm]
 $\textit{nof-nodes}(c) = 1$
@@ -357,7 +357,7 @@ $\textit{nof-nodes}(t\; [T]) = 1 + \textit{nof-nodes}(t)$
 \end{lstlisting}
 %
   \paragraph{nof-nodes-simple-type}
-The second cost function also adds a factor based on the size of the types appearing in the term. It penalises thus terms with type application depending on the applied types. In particular, arrow types appearing in type applications are heavily penalised.
+The second cost function adds a factor based on the size of the types appearing in the term. It penalises thus terms with type application depending on the size of the applied types. In particular, arrow types appearing in type applications are heavily penalised. The cost function over types is inductively defined over the quantifier-free subset of the types of the target language.
 %
 \begin{lstlisting}[style=algorithm]
 $\textit{nof-nodes-type}(X) = 1$
@@ -372,11 +372,11 @@ $\textit{nof-nodes-term}(i) = 0$
 $\textit{nof-nodes-term}(t_1\; t_2) = 1 + \textit{nof-nodes-term}(t_1) + \textit{nof-nodes-term}(t_2)$
 $\textit{nof-nodes-term}(t\; [T]) = 1 + \textit{nof-nodes-term}(t) + \textit{nof-nodes-type}(T)$
 
-$\textit{nof-nodes-and-types}(t) = \textit{nof-nodes-term}(t)$
+$\textit{nof-nodes-simple-type}(t) = \textit{nof-nodes-term}(t)$
 \end{lstlisting}
 
   \paragraph{no-same-component}
-In the third cost function we additionally penalize terms that use the same component more than once.
+The third cost function additionally penalises terms that use the same component more than once.
 %
 \begin{lstlisting}[style=algorithm]
 $\textit{nof-nodes-type}({?X}) = 3$
@@ -399,7 +399,7 @@ $\textit{no-same-component}(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
-Recall the 'replicate' example, where we saw the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
+Recall the 'replicate' example, where we saw the superfluous program: \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
 
 A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
 
