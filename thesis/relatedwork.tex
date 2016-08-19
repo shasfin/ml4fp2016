@@ -7,7 +7,8 @@ In this chapter we look at four state-of-the-art tools closely related to our wo
 \section{\mdseries\textsc{Synquid}}
 
 In \cite{SynquidPaper} \textsc{Synquid} is proposed. The code can be found online\footnote{https://bitbucket.org/nadiapolikarpova/synquid} and there is the possibility to try it in the browser.
-This tool uses \emph{refinement types} (types decorated with logical predicates) to prune the search space and to specify programs. SMT-solvers are used to satisfy the logical predicates appearing in the types.\\
+This tool uses \emph{refinement types} (types decorated with logical predicates) to prune the search space and to specify programs. SMT-solvers are used to satisfy the logical predicates appearing in the types.
+
 Refinement types were already successfully used for verification. In particular, the tool builds upon the liquid types framework \cite{LiquidTypes}. However, it proposes a new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. In contrast to existing procedures, where only complete programs could be type checked, the new procedure introduced in this paper allows one to type check partial programs as they are generated and use the type information to guide the synthesis.
 
 This tool targets a language that includes lambda expressions, pattern matching, structural recursion, conditionals and fixpoint.

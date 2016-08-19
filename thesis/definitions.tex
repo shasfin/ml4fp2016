@@ -145,7 +145,7 @@ The evaluation judgement $\Phi, \Delta \vdash t \longrightarrow t'$ means that t
 	\UnaryInfC{$\Phi, \Delta \vdash (\Lambda X.\; t_2)\; [T_2] \longrightarrow [X \mapsto T_2]t_2$}
 \end{prooftree}  
   
-Rules E-Lib and E-Inp load the definitions of library components or input variables from the respective library. E-App1 and E-App2 evaluate the left hand side, respectively the right hand side, of a term application. E-AppAbs and \textsc{E-AppAbs} get rid of a term and, respectively, type abstraction and substitute the argument into the body.\\
+Rules E-Lib and E-Inp load the definitions of library components or input variables from the respective library. E-App1 and E-App2 evaluate the left hand side, respectively the right hand side, of a term application. E-AppAbs and \textsc{E-AppAbs} get rid of a term and, respectively, type abstraction and substitute the argument into the body.
 Note that E-App2 applies only if the left hand side of the application cannot be evaluated further and that E-AppAbs applies only when the argument of the lambda abstraction is a value, determining the order of evaluation.
 
 \subsection{Type checking}\label{Typing}
@@ -267,7 +267,7 @@ There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 
 
 To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
 
-The derive judgement can be summarised by the following four rules.\\
+The derive judgement can be summarised in four rules.
 D-VarLib replaces a hole $?x$ with a type application of a library component $c$ to suitable types, if the type of $c$ unifies with the type of $?x$. D-VarInp replaces a hole $?x$ with an input variable $i$ from the context $\Phi$, if its type unifies with the type of the hole. D-VarApp turns a hole into a term application of two fresh holes. The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
 
 The notation $\sigma(\Xi)$ denotes the application of the substitution $\sigma$ to all types appearing in $\Xi$.
@@ -342,7 +342,6 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \end{algorithm}
 
 \section{Cost functions}\label{Cost functions}
-\TODO{General TODO: decide how do you want to call your cost functions. Now they are everywhere called nof-nodes, nof-nodes-simple-type and no-same-component. Maybe you want some simpler and shorter name.\\}
 The compare function in the best-first search algorithm can be defined as \lstinline?cost $p_1$ - cost $p_2$?. There are different possibilities to define this cost function. We will present four alternatives. All of them are based on the idea that shorter and simpler programs generalise better to unseen examples, along the lines of the Occam's razor principle \cite{computationalLearningTheory}. The first three alternatives are evaluated on benchmarks and their effect on performance is discussed in Section~\ref{Eval. Cost functions}.
 
   \paragraph{nof-nodes}

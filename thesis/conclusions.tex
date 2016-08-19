@@ -31,7 +31,7 @@ A related problem are partial programs that can be ruled out based on the semant
 \begin{lstlisting}[style=plain]
 enumFromTo m n = enumTo ?x
 \end{lstlisting}
-will not lead to the solution, because every list returned by \lstinline!enumTo!, no matter the argument, starts with $1$, whereas the list returned by \lstinline!enumFromTo! should start with \lstinline!m!, which is not necessarily $1$. Our synthesis procedure, on the contrary, treats this partial program and its successors as very promising candidates.\\
+will not lead to the solution, because every list returned by \lstinline!enumTo!, no matter the argument, starts with $1$, whereas the list returned by \lstinline!enumFromTo! should start with \lstinline!m!, which is not necessarily $1$. Our synthesis procedure, on the contrary, treats this partial program and its successors as very promising candidates.
 This motivated us to try a slightly different synthesis procedure: the one that fixes the higher-order components first (generating a \emph{template}) and then fills in the remaining holes with input variables and first-order components.
 
 We also explored some rudimentary ways of user-synthesiser interaction in order to help the synthesiser to avoid those three classes of undesired programs.
