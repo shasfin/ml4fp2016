@@ -3,80 +3,43 @@
 \chapter{Introduction}\label{ch:introduction}
 Program synthesis strives to automatically synthesise programs given some sort of specification of their behaviour.   For example, a specification can be a logical formula that completely describes the relation between program inputs and outputs.  Another popular way is to provide a few concrete input-output examples, and then ask the synthesiser for a program that extrapolates them well.  Compared to precise logical specifications, concrete examples are very attractive, because they are more intuitive and require less effort.  Program Synthesis in this form is the focus of the present thesis.
 
-When solving programming tasks, human programmers invariably rely on prior knowledge in form of computational patterns.  Well-known patterns are typically reflected by libraries of reusable components (subprograms).  For example, the \lstinline!map! higher-order function expresses the transformation of each element of a list according to a given mapping.  The \lstinline!foldr! combinator captures primitive recursion on lists: \lstinline!foldr f init xs! is equivalent to \lstinline!g xs!, where \lstinline!g! is defined by the recursive scheme:
+When solving programming tasks, human programmers invariably rely on prior knowledge in form of computational patterns.  Well-known patterns are typically reflected by libraries of reusable components (subprograms).  For example, the \lstinline!map! higher-order function expresses the transformation of each element of a list according to a given mapping.  The \lstinline!foldr! combinator captures primitive recursion on lists: \lstinline!foldr f init xs! is equivalent to \lstinline!g xs!, where \lstinline!g! is defined by the recursive scheme\footnote{Here and in the following we use improvised Haskell-like syntax.}
 \begin{lstlisting}[style=plain]
 g [] = init
 g (x:xs) = f x (g xs)
 \end{lstlisting}
 
-The main goal of the thesis is to investigate whether the computational knowledge encoded by such components can help an automatic synthesiser, analogously to how a human solves such tasks in terms of known patterns.  In pacticular, we investigate whether one can quickly synthesise solutions to basic algorithmic tasks in terms of standard library components.  Our main hypothesis is that standard components capture widely useful patterns that one can use to find short and simple solution programs.
+The main goal of the thesis is to investigate whether the computational knowledge encoded by such components can help an automatic synthesiser, analogously to how a human reuses known patterns in order to solve such tasks.  In particular, we investigate whether one can quickly synthesise solutions to basic algorithmic tasks in terms of standard library components.  Our main hypothesis is that standard components capture widely useful patterns that one can use to find short and simple solution programs.
 
-Towards this goal, we develop an examples-based synthesis algorithm, not taylored to a specific set of components.  This allows one to easily expand the ``computational knowledge'' of the synthesiser simply by adding new components.  To simplify the matter, we focus on the synthesis of purely functional programs without any lambda expressions, explicit recursion or conditionals (i.e., only function application is allowed).  This restriction is inessential as richer constructs can be easily simulated by applications of suitable higher-order components.  But importantly, it allows for a clean synthesis algorithm that focuses on how to combine components effectively.
+Towards this goal, we develop an examples-based synthesis algorithm, not tailored to a specific set of components.  This allows one to easily expand the ``computational knowledge'' of the synthesiser simply by adding new components.  To simplify the matter, we focus on the synthesis of purely functional programs without any lambda expressions, explicit recursion or conditionals (i.e., only function application is allowed).  This restriction is inessential as richer constructs can be easily simulated by applications of suitable higher-order components.  But importantly, it allows for a clean synthesis algorithm that focuses on how to combine components effectively.
+
+For example, consider we want to generate \lstinline!replicate!, that is the function that takes an integer \lstinline!n! and an element \lstinline!x! of any type and returns the list consisting of \lstinline!n! copies of \lstinline!x!. We expect our synthesiser to output the program:
+\begin{lstlisting}[style=plain]
+replicate n x = map (const x) (enumTo n)
+\end{lstlisting}
+In the above program, \lstinline!const! is the function that takes two arguments and always returns the first one; \lstinline!enumTo! is the function that takes an integer \lstinline!m! and returns the list \lstinline![1, 2, $\ldots$, m]!.
+The synthesised solution encodes the insight: in order to generate a list consisting of \lstinline!n! copies of \lstinline!x!, one can first generate a list of length \lstinline!n!, in this case \lstinline![1, 2, $\ldots$, n]!, and then map each element to \lstinline!x!.
 
 \section{Existing work}\label{Background}
-The past $50$ years of research approached program synthesis from various points of view.  For example, early methods \cite{Manna:1980:DAP:357084.357090} were based on automatic theorem proving and the relation between proofs and programs (the Curry– Howard correspondence).  They convert a logical specification of a program into a theorem, find a proof of this theorem, and then extract a program from the proof.  Such methods are mainly limited by the performance of the employed theorem proover (which, unfortunately, is not much at present).  A drawback of these approaches is that a high level of mathematical maturity is required to provide the needed logical specification.
+The past $50$ years of research approached program synthesis from various points of view.  For example, early methods \cite{Manna:1980:DAP:357084.357090} were based on automatic theorem proving and the relation between proofs and programs (the Curry– Howard correspondence).  They convert a logical specification of a program into a theorem, find a proof of this theorem, and then extract a program from the proof.  Such methods are mainly limited by the performance of the employed theorem prover (which, unfortunately, is not much at present).  A drawback of these approaches is that a high level of mathematical maturity is required to provide the needed logical specification.
 
-A more accessible way to specify a program is by giving a finite number of input-output examples that the synthesised program must satisfy.  In this setting, two main approaches are most popular.  The first one analyses the input-output examples to derive a set of relations that capture them, and then transforms this descritption into a program \cite{Summers:1977:MLP:321992.322002,Kitzelmann:2009:AIF:1530575.1530582,Jha:2010:OCP:1806799.1806833}.  Even though the techiques are quite interesting, they need much more advancement.  The second one is based on program enumeration \cite{LambdaSquarePaper,EscherPaper,MythPaper}, and became more popular as the processor speed increased.
+A more accessible way to specify a program is by giving a finite number of input-output examples that the synthesised program must satisfy.  In this setting, two main approaches are most popular.  The first one analyses the input-output examples to derive a set of relations that capture them, and then transforms this description into a program \cite{Summers:1977:MLP:321992.322002,Kitzelmann:2009:AIF:1530575.1530582,Jha:2010:OCP:1806799.1806833}.  Even though the techniques are quite interesting, they need much more advancement.  The second one is based on program enumeration \cite{LambdaSquarePaper,EscherPaper,MythPaper}, and became more popular as the processor speed increased.
 
-Good results for the second approach were obtained by restricting the target programs to a specific domain \cite{Fischer:2003:ASG:967842.967845,Frigo98fftw:an,Thies2002,Gulwani:2011:ASP:1926385.1926423,Gulwani:2011:SGC:1993498.1993505}. Recently a generic system for synthsis in doman-specific languages~\cite{Perelman:2014:TS:2594291.2594297} was presented.  This system gives a lot of flexibility to make the synthesis more tractable by employing more restrictive languages.  Another way to restrict the problem is to require the user for additional clues, as in \textsc{Sketch} \cite{Solar-Lezama:2006:CSF:1168857.1168907}, where the user sketches the high-level structure of the program, while the synthesiser fills in the low-level details.  To achieve efficiency, \textsc{Sketch} combines program enumeration with constraint-satisfaction, for which it uses off-the-shelf SAT/SMT solvers.
+Good results for the second approach were obtained by restricting the target programs to a specific domain \cite{Gulwani:2011:ASP:1926385.1926423,Gulwani:2011:SGC:1993498.1993505}. Recently a generic system for synthesis in domain-specific languages~\cite{Perelman:2014:TS:2594291.2594297} was presented.  This system gives a lot of flexibility to make the synthesis more tractable by employing more restrictive languages.  Another way to restrict the problem is to require the user for additional clues, as in \textsc{Sketch} \cite{Solar-Lezama:2006:CSF:1168857.1168907}, where the user sketches the high-level structure of the program, while the synthesiser fills in the low-level details.  To achieve efficiency, \textsc{Sketch} combines program enumeration with constraint-satisfaction, for which it uses off-the-shelf SAT/SMT solvers.
 
 Recently, type theory and program verification also entered the synthesis scene \cite{LeonPaper,DBLP:journals/corr/InalaQLS15,Kuncak:2010:CFS:1806596.1806632,Frankle:2016:EST:2837614.2837629}.  Systems like \cite{LambdaSquarePaper,MythPaper,SynquidPaper} actively use type signatures to prune the search space.  This is quite reasonable, as type information is easy to provide and usually readily available.  Also, type-based pruning is essential in our setting, because a large number of library components can often be combined in a small number of ways due to typing.  That is why, our synthesis algorithm also falls into the type-based pruning category.
 
 \section{Contributions}
-In this thesis we study whether program analysis can benefit from access to common computational patterns.  In particular, we investigate whether a library (of first and higher-order components) can guide and speed up the synthesis process.  Towards this end we make the following contributions:
+In this thesis we study whether program synthesis can benefit from access to common computational patterns.  In particular, we investigate whether a library (of first and higher-order components) can guide and speed up the synthesis process.  Towards this end we make the following contributions:
 
 \begin{enumerate}
 \item We develop a basic synthesis algorithm for purely functional programs based on exhaustive enumeration combined with type-based pruning.
 
-\item We propose a couple of heursitics to guide the search in a best-first manner, and also how to automatically blacklist certain useless branches.
+\item We propose a couple of heuristics to guide the search in a best-first manner, and also how to automatically blacklist certain useless branches.
 
 \item We develop a prototype implementation of our algorithm in OCaml, and perform an extensive evaluation over a library of 37 components.
 
-\item We analyse the results of the evaluation and compare it with reported results from state of the art program synthesis tools.
+\item We analyse the results of the evaluation and compare it with reported results from state-of-the-art program synthesis tools.
 \end{enumerate}  
 
 Our evaluation indicates that for simple algorithmic problems, our basic algorithm combined with a good enough library of components performs on par with much more sophisticated state of the art algorithms.
-
-
-% The algorithm accepts accepts a list of input-output examples, the type of the program to be synthesised, and a library of components to use.  It, then, aims to synthesise a solution from the components in the library, such that it behaves according to the input-output examples.
-
-
-%% \section{Summary}\label{Problem}
-
-
-%% For that, we use a best-first-search algorithm (based on various cost functions).  Importantly, the best-first search
-
-%% We use a simple enumerate-and-test approach. In order to avoid errors due to bad typing, we enumerate only well-typed programs. We rely on a large library of first- and higher-order components reflecting common computational patterns.
-%% The synthesiser should compose a program from library components that agrees with the given input-output examples and generalises well to unseen examples.
-
-%% For example, consider we want to generate \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! of any type and returns the list \lstinline![x, x, $\ldots$, x]! of length \lstinline!n!. A straight-line purely applicative functional solution composed from standard first- and higher-order components would be:
-%% \begin{lstlisting}[style=plain]
-%% replicate n x = map (const x) (enumTo n)
-%% \end{lstlisting}
-%% In the above program, \lstinline!map! is the higher-order function that applies its first argument, a function, to every element of its second argument, a list; \lstinline!const! is the function that takes two arguments and always returns the first one; \lstinline!enumTo! is the function that takes an integer \lstinline!m! and returns the list \lstinline![1, 2, $\ldots$, m]!.
-%% The above program encodes the following insight: in order to generate a list consisting of \lstinline!n! copies of \lstinline!x!, we can first generate a list of length \lstinline!n!, in this case \lstinline![1, 2, $\ldots$, n]!, and then transform each element of this list into \lstinline!x!.
-
-%% In contrast to other systems based on enumeration \cite{MythPaper, LambdaSquarePaper}, we do not target recursive programs or programs containing lambda expressions, conditionals or pattern matching. However, those restrictions theoretically do not limit the set of functions we can express, since adding suitable higher-order components\footnote{For example, the $S, K, I$ combinators introduced by Schönfinkel in \cite{Schonfinkel1924}.} to the library makes it possible to express all computable functions.
-
-%% In practice, we can mimic popular recursive patterns with suitable library components. For example, the program \lstinline!p n = foldNat f init n! can be translated into the following recursive program.
-%% \begin{lstlisting}[style=plain]
-%% p 0 = init
-%% p n = f (p (n-1))
-%% \end{lstlisting}
-%% Instantiating \lstinline!init! with \lstinline![]! and \lstinline!f! with \lstinline!(x:)! leads to a solution for \lstinline!replicate! corresponding to the recursive program:
-%% \begin{lstlisting}[style=plain]
-%% replicate 0 x = []
-%% replicate n x = x:(replicate (n-1) x)
-%% \end{lstlisting}
-
-%% Analogously, the component \lstinline!foldNatNat! mimics the recursive pattern:
-%% \begin{lstlisting}[style=plain]
-%% p 0 = init
-%% p n = f n (p (n-1))
-%% \end{lstlisting}
-%% This common pattern is used in the recursive definitions of \lstinline!enumTo!, \lstinline!sumUnder! and \lstinline!factorial!.
-
-%% We are interested in studying how an inductive synthesis algorithm can apply this knowledge in a synthesis task. In particular, we are interested how a library of first- and higher-order components can guide and speed up the synthesis process.
-%% To that end, we implement in OCaml a prototype\footnote{\TODO{Link to the code?}} of the synthesis procedure we define in Chapter~\ref{ch:definitions}. The main contribution of this thesis is the extensive evaluation of our synthesis procedure and the exploration of the search space. The experiments and the findings are presented in Chapter~\ref{ch:evaluation}.
-
-%% The rest of the thesis is structured as follows. In Chapter~\ref{ch:definitions} the top-down synthesis procedure is introduced and formally defined. Chapter~\ref{ch:implementation} describes how to turn this synthesis procedure into a synthesis tool written in OCaml. In Chapter~\ref{ch:relatedwork} we shortly review four closely related synthesis tools: \textsc{Synquid} \cite{SynquidPaper}, $\lambda^2$ \cite{LambdaSquarePaper}, \textsc{Escher} \cite{EscherPaper} and \textsc{Myth} \cite{MythPaper}. In Chapter~\ref{ch:evaluation} we present the results of the empiric evaluation. Finally, Chapter~\ref{ch:conclusions} draws the conclusions and outlines the possibilities for future work.
