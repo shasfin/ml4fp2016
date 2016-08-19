@@ -2,13 +2,13 @@
 
 \chapter{Related Work} \label{ch:relatedwork}
 
-In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, are based on inductive enumeration and use type information to restrict the search space. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} from \cite{SynquidPaper}.
+In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, use type information to restrict the search space and enumerate term during search. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples, as in \cite{LambdaSquarePaper, EscherPaper, MythPaper}, or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} in \cite{SynquidPaper}.
 
 \section{\mdseries\textsc{Synquid}}
 
 In \cite{SynquidPaper} \textsc{Synquid} is proposed. The code can be found online\footnote{https://bitbucket.org/nadiapolikarpova/synquid} and there is the possibility to try it in the browser.
 This tool uses \emph{refinement types} (types decorated with logical predicates) to prune the search space and to specify programs. SMT-solvers are used to satisfy the logical predicates appearing in the types.\\
-Refinement types were already successfully used for verification. In particular, the tool builds upon the liquid types framework \cite{LiquidTypes}. However, it proposes a new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. Programs can therefore be type checked even before they are put together.
+Refinement types were already successfully used for verification. In particular, the tool builds upon the liquid types framework \cite{LiquidTypes}. However, it proposes a new procedure for type inference (called modular refinement type reconstruction), which thank to its modularity scales better than other existing inference procedures for refinement types. In contrast to existing procedures, where only complete programs could be type checked, the new procedure introduced in this paper allows one to type check partial programs as they are generated and use the type information to guide the synthesis.
 
 This tool targets a language that includes lambda expressions, pattern matching, structural recursion, conditionals and fixpoint.
 The user can define custom functions and inductive datatypes that can be passed to the synthesiser as components.
@@ -19,12 +19,12 @@ n : Nat -> x : $\alpha$ -> {List $\alpha$ | len $\nu$ = n}
 \end{lstlisting}
 This is a dependent function type that denotes functions that, given a natural number $n$ and an $x$ of type $\alpha$, return a list of $\alpha$ of length $n$. Here $\nu$ is a special logical value variable that in this case denotes the runtime return value of the functions and \lstinline!len! is a measure function defined over lists.
 
-This form of specification can be a disadvantage, since it is not that accessible to users with a lower level of expertise as input-output examples. It is not always easy to see which measure function for a custom datatype will lead to the most simple and intuitive specification.
+This form of specification can be a disadvantage, since it is not as accessible to users with a lower level of expertise as input-output examples. It is not always easy to see which measure function for a custom datatype will allow one to specify the desired behaviour of a synthesis task.
 On the other hand, refinement types allow to express programs that manipulate data structures with non-trivial universal and inductive invariants in a concise way. This allows to synthesise programs on sorted lists, unique lists, binary search trees, heaps and red-black trees.
 
 This tool synthesises simple programs over lists and integers in under \SI{0.4}{s}. It can also handle more complex benchmarks that are out of the scope of this thesis, such as different sorting algorithms and manipulations of data structures with complex invariants. Various sorting algorithms over lists and trees are synthesised in under \SI{5}{s}. The synthesis of the most complex benchmark, the balancing of a red-black tree, takes up to \SI{20}{s}.
 
-In contrast to our tool, the number of components provided to the synthesiser for evaluation is small.
+In contrast to our tool, the number of components provided to the synthesiser for evaluation is small. Moreover, as already mentioned earlier, it is not always easy to specify a synthesis task as a refinement type. On the contrary, in our tool the behaviour of the desired program is specified in a more intuitive way with input-output examples. Typically very few of them are required.
 
 \section{$\lambda^2$}
 
@@ -33,12 +33,16 @@ The tool proposed in \cite{LambdaSquarePaper} is called $\lambda^2$ and generate
 The user specifies the desired program providing only input-output examples. No particular knowledge is required from the user, as was demonstrated using randomly generated input-output examples. The goal type is inferred from the examples.
 
 The synthesis algorithm is a combination of inductive generalisation, a limited form of deduction and enumerative search.
-First, it generates \emph{hypotheses} in a type-aware manner, that is programs with free variables such as \lstinline!$\lambda$x. map ?f x! where \lstinline!?f! is a placeholder for an unknown program to be synthesised.
-Then deduction in form of hand-coded rules about the higher-order combinators is used either to refute a hypothesis or infer new input-output examples to guide the synthesis of missing functions. For example, the hypothesis \lstinline!$\lambda$x. map ?f x! will be refuted if the length of the input list does not match the length of the output length.
+First, it generates \emph{hypotheses} in a type-aware manner, that is programs with free variables such as:
+\begin{lstlisting}[style=plain]
+$\lambda$x. map ?f x
+\end{lstlisting}
+where \lstinline!?f! is a placeholder for an unknown program to be synthesised.
+Then deduction in form of hand-coded rules about the higher-order combinators is used either to refute a hypothesis or infer new input-output examples to guide the synthesis of missing functions. For example, the hypothesis \lstinline!$\lambda$x. map ?f x! will be refuted if the length of the input list does not match the length of the output list.
 Enumerative search is used to enumerate candidate programs to fill in the missing parts of hypotheses. Hypotheses and candidate programs are organised in a priority queue and, at each point of the search, the least-cost candidate is picked.
 
 This tool is able to synthesize programs manipulating recursive data structures like lists, trees and nested data structures such as lists of lists and trees of lists.
-It synthesises all benchmark programs in under 7~minutes. Half of the benchmarks is synthesised in under \SI{0.43}{s}. However, the synthesis of \lstinline!droplast!, the program that drops the last element of a list, takes up to \SI{320}{s}. The program that removes duplicates from a list, the program that drops the smallest elements of each list of a list of lists and the program that inserts a tree under each leaf of another tree take more than \SI{100}{s} to synthesise.
+It synthesises all benchmark programs in under 7~minutes. Half of the benchmarks are synthesised in under \SI{0.43}{s}. However, the synthesis of \lstinline!droplast!, the program that drops the last element of a list, takes up to \SI{320}{s}. The program that removes duplicates from a list, the program that drops the smallest elements of each list of a list of lists and the program that inserts a tree under each leaf of another tree also take more than \SI{100}{s} to synthesise.
 
 Unlike \textsc{Synquid} and our work, this tool can only use the $7$ hard-coded higher-order combinators. The extension of the set of higher-order combinators with own functions is not easily supported.
 
@@ -47,14 +51,14 @@ Unlike \textsc{Synquid} and our work, this tool can only use the $7$ hard-coded 
 
 In \cite{EscherPaper} \textsc{Escher} is presented. This tool targets a simple untyped purely functional language consisting of constants, input variables, conditionals and library components applied to all of their arguments, including a special component \lstinline!self! referring to the program being synthesised. This last component is used to synthesise recursive programs.
 
-The user specifies the desired program as a \emph{closed} set of input-output examples. That is, for each input-output example, all examples needed to evaluate every recursive call must be present. For example, if we want to specify \lstinline!replicate! as
+The user specifies the desired program as a \emph{closed} set of input-output examples. That is, for each input-output example, all examples needed to evaluate every recursive call must be present. For example, if we want to specify \lstinline!replicate! as:
 \begin{lstlisting}[style=plain]
-replicate 2 'a' = ['a','a'],
+replicate 2 'a' = ['a','a']
 \end{lstlisting}
-we also need to provide the input-output examples for the possible recursive calls, that is
+we also need to provide the input-output examples for the possible recursive calls, that is:
 \begin{lstlisting}[style=plain]
 replicate 1 'a' = ['a']
-replicate 0 'a' = [].
+replicate 0 'a' = []
 \end{lstlisting}
 This is necessary because recursive programs are evaluated using the input-output examples as an oracle. However, it is not always easy for an inexperienced user to provide such a set.
 
@@ -63,7 +67,7 @@ The algorithm alternates between two phases: forward search and conditional infe
 
 This tool is able to synthesise recursive programs, including tail recursive, mutually recursive and divide-and-conquer. It synthesises all benchmarks in under \SI{11}{s} and all but three benchmarks in under \SI{1}{s}. The benchmarks include programs on integers such as \lstinline!fibonacci! and \lstinline!isEven!, programs on lists such as \lstinline!compress! and \lstinline!insert! and programs on trees such as \lstinline!nodes-at-level! and \lstinline!count-leaves!.
 
-Like our work, this tool can handle a flexible set of components. For example, a set of $23$ components was used to evaluate all benchmarks. However, there was no higher-order component among them.
+Like our work, this tool can handle a flexible set of components. For example, a set of $23$ components was used to evaluate all benchmarks. However, there were no higher-order components among them. In contrast to our tool, \textsc{Escher} requires a closed set of input-output examples. This is not always convenient for the user, as she has to anticipate the recursion in the solution.
 
 \section{\mdseries\textsc{Myth}}
 
@@ -75,6 +79,7 @@ The technique is inspired by proof search and searches for a term in the target 
 
 This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. The benchmarks include programs over booleans, natural numbers, lists and trees. The tool is able to synthesise all benchmark programs in less than \SI{2.5}{min}, $70\%$ of them are synthesised in less than \SI{0.4}{s}. The only benchmark that takes more than \SI{1}{min} to synthesise is \lstinline!list-compress!.
 
+In contrast to our tool, \textsc{Myth} requires a closed set of input-output examples as a specification to a synthesis task. This is an inconvenience, since the user has to anticipate the structure of the program and the recursive calls. Moreover, as opposed to our tool, \textsc{Myth} lacks support for polymorphic types.
 
 %Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs. No, I have nothing to compare. The benchmark is too different.) \cite{LeonPaper}
 %\begin{enumerate}

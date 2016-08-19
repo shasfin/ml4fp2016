@@ -399,7 +399,14 @@ $\textit{no-same-component}(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
-Recall the 'replicate' example, where we saw the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches like \lstinline!foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs! or \lstinline!add zero ?n!. Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
+Recall the 'replicate' example, where we encountered the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches, such as, for example:
+\begin{lstlisting}[style=plain]
+foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs
+\end{lstlisting}
+\begin{lstlisting}[style=plain]
+add zero ?n
+\end{lstlisting}
+Such programs can be ruled out only based on the semantics of the library components. A simple way to prune those superfluous branches is to compile a list of undesired patterns and check each generated program against this list. This is what we call \emph{black list pruning}.
 
 A black list is a list of terms of the target language. Programs that contain a subterm that matches a term from the black list are removed from the candidate programs and their successors are ignored.
 
@@ -437,7 +444,7 @@ queue $\gets$ PriorityQueue.push queue $\{\Xi, \Phi_1, \Delta \vdash {?x} :: T\}
 \KwOut{PriorityQueue.top queue}
 \end{algorithm}
 
-In Section~\ref{Black list generation} we discuss how to synthesise such a black list automatically.
+In Section~\ref{Black list generation} we discuss how to synthesise a black list automatically.
 
 \section{Templates}\label{Templates}
 In this section we present a slightly different way to explore the search space. The idea is to fix all higher-order components first, producing a \emph{template} for a program, and then fill in the remaining holes with input variables and first-order components. Since programs usually contain only a few higher-order components, the enumeration of templates takes less time than the enumeration of programs of comparable size. Moreover, templates encode well-known patterns of computation and impose meaningful constraints on the remaining holes. Therefore, it should be easy to find the desired program starting from the right template. This allows us to quickly abandon templates if no program satisfying the input-output examples is found within a short timeout.
@@ -451,7 +458,7 @@ The synthesis procedure iterates between two phases: enumeration of templates an
 
 We additionally restrict the space by requiring a template to have no more than $M$ higher-order components and no more than $P$ delayed holes. Templates are enumerated according to the rules listed below. Those are very similar to the ones defined in Section~\ref{Search space}, except that we cannot instantiate a hole with an input variable but we can delay a hole. All the rules are modified to take into account the restriction on the number of components and the number of closed holes. In order to do this, we need to pass along $m$, the number of higher-order components in the term whose subterms we are traversing.
 
-Analogously to D-VarLib, the rule G-VarLib instantiates a hole with a type application of a higher-order library components to the right types, if the type of the component unifies with the type of the hole. The rule G-VarDelay delays the instantiation of a hole to the first-order search. G-VarApp replaces a hole with a term application of two fresh holes. G-App expands one of the holes of the template according to one of the three rules listed above. Note that there are no rules to expand a delayed hole.
+Analogously to D-VarLib, the rule G-VarLib instantiates a hole with a type application of a higher-order library components to suitable types, if the type of the component unifies with the type of the hole. The rule G-VarDelay delays the instantiation of a hole to the first-order search. G-VarApp replaces a hole with a term application of two fresh holes. G-App expands one of the holes of the template according to one of the three rules listed above. Note that there are no rules to expand a delayed hole.
 
 \begin{prooftree}
 \AxiomC{$|\Xi| \leq P$ and $m < M$}
@@ -464,7 +471,7 @@ Analogously to D-VarLib, the rule G-VarLib instantiates a hole with a type appli
 \noLine
 \UnaryInfC{$\Xi' = \Xi \cup \{{?X_1}, \ldots, {?X_n}\} \setminus \{{?x} : T\}$}
 	\RightLabel{G-VarLib}
-	\UnaryInfC{$\Xi, \Phi, \Delta_h \vdash {?x} :: T \Mapsto \sigma(\Xi'), \Phi, \Delta_h \vdash c\; [\sigma(?X_1)]\; \ldots\; [\sigma(?X_n)] :: \sigma(T) $
+	\UnaryInfC{$\Xi, \Phi, \Delta_h, m \vdash {?x} :: T \Mapsto \sigma(\Xi'), \Phi, \Delta_h, m+1 \vdash c\; [\sigma(?X_1)]\; \ldots\; [\sigma(?X_n)] :: \sigma(T) $
 	}
 \end{prooftree}
 
@@ -481,14 +488,14 @@ Analogously to D-VarLib, the rule G-VarLib instantiates a hole with a type appli
 \noLine
 \UnaryInfC{$\Xi' = {\Xi \setminus \{?x:T\} \cup \{{?x_1} : {?X} \rightarrow T, {?x_2} : {?X}, {?X}\}}$}
 	\RightLabel{G-VarApp}
-	\UnaryInfC{$\Xi, \Phi, \Delta_h \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta_h \vdash {?x_1}\;{?x_2} :: T$}
+	\UnaryInfC{$\Xi, \Phi, \Delta_h, m \vdash {?x} :: T \Mapsto \Xi', \Phi, \Delta_h, m \vdash {?x_1}\;{?x_2} :: T$}
 \end{prooftree}
 
 
 \begin{prooftree}
-\AxiomC{$\Xi, \Phi, \Delta \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_1' :: T_1'$}
+\AxiomC{$\Xi, \Phi, \Delta_h, m \vdash {?x} :: T_1 \Mapsto \Xi', \Phi, \Delta_h, m' \vdash t_1' :: T_1'$}
 	\RightLabel{G-App}
-	\UnaryInfC{$\Xi, \Phi, \Delta \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
+	\UnaryInfC{$\Xi, \Phi, \Delta_h, m \vdash t[{?x}] :: T \Mapsto \Xi', \Phi, \Delta_h, m' \vdash t[t_1] :: [T_1 \mapsto T_1']T$}
 \end{prooftree}
 
 

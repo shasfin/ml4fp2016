@@ -55,7 +55,7 @@ p n = f (p (n-1))
 Instantiating \lstinline!init! with \lstinline![]! and \lstinline!f! with \lstinline!(x:)! leads to a solution for \lstinline!replicate! corresponding to the recursive program:
 \begin{lstlisting}[style=plain]
 replicate 0 x = []
-replicate n x = x:(replicate (n-1))
+replicate n x = x:(replicate (n-1) x)
 \end{lstlisting}
 
 Analogously, the component \lstinline!foldNatNat! mimics the recursive pattern:

@@ -1,12 +1,75 @@
 \chapter{Conclusions} \label{ch:conclusions}
 
 \section{Conclusions}
-  \note{The baseline is not that bad. Gathered some data about the search space.}
-Incremental development (synthesise \lstinline?enumTo? before synthesising \lstinline?enumFromTo? and use it as a component).
+
+Type-driven synthesis of functional programs from input-output examples   strives to automatically generate well-typed programs that satisfy the given input-output examples and generalise well to unseen input-output pairs. When solving similar tasks, human programmers rely on well-known computational patterns. Consider, for example, a human is given the task to write \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! and returns the list \lstinline![x, x, $\ldots$, x]! of \lstinline!n! copies of \lstinline!x!. The human would probably resort to recursion over integers. That is, depending whether the integer \lstinline!n! is $0$ or the successor of another integer, an empty list is returned or \lstinline!x! is concatenated to the result of \lstinline!replicate (n-1) x!.
+\begin{lstlisting}[style=plain]
+replicate 0 x = []
+replicate n x = x:(replicate (n-1) x)
+\end{lstlisting}
+This computational pattern is captured by the higher-order component \lstinline!foldNat! that folds an integer using a given function. That is, the above program is equivalent to:
+\begin{lstlisting}[style=plain]
+replicate n x = foldNat (con x) [] n
+\end{lstlisting}
+
+The main goal of the thesis was to study how well first- and higher-order components can guide and speed up the synthesis process.
+
+In order to achieve this goal, we implemented in OCaml a prototype of a simple synthesis procedure based on program enumeration. Extensive evaluation of the prototype showed that synthesis from library components is a promising direction that needs further exploration.
+
+The prototype implements a synthesis procedure that maintains a frontier of partial programs (that is programs with holes to be filled in later). At each iteration, the least-cost program is removed from the frontier and one of its holes is expanded according to some rules. Programs without holes are evaluated against the input-output examples. We experimented with different cost functions and with different strategies to choose the hole to expand.
+
+\TODO{I thought a thesis is not the right place to tell the story about the things we tried, which did not work and how we fixed them\\}
+During experimentation we had to face different issues. Most of them were encountered during the synthesis of our favourite benchmark, \lstinline!enumFromTo!.
+
+First of all, we discovered that the search space abounds of closed programs that represent a challenge for our evaluator even on examples as small as \lstinline![2,2,3]! and \lstinline!3!. This was our main motivation to reduce the size and the number of input-output examples.
+
+Next, we noticed that every hole can be filled in with \lstinline!head [?X] (nil [?X])!, where \lstinline!?X! has to be instantiated with the type of the hole to expand. Many partial programs containing this pattern were enumerated just to be ruled out as soon as all holes were filled in and the closed programs were evaluated. To prune whole branches that will surely not lead to a solution, we introduced a black list containing the undesired patterns. As a next step, we used the synthesiser to generate such a black list automatically.
+
+A related problem are partial programs that can be ruled out based on the semantics of the library component and the expected behaviour of the target program encoded in the input-output examples. For example, when trying to synthesise \lstinline!enumFromTo!, no human programmer would insist on taking \lstinline!enumTo! as the first component. The partial program
+\begin{lstlisting}[style=plain]
+enumFromTo m n = enumTo ?x
+\end{lstlisting}
+will not lead to the solution, because every list returned by \lstinline!enumTo!, no matter the argument, starts with $1$, whereas the list returned by \lstinline!enumFromTo! should start with \lstinline!m!, which is not necessarily $1$. Our synthesis procedure, on the contrary, treats this partial program and its successors as very promising candidates.\\
+This motivated us to try a slightly different synthesis procedure: the one that fixes the higher-order components first (generating a \emph{template}) and then fills in the remaining holes with input variables and first-order components.
+
+Empirical evaluation showed that reducing the size of the examples and blacklisting undesired patterns improves, as expected, the performance. On the other hand, against expectations, the introduction of templates leads to a significant slowdown. We believe, however, that this is due to our implementation and should be investigated further.
+
+\TODO{Why do I have this paragraph here but nothing similar in the thesis? Do I need it at all?\\}
+We also explored some rudimentary ways of user-synthesiser interaction. The simplest way to help the synthesiser is to restrict the library to the components needed for the specific synthesis task. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to forget some of the components.\\
+Another way to help the synthesiser is synthesising helper functions and adding them to the library before synthesising the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution.\\
+The last way we tried to help the synthesiser is to specify a starting template. For example, the user might have the intuition that \lstinline!enumFromTo! can be synthesised by adding some integer to each number of a list of consecutive numbers. She can encode this intuition into the template:
+\begin{lstlisting}[style=plain]
+enumFromTo m n = map [Int] [Int] (add ?i) (enumTo ?j)
+\end{lstlisting}
+and get the desired implementation:
+\begin{lstlisting}[style=plain]
+enumFromTo m n = map [Int] [Int] (add (sub m (succ zero))) (enumTo (succ (sub n m)))
+\end{lstlisting}
+However, user-input is usually not needed to synthesise the benchmarks in reasonable time, \lstinline!enumFromTo! being the only exception.
+
+
   
 \section{Future Work}
-  \note{Templates done well, augmented examples?}
 
+As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis, and this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
+
+Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would leverage this inconvenience. In Section~\ref{Black list generation} we discussed the limitations of an automatically generated black list. In particular, since the automatically generated patterns are closed, they do not generalise. For example, instead of the patterns that encode the idea that folding over an empty list is an unnecessarily long synonym for the initial value
+\begin{lstlisting}[style=plain]
+foldr append _ nil
+foldr const _ nil
+foldr drop _ nil
+\end{lstlisting}
+we would like to have in our black list the following more general pattern:
+\begin{lstlisting}[style=plain]
+foldr _ _ nil
+\end{lstlisting}
+We believe this issue could be, at least partially, addressed by partial evaluation of programs with holes. 
+
+
+
+Modify successor rules for templates or somehow prune the "nonsense" templates. "Templates done right".
+
+Augmented examples, so that the programmer can help the synthesiser if it is stuck.
 
 %%% Local Variables:
 %%% mode: latex

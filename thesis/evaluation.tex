@@ -2,13 +2,13 @@
 
 \chapter{Evaluation} \label{ch:evaluation}
 
-The main goal of this chapter is to give some insights about the factors that affect performance and compare different variants of the synthesis procedure described in Chapter~\ref{ch:definitions}. The chapter also puts our synthesis procedure in relation with the related work discussed in Chapter~\ref{ch:relatedwork}.
+The main goal of this chapter is to give some insights about the factors that affect performance and compare different variants of the synthesis procedure described in Chapter~\ref{ch:definitions}. The chapter also compares our synthesis procedure to the related work discussed in Chapter~\ref{ch:relatedwork}.
 
 
 \section{Experimental set up}
 This section presents the set up of the two experiments we are going to discuss in the rest of the chapter.
 
-The goal of the first experiment is to assess the quality and the performance of the synthesiser on standard benchmarks. The detailed set up is described in Section~\ref{Evaluation on benchmarks} and the results are discussed in Section~\ref{Table summary}. Section~\ref{Factors affecting runtime} discusses the factors that affect the runtime.
+The goal of the first experiment is to assess the quality and the performance of the synthesiser on standard benchmarks. The detailed set up is described in Section~\ref{Evaluation on benchmarks} and the results are discussed in Section~\ref{Table summary}. Section~\ref{Factors affecting runtime} examines the factors that affect the runtime.
 
 In the second experiment the synthesiser is used to automatically generate a \emph{black list} that can successively be used to prune the search space. We refer back to Section~\ref{Black list} for a description of pruning based on black lists. Section~\ref{Black list generation} describes how we used the synthesis procedure to generate a black list and Section~\ref{Automatic black list} reviews the quality of the generated black list.
 
@@ -16,24 +16,29 @@ All experiments were run on an Intel quad core 3.2~GHz with 16~GB RAM. Since the
 
 \section{Performance evaluation}\label{Evaluation on benchmarks}
 
-We evaluated nine variants of our synthesis procedure, crossing the three exploration strategies with three of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are the following.
+We evaluated nine variants of our synthesis procedure resulting from crossing following three exploration strategies with three of the cost functions described in Chapter~\ref{ch:definitions}. The three exploration strategies we evaluated are:
 
 \begin{description}
-\item[\mdseries\textsc{Plain}] implements the basic synthesis procedure based on best first search described in Section~\ref{Exploration}.
-\item[\mdseries\textsc{Blacklist}] implements the pruning of the search space based on a manually compiled black list provided in Table~\ref{fig:manual_blacklist}. We refer to Section~\ref{Black list} for more details.
-\item[\mdseries\textsc{Template}] implements the double best first search introduced in Section~\ref{Templates}. As you probably recall, the procedure first looks for a \emph{template} featuring at most \lstinline?nof_comp? higher-order components and at most \lstinline?nof_hol? holes and as soon as such a template is found the procedure falls back on the \textsc{Plain} variant up to a certain depth using only the first-order components.
+\item[\mdseries\textsc{Plain}] implements the basic synthesis procedure based on best-first search described in Section~\ref{Exploration}.
+\item[\mdseries\textsc{Blacklist}] implements the pruning of the search space based on a manually compiled black list (provided in Table~\ref{fig:manual_blacklist}). We refer to Section~\ref{Black list} for more details.
+\item[\mdseries\textsc{Template}] implements the double best-first search introduced in Section~\ref{Templates}. As you probably recall, the procedure first looks for a \emph{template} featuring at most $M$ higher-order components and at most $P$ holes. As soon such a template is found, the procedure falls back on the \textsc{Plain} variant where only the first-order components are provided and explores the search space up to a certain depth.
 \end{description}
 
-For each exploration strategy, we instantiated the cost function with three of the cost functions described in Section~\ref{Cost functions}, that is with \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component}. We refer back to the corresponding section for more details.
+For each exploration strategy, we instantiated the cost function with three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component}. We refer back to the corresponding section for more details.
 
 We exercised the nine different variants of our synthesis procedure on a benchmark of $23$ programs over lists, mostly taken from related work or standard functional programming assignments.
-Table~\ref{fig:gianttable} summarises the running times. The first three columns summarise the runtimes of the nine variants of out synthesis procedure when the synthesiser is given 36 to 37 components. Columns four to six contain, for each variant, the slowdown with respect to the minimum running time for the respective benchmark. The last three columns show the speedup we obtain if we leave only 18 to 19 components in the library.
+
+Table~\ref{fig:gianttable} summarises the running times. The cells are organised in $3 \times 3$-squares. Every number in such a square corresponds to one of the variants of our synthesis procedure.
+The first column summarises the running times of the nine variants of out synthesis procedure when the synthesiser is given $36$ to $37$ components.
+The second column contains, for each variant, the slowdown with respect to the minimum running time for the respective benchmark.
+The last column shows the speedup we obtain if we leave only $18$ to $19$ components in the library.
+
 Table~\ref{fig:nofnodestable} lists the benchmarks along with the size of the solution generated by each of the nine variants, expressed in number of nodes.
 
-\paragraph{Components} In the first three columns of Table~\ref{fig:gianttable} all benchmarks except for \lstinline?nth? share the same set of components, listed in Table~\ref{fig:library-components}. For the synthesis of individual benchmarks appearing in the library as components we took the corresponding component out of the library.
-In the last three columns of Table~\ref{fig:gianttable}, in order to meet the needs of all benchmarks, we used four different sets of $19$ components.
+\paragraph{Components} In the first column of Table~\ref{fig:gianttable} all benchmarks except for \lstinline?nth? share the same set of components (listed in Table~\ref{fig:library-components}). For the synthesis of individual benchmarks appearing in the library as components we took the corresponding component out of the library.\\
+In the third column of Table~\ref{fig:gianttable}, in order to meet the needs of all benchmarks, we used four different sets of $19$ components.
 
-\paragraph{Timeout} Programs are enumerated only up to a timeout based on the number of programs that have been analysed so far. For the exploration strategies \textsc{Plain} and \textsc{BlackList} the execution had been stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textsc{Template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the \textsc{Plain} procedure. For the cost function \textit{nof-nodes} this corresponds to circa \SI{4}{min}.
+\paragraph{Timeout} Programs are enumerated only up to a timeout based on the number of partial programs synthesised so far. For the exploration strategies \textsc{Plain} and \textsc{BlackList} the execution had been stopped after examining $2500000$ programs (with or without holes). The exploration strategy \textsc{Template} was restricted to generate templates with at most $2$ higher-order components and at most $5$ holes, the depth of the first-order search was limited to $10$ calls to the \textsc{Plain} procedure. For the cost function \textit{nof-nodes} this corresponds to circa \SI{4}{min}.
 
 \subsection{Results}\label{Table summary}
 Two variants of our synthesis procedure were able to synthesise all $23$ benchmarks in the presence of $36$ to $37$ library components, all variants synthesised at least $18$ benchmark programs within the time limit. $78\%$ of the benchmarks were synthesised within \SI{1}{s} using \textsc{BlackList} as the exploration strategy and \textit{nof-nodes-simple-type} as the cost function.
@@ -42,13 +47,13 @@ The variants that use the \textsc{BlackList} exploration strategy can synthesise
 
 The variants that use the \textsc{Plain} exploration strategy can synthesise from $21$ to $22$ benchmark programs depending on the cost function. They are on average $8$ times slower than the variant that combines the \textsc{BlackList} exploration strategy with the \textit{nof-nodes-simple-type} cost function. However, $15$ benchmarks are synthesised less than $3$ times slower and for $3$ of them the running times are actually lower. In the case of \lstinline?enumTo? the solution found by the other variants, \lstinline?enumTo n = enumFromTo (succ zero) n?, contains a pattern forbidden by the black list we used to prune the search space. The other two benchmarks have very short, simple solutions for which the overhead of checking every program against the black list is not balanced out by a substantial pruning of the search space.
 
-The variants of our synthesis procedure that use the \textsc{Template} exploration strategy can synthesise only $18$ to $19$ benchmark programs within the time out. Moreover, they are on average $1680$ times slower than the variant that uses the \lstinline?BlackList? exploration strategy combined with the \textit{nof-nodes-simple-type} cost function. However, this value is pushed up by the benchmark \lstinline?factorial?. For half of the $18$ benchmarks all variants can synthesise this value is less than $20$ and $15$ of them are no more than $90$ times slower than the variant that combines \textsc{BlackList} with \textit{nof-nodes-simple-types}.
+The variants of our synthesis procedure that use the \textsc{Template} exploration strategy can synthesise only $18$ to $19$ benchmark programs within the time out. Moreover, they are on average $1680$ times slower than the variant that uses the \lstinline?BlackList? exploration strategy combined with the \textit{nof-nodes-simple-type} cost function. However, this value is pushed up by the benchmark \lstinline?factorial?. For half of the $18$ benchmarks all variants can synthesise this value is less than $20$. For $15$ benchmarks the variants using \textsc{Template} are no more than $90$ times slower than the variant that combines \textsc{BlackList} with \textit{nof-nodes-simple-types}.
 \input{gianttable}
 
 \section{Automatic black list}\label{Black list generation}
-We also used our system to generate an automatic black list based on the identity function. We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type. We chose to generate programs corresponding to the identity function over integers, lists of integers and lists of lists of integers.
+We also used our system to generate an automatic black list based on the identity function. We chose not to generate the polymorphic identity function. As during pruning we are ignoring types, holes and input variables, the programs that would have been generated for the polymorphic identity function are also generated for the identity over any specific type. We choose to generate programs corresponding to the identity function over integers, lists of integers and lists of lists of integers.
 
-To that end, we first used the synthesis procedure that combines the \textsc{Plain} exploration strategy with the \textit{nof-nodes} cost function to synthesise the first $8$ programs of type \lstinline?Int?, respectively \lstinline?List Int? or \lstinline?List (List Int)?. For this step we provided only the constructors \lstinline?con, nil, succ, zero? to the synthesiser. We paired each synthesised program with itself to generate and input-output example.
+Towards this end, we first use the synthesis procedure that combines the \textsc{Plain} exploration strategy with the \textit{nof-nodes} cost function to synthesise the first $8$ programs of type \lstinline?Int?, \lstinline?List Int? and, respectively, \lstinline?List (List Int)?. For this step we provided to the synthesiser only the constructors \lstinline?con, nil, succ, zero?. We paired each synthesised program with itself to generate an input-output example.
 
 As a second step, for each of the following goal types
 \begin{lstlisting}[style=plain]
@@ -62,7 +67,9 @@ After removing duplicates and the classical program corresponding to the identit
 
 
 \subsection{Results}\label{Automatic black list}
-We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s}. Because of their incremental nature, we need $8$ automatically synthesised input-output examples as opposed to the $2$-$3$ manual ones that would have been enough. Below that number there is no list of lists of integers that contains something but \lstinline?nil? or no list of length two. This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
+We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s}. 
+The number of automatically generated examples, $8$, is higher than the number of manual input-output examples we need to generate the same programs. Since programs are generated incrementally, the smaller ones first, the first $7$ automatically generated lists of lists of integers do not contain anything except for \lstinline!nil! and among the first $7$ automatically generated lists of integers there are no lists of length more than one.
+This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
 
 For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
 \begin{enumerate}
@@ -86,30 +93,25 @@ With 19 components we could synthesise all benchmarks with all procedures except
 In particular, with $37$ components, even if we provide \lstinline?enumTo?, the synthesis benchmark \lstinline?enumFromTo? times out for seven procedures out of nine, whereas with only $19$ components this number is reduced to three.
 Interestingly, if we provide a $38$th component, namely \lstinline?drop?, then six procedures succeed in the synthesis of \lstinline?enumFromTo?. This has a very simple explanation: \lstinline?enumFromTo? has a smaller solution that uses \lstinline?drop?.
 
-Since our synthesis procedures expand holes in a type aware manner, the number of components with the same type has an even higher impact on the running time than just the number of components. For example, if we add a constant of a new type \lstinline?Foo? to the library, the running time will not increase much, because there are not many places, where we can use this component without causing a type error. On the contrary, if we would add another function from lists to lists like \lstinline?tail? or \lstinline?inits?, depending on the goal type we could have a considerable slowdown. 
+Since our synthesis procedures expand holes in a type-directed manner, the number of components with the same type has an even higher impact on the running time than just the number of components. For example, if we add a constant of a new type \lstinline?Foo? to the library, the running time will not increase much, because there are not many places where we can use this component without causing a type error. On the contrary, if we would add another function from lists to lists like \lstinline?tail? or \lstinline?inits? we could have a considerable slowdown, depending on the goal type. 
 
 \subsection{Size of the solution}
-\TODO{If you have time, redo the graphics in latex, or at least find a way to move trend line in the legend}
-\begin{figure}[p]
+In the previous sections we mentioned a second factor: the size of the solution to be synthesised. Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes of the solution found. This goes along with the intuition that a bigger program is more difficult to synthesise.
+
+For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate each hole. However, this simple intuitive explanation does not take into account the contribution of types to search space pruning.
+
+\begin{figure}
     \centering
     \includegraphics[width=0.95\textwidth]{time_vs_nof_nodes.eps}
     \caption{Average running time of the variants of the synthesis procedure depending on the number of nodes of the solution.}
     \label{fig:runtime_vs_nof_nodes}
 \end{figure}
-In the previous sections we mentioned a second factor: the size of the solution to be synthesised. Figure~\ref{fig:runtime_vs_nof_nodes} shows that the average running time for all nine variants of the synthesis procedure depends exponentially on the number of nodes of the solution found. This goes along with the intuition that a bigger program is more difficult to synthesise.
-
-For example, if we have $n$ possibilities to generate a program consisting of one node, that is \lstinline!?x! where we have $n$ possibilities to instantiate the hole \lstinline!?x!, then we will have $n^2$ possibilities to generate a program with three nodes, that is \lstinline!?$x_1$ ?$x_2$! where we have $n$ possibilities to instantiate each hole.
-
-
-
-
-In our simple intuitive explanation of the exponential dependency of the synthesis time on the size of the solution we completely ignored the contribution of types to search space pruning.
 
 \subsection{Cost functions}\label{Eval. Cost functions}
 Cost functions are an instrument to prioritize some programs over others and as such have an impact on the running time. We extensively evaluated three of the cost functions described in Section~\ref{Cost functions}: \textit{nof-nodes}, \textit{nof-nodes-simple-type} and \textit{no-same-component} with three different exploration strategies. In the following we will see how they affect the runtime and which programs they prefer.
 
 \begin{description}
-\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes, under the hypothesis that smaller programs generalise better to the examples. However, this cost function gives the same cost to the following two programs.
+\item[nof-nodes] prioritises shorter programs and prefers input variables to library components to holes, under the hypothesis that smaller programs generalise better to unseen examples (c.f. Occam's razor). However, this cost function gives the same cost to the following two programs.
 \begin{lstlisting}[style=plain]
 head [List Int -> List Int] (nil [List Int -> List Int]) ?xs
 map Int Int succ ?xs
@@ -124,7 +126,7 @@ length [X] xs
 instead of the smaller
 \begin{lstlisting}
 length [X] xs
-    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs,
+    = foldr [X] [Int] (const [Int -> Int] [X] succ) zero xs
 \end{lstlisting}
 because the second one contains an arrow type in a type application.
 
@@ -134,16 +136,16 @@ The impact on the runtime of this cost function is comparable to the introductio
 \end{description}
 
 \subsection{Stack vs Queue expansion}\label{Stack vs Queue}
-As already mentioned in Section~\ref{Search space}, we have two open questions in our best first search:
-\begin{enumerate}[a.]
+As already mentioned in Section~\ref{Search space}, we have two open questions in our best-first search:
+\begin{enumerate}[1.]
 \item which program should be expanded first
 \item which hole of this program should be expanded first
 \end{enumerate}
 In the previous section we addressed the first question with different cost functions. In this section we focus on the second one.
 
-Among all possible heuristics to determine which hole of the least-cost program to expand next, we chose to discuss two. In the first one the open holes of a program are organised as a stack, as opposed to the second one, where the open holes are kept in a queue.
+Among all possible heuristics to determine which hole of the least-cost program to expand next, we choose to discuss two. In the first one the holes of a program are organised as a stack, as opposed to the second one, where the holes are kept in a queue.
 
-Organising the open holes of a program as a stack leads to the expansion of the holes from left to right. To give some intuition, we provide a derivation of \lstinline?mapAdd? showing the stack of open holes on the right of the program, where \lstinline?xs? represents the input list and \lstinline?n? the amount of the increment.
+Organising the holes of a program as a stack leads to left-to-right expansion. To give some intuition, we provide a derivation of \lstinline?mapAdd?, the function that takes an integer \lstinline!n! and a list of integers \lstinline!xs! and adds \lstinline!n! to each element of \lstinline!xs!. We show the stack of holes on the right of each partial program. The top of the stack is on the left.
 \begin{lstlisting}[style=plain]
 (?$x_0$, [$x_0$]) $\longrightarrow$
 (?$x_1$ ?$x_2$, [?$x_1$, ?$x_2$]) $\longrightarrow$
@@ -154,17 +156,21 @@ Organising the open holes of a program as a stack leads to the expansion of the 
 (map [Int] (add n) ?$x_2$, [?$x_2$]) $\longrightarrow$
 (map [Int] (add n) xs, [])
 \end{lstlisting}
-Left-to-right expansion often leads to faster synthesis, because leftmost holes usually have more constraints on their type. Consider the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! from the derivation of \lstinline??. We know more about \lstinline!?$x_3$! than about \lstinline!?$x_2$!: the first one must be a function that takes two arguments of some type and returns a list of integers, whereas the second hole could be anything. Furthermore, the instantiation of \lstinline!?$x_3$! with \lstinline?map [Int]? imposes some constraints on the types of \lstinline!?$x_4$! and \lstinline!?$x_2$!.
+Left-to-right expansion often leads to faster synthesis, because leftmost holes usually have more constraints on their type. Consider the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! from the derivation of \lstinline?mapAdd?. We know more about \lstinline!?$x_3$! than about \lstinline!?$x_2$!: the first one must be a function that takes two arguments of some type and returns a list of integers, whereas the second hole could be anything. Furthermore, the instantiation of \lstinline!?$x_3$! with \lstinline?map [Int]? imposes some constraints on the types of \lstinline!?$x_4$! and \lstinline!?$x_2$!.
 
-Keeping the open holes of a program in a queue leads to the expansion of the hole with the smallest depth first. This could be useful to control the depth of a program, but in practice it has a substantial drawback. Consider again the derivation of \lstinline?mapAdd?. The first three steps are the same, but in the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! we would now try to expand the hole \lstinline!?$x_2$!, that we have absolutely no information about. Every library component and every input variable are valid instantiations of this hole. Thus, this expanding strategy leads to a higher branching factor and explores many superfluous programs like \lstinline!?$x_3$ ?$x_4$ map! and \lstinline!map (?$x_5$ foldr) xs!.
+Keeping the holes of a program in a queue leads to the expansion of the hole with the smallest depth first. This could be useful to control the depth of a program, but in practice it has a substantial drawback. Consider again the derivation of \lstinline?mapAdd?. The first three steps are the same, but in the program \lstinline!?$x_3$ ?$x_4$ ?$x_2$! we would now try to expand the hole \lstinline!?$x_2$!, that we have absolutely no information about. Every library component and every input variable are valid instantiations of this hole. Thus, this expanding strategy leads to a higher branching factor and explores many superfluous programs like \lstinline!?$x_3$ ?$x_4$ map! and \lstinline!map (?$x_5$ foldr) xs!.
 
 We used the stack-based expansion strategy throughout all runtime evaluations of the benchmarks.
 
 
 \subsection{Examples}
-Another factor that greatly impacts on performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
+Another factor that greatly impacts performance is the choice and the number of provided input-output examples. As our procedure evaluates every closed program it synthesises on at least the first input-output example, we must make sure that the first input-output example is
 \begin{enumerate}[a.]
-\item small enough, so that also undesirable programs like \lstinline?enumTo (prod (enumTo (prod xs)))? do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?;
+\item small enough, so that also undesirable programs such as 
+\begin{lstlisting}[style=plain]
+enumTo (prod (enumTo (prod xs)))
+\end{lstlisting}
+do not get stuck or run out of memory trying to construct a list with $479001600$ elements, which happens already for the at first sight innocent input \lstinline?[2,2,3]?;
 \item expressive enough to rule out many programs, so that there is no need to fall back on the other, often bigger, input-output examples.
 \end{enumerate}
 Clearly, using as few and as small input-output examples as possible has a positive effect on performance. On the other side, too few and too general input-output examples can lead to the synthesis of the wrong program, that is a program that satisfies all provided input-output examples but that does not generalise in the expected way. This was especially a problem with \lstinline?enumFromTo? and \lstinline?member?. For example, if we provided \lstinline?enumFromTo? only with examples that result in a list of length three, we got the program that simply concatenated the first input with its successor with the second input.
@@ -172,7 +178,7 @@ Clearly, using as few and as small input-output examples as possible has a posit
 enumFromTo m n
     <> con [Int] m (con [Int] (succ m) (con [Int] n (nil [Int])))
 \end{lstlisting}
-If we provided \lstinline?enumFromTo? only with examples starting with $1$, the synthesised solution was just a call to \lstinline?enumTo? with the second input variable as argument or, depending on the components we gave, the program corresponding to \lstinline?enumTo n?.
+If we provided \lstinline?enumFromTo? only with examples starting with $1$, the synthesised solution was just a call to \lstinline?enumTo? with the second input variable as argument or, depending on the components we gave, the program corresponding to \lstinline?enumTo n?:
 \begin{lstlisting}[style=plain]
 enumFromTo m n
     <> foldNatNat [List Int] (con [Int]) (nil [Int]) n
@@ -186,7 +192,7 @@ enumFromTo m n
 \subsection{Blacklist}
 The search space abounds of superfluous programs that are equivalent to smaller ones. In Section~\ref{Black list} we introduced a way to leverage this inconvenience: pruning based on black lists. This approach allows us not to explore further programs that will surely lead to a solution bigger than the optimal one, like \lstinline!append [X] (nil [X]) ?$xs$!, or not lead to a solution at all, like \lstinline!(head [?$X_1$ -> ?$X_2$ -> $X_3$] (nil [?$X_1$ -> ?$X_2$ -> $X_3$])) ?$x_1$ ?$x_2$!.
 
-A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, in our implementation black list pruning is extremely expensive. Each element of the black list is matched against every subterm of every program with holes that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
+A longer black list allows to prune more superfluous programs and sinks considerably the number of programs our synthesis procedure needs to consider before finding a solution. However, in our implementation black list pruning is extremely expensive. Each element of the black list is matched against every subterm of every partial program that is generated. That is, there is a trade-off between the length of the black list and the gain in performance that we can get.
 
 Figure~\ref{fig:manual_blacklist} shows the black list  we used to evaluate the benchmarks. We manually compiled it combining unwanted patterns often seen in the search space with some carefully chosen automatically generated identity functions. We also added some rapidly increasing functions. For example, following program computing tetration\footnote{Tetration, written as $^{n}a$ or $a \uparrow\uparrow n$, is the operation defined as \[\underbrace{a^{a^{.^{.^a}}}}_{n \text{ times}}.\]} represents a problem for our evaluator.
 \begin{lstlisting}[style=plain]
@@ -240,15 +246,15 @@ We could also empirically see that pruning using black lists is very helpful in 
 In Table~\ref{fig:gianttable} we see that the synthesis procedures that use the \textsc{Template} exploration strategy fail more often to find a solution within the timeout. Moreover, even if they find a solution, they tend to be $10$ times slower than the other synthesis procedures, \lstinline?length?, \lstinline?member?, \lstinline?replicate? and \lstinline?reverse? being an exception.
 
 The main reason for this slowdown resides in our implementation. In particular, in the successor rules we presented in Section~\ref{Templates}. 
-Consider following derivation of a template for \lstinline?replicate?, where \lstinline?X? represent the input type variable, \lstinline?n? is the first argument and \lstinline?x? is the second. The list on the right of each program shows the type of its not delayed holes.
+Consider following derivation of a template for \lstinline?replicate?, where \lstinline?X? represents the input type variable, \lstinline?n? the first argument and \lstinline?x? the second. The list on the right of each program shows the type of its not delayed holes.
 \begin{lstlisting}[style=plain]
-(?$x_0$,       [?$x_0$ :: List X]) $\longrightarrow$
-(?$x_1$ ?$x_2$,     [?$x_1$ :: ?Y ->  List X, ?$x_2$ :: ?Y]) $\longrightarrow$
-($\underline{?x_1}$ ?$x_2$,      [?$x_2$ :: ?Y]) $\longrightarrow$
-($\underline{?x_1}$ (foldr [?$Z_1$] [?$Z_2$]),   [])
+(?$x_0$, [?$x_0$ :: List X]) $\longrightarrow$
+(?$x_1$ ?$x_2$, [?$x_1$ :: ?Y ->  List X, ?$x_2$ :: ?Y]) $\longrightarrow$
+($\underline{?x_1}$ ?$x_2$, [?$x_2$ :: ?Y]) $\longrightarrow$
+($\underline{?x_1}$ (foldr [?$Z_1$] [?$Z_2$]), [])
 \end{lstlisting}
 Note that the only thing we can do with \lstinline!?$x_1$! is to delay it, because in our library there is no higher-order component that takes only one argument. On the other hand, \lstinline!?$x_2$! can be instantiated with every higher-order function of the library, because delaying \lstinline!?$x_1$! does not constrain its type in any way.
-This means that, before having a chance to explore a sensible template with $4$ leaves like \lstinline!foldl [?X] [?Y] ?f ?init ?xs!, the synthesiser must explore up to a certain depth many non that sensible but smaller templates like \lstinline!?x (foldr [?X] [?Y])!.
+This means that, before having a chance to explore a sensible template with $4$ leaves like \lstinline!foldl [?X] [?Y] ?f ?init ?xs!, the synthesiser must explore up to a certain depth many non that sensible but smaller templates such as \lstinline!?x (foldr [?X] [?Y])!.
 
 The solutions synthesised by the synthesis procedures that use the \textsc{Template} exploration strategy tend to contain more higher-order components and in two cases are surprisingly long. In Table~\ref{fig:nofnodestable} we can see that two variants of our synthesis procedure synthesise a program with $13$ nodes for \lstinline?factorial?, whereas all other variants find one with only $5$ nodes.
 
@@ -268,7 +274,7 @@ replicate [X] n x
     = foldNat [List X] (con [X] x) (nil [X]) n
 \end{lstlisting}
 
-For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one of such programs and \lstinline?foldl? for the other.
+For the few benchmarks that can use \lstinline?foldl? and \lstinline?foldr? interchangeably, like \lstinline?concat?, \lstinline?maximum? and \lstinline?sum?, different variants find different programs. The different variants of the synthesis procedure do not show clear preference for the one or the other. They can use \lstinline?foldr? for one such program and \lstinline?foldl? for the other.
 
 Interesting is the case of \lstinline?multfirst? and \lstinline?multlast?, where following two solutions are found.
 \begin{lstlisting}
@@ -297,15 +303,15 @@ There is a tendency to represent the constant integer $1$ as \lstinline?prod (ni
 enumFromTo (succ zero) _
 prod nil
 \end{lstlisting}
-the synthesis procedure with the \textsc{BlackList} exploration strategy still finds a way to express \lstinline?enumTo? using \lstinline?enumFromTo?: It simply falls back to 
+the synthesis procedure with the \textsc{BlackList} exploration strategy still finds a way to express \lstinline?enumTo? using \lstinline?enumFromTo?: it simply falls back to 
 \begin{lstlisting}
 enumTo n
-    = enumFromTo (div n n) n.
+    = enumFromTo (div n n) n
 \end{lstlisting}
 Of course, if we take the component \lstinline?enumFromTo? out of the library we can generate the desired program
 \begin{lstlisting}
 enumTo n
-    = foldNatNat [List Int] (con [Int]) (nil [Int]) n.
+    = foldNatNat [List Int] (con [Int]) (nil [Int]) n
 \end{lstlisting}
 
 Small programs are not always efficient. For example, for \lstinline?enumFromTo? we find the solution
@@ -326,15 +332,15 @@ drop [X] n xs
     = foldNat [List X] (tail [X]) xs n
 \end{lstlisting}
 Analogously, a "wrong" solution for \lstinline?member? turned out to be a clever implementation of \lstinline?isEven?, namely \lstinline?foldNat not true n?. Folding over an integer is similar to recursion over that integer. In this case the base case of the recursion is \lstinline?true? and in the inductive case we negate \lstinline?isEven (n-1)?.\\
-Another unexpectedly clever solution is due to the absence of a polymorphic equality function. We only had equality over integers, thus the benchmark \lstinline?member? is not polymorphic but has the type \lstinline?Int -> List Int -> Bool?. This allowed the synthesiser to generate, along with the expected solution
+Another unexpectedly clever solution is due to the absence of a polymorphic equality function. We only have equality over integers, thus the benchmark \lstinline?member? is not polymorphic but has the type \lstinline?Int -> List Int -> Bool?. This allowed the synthesiser to generate, along with the expected solution
 \begin{lstlisting}
 member n xs
-    = not (is_nil [Int] (filter [Int] (eq n) xs)),
+    = not (isNil [Int] (filter [Int] (eq n) xs))
 \end{lstlisting}
 a special version that makes use of the fact that the product of a list is $0$ if the list contains at least one $0$ and that two numbers are equal if their difference is $0$.
 \begin{lstlisting}
 member n xs
-    = is_zero (prod (map [Int] [Int] (sub n) xs))
+    = isZero (prod (map [Int] [Int] (sub n) xs))
 \end{lstlisting}
 This works in our implementation because our built-in integers can have negative values.
 
@@ -349,18 +355,18 @@ Another thing that impedes direct comparison of the running time is that the oth
 isEven n = foldNat not true n
 \end{lstlisting}
 \begin{lstlisting}[style=plain]
-isEven n = match n with
-  | 0 -> true
-  | 1 + m -> not (isEven m)
+isEven 0 = true
+isEven n -> not (isEven (n-1))
 \end{lstlisting}
 
 It might be a consequence of the simplicity of our target language, but as we can see in Table~\ref{fig:comparisontable}, our tool needs less input-output examples to synthesise the benchmarks than the other example-based tools. \textsc{Synquid} relies on a different specification that requires a higher level of expertise, which makes direct comparison difficult.
 
-The number of provided components also changes across the tools. With $36$ to $37$ components, we provide the largest library to our tool. On the second place, \textsc{Escher} uses a library of $23$ components to evaluate all benchmarks. Other tools handle less components. For example \textsc{Synquid} does not provide more than 5 components and 6 measure functions over the needed data types to any of its benchmarks.
+The number of provided components also changes across the tools. With $36$ to $37$ components, we provide the largest library to our tool. On the second place, \textsc{Escher} uses a library of $23$ components to evaluate all benchmarks. The components provided to \textsc{Myth} are not listed in the paper, but the library is similar to \textsc{Escher}'s and we believe that it is not larger. \textsc{Synquid} does not provide more than 5 components and 6 measure functions over the needed data types to any of its benchmarks.
 
-Considering that our tool is just standard type-aware best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
+Considering that our tool is just standard type-directed best-first enumeration, it is surprising that only four benchmarks show a considerably worse (about two orders of magnitude) performance than the state-of-the-art.
 
 \begin{table}
+\LTcapwidth=\textwidth
 \caption{Comparison of our tool with the state-of-the-art. For our tool, $\lambda^2$ and \textsc{Myth} the \emph{spec} column shows the number of examples, for \textsc{Synquid} it shows the specification size in AST nodes. For all tools the \emph{time} columns show the runtime in seconds. The cells corresponding to benchmarks that were not tested with the respective tool are left empty.\label{fig:comparisontable}}
 \pgfplotstabletypeset[
     col sep=comma,
@@ -382,16 +388,16 @@ Considering that our tool is just standard type-aware best-first enumeration, it
 	every last row/.style={
 		after row=\bottomrule},
 	columns/name/.style = {string type,column name=Name},
-	columns/nof-examples-tamandu/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
-	columns/time-tamandu/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
-	columns/spec-size-synquid/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
-	columns/time-synquid/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
-	columns/nof-examples-lambda/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
-	columns/time-lambda/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
-	columns/nof-examples-escher/.style = {string type,column type=r,column type/.add={>{\small}}{},column name=spec},
-	columns/time-escher/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
-	columns/nof-examples-myth/.style = {column type=r,column type/.add={>{\small}}{},column name=spec},
-	columns/time-myth/.style = {column name=time,column type=r,column type/.add={>{\small}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-tamandu/.style = {column type=r,column type/.add={>{\footnotesize}}{},column name=spec},
+	columns/time-tamandu/.style = {column name=time,column type=r,column type/.add={>{\footnotesize}}{},fixed,fixed zerofill,precision=2},
+	columns/spec-size-synquid/.style = {column type=r,column type/.add={>{\footnotesize}}{},column name=spec},
+	columns/time-synquid/.style = {column name=time,column type=r,column type/.add={>{\footnotesize}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-lambda/.style = {column type=r,column type/.add={>{\footnotesize}}{},column name=spec},
+	columns/time-lambda/.style = {column name=time,column type=r,column type/.add={>{\footnotesize}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-escher/.style = {string type,column type=r,column type/.add={>{\footnotesize}}{},column name=spec},
+	columns/time-escher/.style = {column name=time,column type=r,column type/.add={>{\footnotesize}}{},fixed,fixed zerofill,precision=2},
+	columns/nof-examples-myth/.style = {column type=r,column type/.add={>{\footnotesize}}{},column name=spec},
+	columns/time-myth/.style = {column name=time,column type=r,column type/.add={>{\footnotesize}}{},fixed,fixed zerofill,precision=2},
 ]{comparison.dat}
 \end{table}
 
