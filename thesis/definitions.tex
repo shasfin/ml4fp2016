@@ -2,16 +2,16 @@
 
 \chapter{A type-driven synthesis procedure} \label{ch:definitions}
 
-In this chapter we will formally define our type-directed top-down synthesis procedure. We will start with an intuitive description thereof based on an example and move on to the formal definitions, starting with the target programming language and the search space. Finally, we will present some enhancements.
+In this chapter we formally define our type-directed top-down synthesis procedure. We start with an intuitive description thereof based on an example and move on to the formal definitions, starting with the target programming language and the search space. Finally, we present some enhancements.
 
 \input{example}
  
 \section{Calculus}
 
-This section formally defines the language of our synthesiser. The goal programs consist of applications of library components and input variables, and are based on the terms of System F. During synthesis we also use an additional syntactic construct: the hole. We denote the language based on the application of library components, input variables and holes as the \emph{target language} of our synthesiser.
+This section formally defines the language of our synthesiser. The target programs consist of applications of library components and input variables, and are based on the terms of System F. During synthesis we also use an additional syntactic construct: the hole. We denote the language based on the application of library components, input variables and holes as the \emph{target language} of our synthesiser.
 However, we also need another language: the language in which the library components are defined and the programs are evaluated on the input-output examples. In the rest of the chapter we will call this language the \emph{internal language}. It extends System F with holes, parametric types and recursion.
 
-In Section~\ref{Term and types} we present the syntax of the following three calculi.
+In Section~\ref{Term and types} the syntax of the following three calculi is presented.
 \begin{enumerate}[1.]
 \item System F
 \item The internal language: an extension of System F with holes, input variables, library components, parametric types and recursive terms and types
@@ -52,7 +52,7 @@ The second one, $\Phi$, is the library of input variables. It contains one concr
 The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
 
 
-\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the 'replicate' example, but there all type applications were omitted for the sake of clarity.
+\paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the `replicate' example, but there all type applications were omitted for the sake of clarity.
 Formally, the target language restricts the internal language to term and type application of library components, input variables and holes as follows.
  \begin{plstx}
 (terms): t ::= t\;t | t\;[T] | c | ?x | i\\
@@ -398,7 +398,7 @@ $\textit{no-same-component}(t) = \textit{nof-nodes-term}(t) + 3\; \textit{count}
 The simplest and most imprecise method to take both the number of nodes and the complexity of the types appearing in the term into account is to define the cost of a term as the length of the string representing that term. This method also allows a simple way to weight differently the various library components by choosing a shorter or longer name. However, we decided not to use this cost function for evaluation.
 
 \section{Black list}\label{Black list}
-Recall the 'replicate' example, where we encountered the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches, such as, for example:
+Recall the `replicate' example, where we encountered the superfluous program \lstinline!const [?X] ?$x_1$ ?$x_2$!. The best-first enumeration explores many superfluous branches, such as, for example:
 \begin{lstlisting}[style=plain]
 foldr [?X] [List ?X] (cons [?X]) (nil [?X]) ?xs
 \end{lstlisting}
@@ -447,8 +447,6 @@ In Section~\ref{Black list generation} we discuss how to synthesise a black list
 
 \section{Templates}\label{Templates}
 In this section we present a slightly different way to explore the search space. The idea is to fix all higher-order components first, producing a \emph{template} for a program, and then fill in the remaining holes with input variables and first-order components. Since programs usually contain only a few higher-order components, the enumeration of templates takes less time than the enumeration of programs of comparable size. Moreover, templates encode well-known patterns of computation and impose meaningful constraints on the remaining holes. Therefore, it should be easy to find the desired program starting from the right template. This allows us to quickly abandon templates if no program satisfying the input-output examples is found within a short timeout.
-
-Let us formally define a template and describe the procedure.
 
 The library $\Delta$ is split into two contexts: $\Delta_h$, containing all higher-order components, and $\Delta_f$, containing the first-order ones. We also need to introduce a new kind of term: the \emph{delayed hole} $\underline{?x}$. This is a hole, whose instantiation is delayed to the first-order search. The context $\Xi$ binds, additionally to normal holes, delayed holes as well.
 A \emph{template} is a term in the target language that may contain delayed holes but does not contain input variables. A template is called \emph{closed} if it does not contain holes (it may, however, contain delayed holes).
