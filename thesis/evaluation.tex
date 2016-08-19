@@ -242,7 +242,7 @@ The running time drops less significantly if we use other cost functions. A poss
 
 We could also empirically see that pruning using black lists is very helpful in the presence of polymorphic functions that apply in many cases but are rarely needed, for example \lstinline?flip?, \lstinline?const? or \lstinline?uncurry?. Forbidding a fully applied \lstinline?flip?, \lstinline?const? or \lstinline?uncurry? has a comparable effect on performance to taking those components out of the library. However, since we are not taking those components out of the library, we are still able to synthesise functions that need them.
 
-\subsection{Templates}
+\subsection{Templates}\label{Eval. Templates}
 In Table~\ref{fig:gianttable} we see that the synthesis procedures that use the \textsc{Template} exploration strategy fail more often to find a solution within the timeout. Moreover, even if they find a solution, they tend to be $10$ times slower than the other synthesis procedures, \lstinline?length?, \lstinline?member?, \lstinline?replicate? and \lstinline?reverse? being an exception.
 
 The main reason for this slowdown resides in our implementation. In particular, in the successor rules we presented in Section~\ref{Templates}. 

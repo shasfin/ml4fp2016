@@ -63,13 +63,30 @@ we would like to have in our black list the following more general pattern:
 \begin{lstlisting}[style=plain]
 foldr _ _ nil
 \end{lstlisting}
-We believe this issue could be, at least partially, addressed by partial evaluation of programs with holes. 
+We believe this issue could be, at least partially, addressed by partial evaluation of programs with holes. In general, a good automatically generated black list should contain only the shortest most general patterns corresponding to the identity function, to the constructors and to other simple terms.
 
 
+A very interesting question that our thesis does not answer is whether fixing the higher-order functions first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
+\begin{lstlisting}[style=plain]
+?x (foldr [?X] [?Y])
+?x (map [?$X_1$] [?$Y_1$]) (foldr [?$X_2$] [?$Y_2$])
+\end{lstlisting}
+Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach on synthesis time. In particular, we think that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. Undesirable templates tend to have very few successors in the first-order search. Typically, programs become quickly long applications of holes.
 
-Modify successor rules for templates or somehow prune the "nonsense" templates. "Templates done right".
 
-Augmented examples, so that the programmer can help the synthesiser if it is stuck.
+In the previous section we saw three ways the user can help the synthesiser. Another way could be to provide, along with the input-output examples, some intermediate values that can be produced from the given input and is used in the computation of the output.
+For example, consider we want to synthesise \lstinline!enumFromTo m n!. The list of consecutive integers from $m$ to $n$ can be computed from the list of consecutive integers from $1$ to $n-m+1$ by adding $m-1$ to each element. That is, the user could specify the synthesis task providing following \emph{augmented examples}:
+\begin{lstlisting}[style=plain]
+enumFromTo 1 2 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [1,2]
+enumFromTo 2 5 $\rightsquigarrow$ [1,2,3] $\rightsquigarrow$ [2,4,5]
+enumFromTo 3 4 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [3,4]
+\end{lstlisting}
+The synthesiser would come up with the solution (where we substitute fully applied \lstinline!add! and \lstinline!sub! with the corresponding infix operators and \lstinline!succ zero! with $1$):
+\begin{lstlisting}[style=plain]
+enumFromTo m n = map [Int] [Int] (add (m-1)) (enumTo (n-m+1))
+\end{lstlisting}
+Such kind of examples could suggest the relevant library components. The interesting questions is how to use the augmented examples to restrict the search space.
+Moreover, we user-synthesiser interaction can be brought to a new level by permitting the synthesiser to explicitly ask the user for help. For example, when coming up with intermediate values, the synthesiser could ask whether they are relevant to the current synthesis task.
 
 %%% Local Variables:
 %%% mode: latex
