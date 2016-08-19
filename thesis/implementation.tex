@@ -10,6 +10,24 @@ What could I talk about in this chapter?
 \end{itemize}
 
 
+source files
+\begin{itemize}
+\item b-library.tm: library components defined in the internal language. Built-in components are excluded.
+\item library.tm: same as b-library but with additional Scott's integers.
+\item builtin.ml: built-in library components and a couple of practical functions to simplify the definition of built-in functions that take multiple arguments
+\item lambda.ml: the interpreter. Contains terms and types, evaluation, typing, unification and the generic library lib, which is used for typing and evaluation.
+\item library.ml: the library module. Assumes that a library component stores a term definition and a type signature. Has fold and iter. Can return a list of components that unify with a given type, paired with the corresponding substitutions
+\item parser and lexer to read \lstinline!@ List #0 -> List #0!.
+\item program.ml: a partial program with holes. Encapsulates the notion of fresh hole, hole to be expanded and cost. The cost functions are changed here.
+\item syntaxSugar.ml: convenient notation
+\item synthesiser.ml: successor rules for best-first search and for templates, the satisfies-all predicate, the three enumeration strategies plain, blacklist and template in two variants, with and without timeout. The versions without timeout output more solutions (depending on the last argument).
+\end{itemize}
+
+What is important?
+
+
+
+
 
 %%% Local Variables:
 %%% mode: latex
