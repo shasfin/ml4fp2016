@@ -2,42 +2,45 @@
 
 \section{Conclusions}
 
-Type-driven synthesis of functional programs from input-output examples   strives to automatically generate well-typed programs that satisfy the given input-output examples and generalise well to unseen input-output pairs. When solving similar tasks, human programmers rely on well-known computational patterns. Consider, for example, a human is given the task to write \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! and returns the list \lstinline![x, x, $\ldots$, x]! of \lstinline!n! copies of \lstinline!x!. The human would probably resort to recursion over integers. That is, depending whether the integer \lstinline!n! is $0$ or the successor of another integer, an empty list is returned or \lstinline!x! is concatenated to the result of \lstinline!replicate (n-1) x!.
-\begin{lstlisting}[style=plain]
-replicate 0 x = []
-replicate n x = x:(replicate (n-1) x)
-\end{lstlisting}
-This computational pattern is captured by the higher-order component \lstinline!foldNat! that folds an integer using a given function. That is, the above program is equivalent to:
-\begin{lstlisting}[style=plain]
-replicate n x = foldNat (con x) [] n
-\end{lstlisting}
+Type-driven synthesis of functional programs from input-output examples   strives to automatically generate well-typed programs that satisfy the given input-output examples and generalise well to unseen input-output pairs. When solving similar tasks, human programmers rely on well-known computational patterns.
+
+%\TODO{Do we need the example at all?\\}
+%Consider, for example, a human is given the task to write \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! and returns the list \lstinline![x, x, $\ldots$, x]! of \lstinline!n! copies of \lstinline!x!. The human would probably resort to recursion over integers. That is, depending on the value of \lstinline!n!, she would either call \lstinline!replicate (n-1) x! and prepend the result with another \lstinline!x! or, if \lstinline!n! is $0$, return the empty list:
+%\begin{lstlisting}[style=plain]
+%replicate 0 x = []
+%replicate n x = x:(replicate (n-1) x)
+%\end{lstlisting}
+%This computational pattern is expressed by \lstinline!foldNat!, the higher-order component that folds an integer using a given function. That is, the above program is equivalent to:
+%\begin{lstlisting}[style=plain]
+%replicate n x = foldNat (x:) [] n
+%\end{lstlisting}
 
 The main goal of the thesis was to study how well first- and higher-order components can guide and speed up the synthesis process.
 
-In order to achieve this goal, we implemented in OCaml a prototype of a simple synthesis procedure based on program enumeration. Extensive evaluation of the prototype showed that synthesis from library components is a promising direction that needs further exploration.
+In order to achieve this goal, we implemented in OCaml a prototype of a simple synthesis procedure based on program enumeration. Extensive evaluation of the prototype on benchmarks showed that it can compete with related state-of-the-art tools. We believe therefore that synthesis from library components is a promising direction and needs to be explored further.
 
-The prototype implements a synthesis procedure that maintains a frontier of partial programs (that is programs with holes to be filled in later). At each iteration, the least-cost program is removed from the frontier and one of its holes is expanded according to some rules. Programs without holes are evaluated against the input-output examples. We experimented with different cost functions and with different strategies to choose the hole to expand.
+The prototype implements a synthesis procedure based on best-first enumeration of partial programs. We experimented with different cost functions and with different strategies to expand a partial program.
 
-\TODO{I thought a thesis is not the right place to tell the story about the things we tried, which did not work and how we fixed them\\}
-During experimentation we had to face different issues. Most of them were encountered during the synthesis of our favourite benchmark, \lstinline!enumFromTo!.
+During experimentation we faced different classes of programs that hinder the synthesis process.
 
-First of all, we discovered that the search space abounds of closed programs that represent a challenge for our evaluator even on examples as small as \lstinline![2,2,3]! and \lstinline!3!. This was our main motivation to reduce the size and the number of input-output examples.
+First of all, we discovered that the search space abounds of closed programs that represent a challenge for our evaluator, even on examples as small as \lstinline![2,2,3]! and \lstinline!3!. This was our main motivation to reduce the size and the number of input-output examples.
 
 Next, we noticed that every hole can be filled in with \lstinline!head [?X] (nil [?X])!, where \lstinline!?X! has to be instantiated with the type of the hole to expand. Many partial programs containing this pattern were enumerated just to be ruled out as soon as all holes were filled in and the closed programs were evaluated. To prune whole branches that will surely not lead to a solution, we introduced a black list containing the undesired patterns. As a next step, we used the synthesiser to generate such a black list automatically.
 
-A related problem are partial programs that can be ruled out based on the semantics of the library component and the expected behaviour of the target program encoded in the input-output examples. For example, when trying to synthesise \lstinline!enumFromTo!, no human programmer would insist on taking \lstinline!enumTo! as the first component. The partial program
+A related problem are partial programs that can be ruled out based on the semantics of the library component and the expected behaviour of the target program. For example, when trying to synthesise \lstinline!enumFromTo!, no human programmer would insist on taking \lstinline!enumTo! as the first component. The partial program
 \begin{lstlisting}[style=plain]
 enumFromTo m n = enumTo ?x
 \end{lstlisting}
 will not lead to the solution, because every list returned by \lstinline!enumTo!, no matter the argument, starts with $1$, whereas the list returned by \lstinline!enumFromTo! should start with \lstinline!m!, which is not necessarily $1$. Our synthesis procedure, on the contrary, treats this partial program and its successors as very promising candidates.\\
 This motivated us to try a slightly different synthesis procedure: the one that fixes the higher-order components first (generating a \emph{template}) and then fills in the remaining holes with input variables and first-order components.
 
-Empirical evaluation showed that reducing the size of the examples and blacklisting undesired patterns improves, as expected, the performance. On the other hand, against expectations, the introduction of templates leads to a significant slowdown. We believe, however, that this is due to our implementation and should be investigated further.
+We also explored some rudimentary ways of user-synthesiser interaction in order to help the synthesiser to avoid those three classes of undesired programs.
 
-\TODO{Why do I have this paragraph here but nothing similar in the thesis? Do I need it at all?\\}
-We also explored some rudimentary ways of user-synthesiser interaction. The simplest way to help the synthesiser is to restrict the library to the components needed for the specific synthesis task. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to forget some of the components.\\
-Another way to help the synthesiser is synthesising helper functions and adding them to the library before synthesising the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution.\\
-The last way we tried to help the synthesiser is to specify a starting template. For example, the user might have the intuition that \lstinline!enumFromTo! can be synthesised by adding some integer to each number of a list of consecutive numbers. She can encode this intuition into the template:
+The simplest way to help the synthesiser is to restrict the library to the components needed for the synthesis task at hand. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to miss some of the components.
+
+Another way to help the synthesiser generating helper functions first and adding them to the library before the synthesis of the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution.
+
+The last way to help the synthesiser we tried is to specify a starting template. For example, the user might have the intuition that \lstinline!enumFromTo! can be synthesised by adding some integer to each element of a list of consecutive numbers. She can encode this intuition into the template:
 \begin{lstlisting}[style=plain]
 enumFromTo m n = map [Int] [Int] (add ?i) (enumTo ?j)
 \end{lstlisting}
@@ -45,15 +48,15 @@ and get the desired implementation:
 \begin{lstlisting}[style=plain]
 enumFromTo m n = map [Int] [Int] (add (sub m (succ zero))) (enumTo (succ (sub n m)))
 \end{lstlisting}
-However, user-input is usually not needed to synthesise the benchmarks in reasonable time, \lstinline!enumFromTo! being the only exception.
+However, user-input is usually not needed to synthesise the benchmarks in less than a minute, \lstinline!enumFromTo! being the only exception.
 
-
+Empirical evaluation showed that reducing the size of the examples and blacklisting undesired patterns improves, as expected, the performance. On the other hand, against expectations, the introduction of templates leads to a significant slowdown. We believe, however, that this is due to our implementation and should be investigated further.
   
 \section{Future Work}
 
 As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis, and this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
 
-Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would leverage this inconvenience. In Section~\ref{Black list generation} we discussed the limitations of an automatically generated black list. In particular, since the automatically generated patterns are closed, they do not generalise. For example, instead of the patterns that encode the idea that folding over an empty list is an unnecessarily long synonym for the initial value
+Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would leverage this inconvenience. In Section~\ref{Black list generation} we discussed the limitations of an automatically generated black list. In particular, since the automatically generated patterns are closed, they do not generalise. For example, instead of the following patterns expressing that folding over an empty list is an unnecessarily long synonym for the initial value
 \begin{lstlisting}[style=plain]
 foldr append _ nil
 foldr const _ nil
@@ -63,30 +66,31 @@ we would like to have in our black list the following more general pattern:
 \begin{lstlisting}[style=plain]
 foldr _ _ nil
 \end{lstlisting}
-We believe this issue could be, at least partially, addressed by partial evaluation of programs with holes. In general, a good automatically generated black list should contain only the shortest most general patterns corresponding to the identity function, to the constructors and to other simple terms.
-
+In general, a good automatically generated black list should contain only the shortest most general patterns corresponding to the identity function, to the constructors and to other simple terms.
+We believe that generalisation of patterns could be, at least partially, addressed by partial evaluation of programs with holes.
 
 A very interesting question that our thesis does not answer is whether fixing the higher-order functions first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
 \begin{lstlisting}[style=plain]
 ?x (foldr [?X] [?Y])
 ?x (map [?$X_1$] [?$Y_1$]) (foldr [?$X_2$] [?$Y_2$])
 \end{lstlisting}
-Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach on synthesis time. In particular, we think that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. Undesirable templates tend to have very few successors in the first-order search. Typically, programs become quickly long applications of holes.
+Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach on synthesis time. In particular, we believe that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. Reason for it is that undesirable templates tend to have very few successors in the first-order search. As a result, partial programs being explored are typically quickly growing applications of holes.
 
-
-In the previous section we saw three ways the user can help the synthesiser. Another way could be to provide, along with the input-output examples, some intermediate values that can be produced from the given input and is used in the computation of the output.
-For example, consider we want to synthesise \lstinline!enumFromTo m n!. The list of consecutive integers from $m$ to $n$ can be computed from the list of consecutive integers from $1$ to $n-m+1$ by adding $m-1$ to each element. That is, the user could specify the synthesis task providing following \emph{augmented examples}:
+In the previous section we additionally saw three ways the user can help the synthesiser. Another clue the user could provide, along with the input-output examples, is some intermediate value that can be produced from the given input and is used in the computation of the output.
+For example, consider we want to synthesise \lstinline!enumFromTo m n!. The list of consecutive integers from $m$ to $n$ can be computed from the list of consecutive integers from $1$ to $n-m+1$ by adding $m-1$ to each element. That is, the user could specify the synthesis task providing following \emph{augmented examples}, the rightmost list being the expected output:
 \begin{lstlisting}[style=plain]
 enumFromTo 1 2 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [1,2]
-enumFromTo 2 5 $\rightsquigarrow$ [1,2,3] $\rightsquigarrow$ [2,4,5]
 enumFromTo 3 4 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [3,4]
+enumFromTo 2 5 $\rightsquigarrow$ [1,2,3] $\rightsquigarrow$ [2,4,5]
 \end{lstlisting}
 The synthesiser would come up with the solution (where we substitute fully applied \lstinline!add! and \lstinline!sub! with the corresponding infix operators and \lstinline!succ zero! with $1$):
 \begin{lstlisting}[style=plain]
 enumFromTo m n = map [Int] [Int] (add (m-1)) (enumTo (n-m+1))
 \end{lstlisting}
-Such kind of examples could suggest the relevant library components. The interesting questions is how to use the augmented examples to restrict the search space.
-Moreover, we user-synthesiser interaction can be brought to a new level by permitting the synthesiser to explicitly ask the user for help. For example, when coming up with intermediate values, the synthesiser could ask whether they are relevant to the current synthesis task.
+The open question is how to use the augmented examples to restrict the search space and suggest the relevant library components to the synthesiser. 
+Moreover, the user-synthesiser interaction can be brought to a new level by permitting the synthesiser to explicitly ask the user for help. For example, when coming up with intermediate values, the synthesiser could ask whether they are relevant to the current synthesis task.
+
+
 
 %%% Local Variables:
 %%% mode: latex
