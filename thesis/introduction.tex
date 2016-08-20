@@ -1,24 +1,56 @@
 \lstset{style=plain}
 
 \chapter{Introduction}\label{ch:introduction}
-Program synthesis strives to automatically synthesise programs given some sort of specification of their behaviour.   For example, a specification can be a logical formula that completely describes the relation between program inputs and outputs.  Another popular way is to provide a few concrete input-output examples, and then ask the synthesiser for a program that extrapolates them well.  Compared to precise logical specifications, concrete examples are very attractive, because they are more intuitive and require less effort.  Program Synthesis in this form is the focus of the present thesis.
+In this thesis, we investigate a method for automatic program synthesis.  Program synthesis strives to automatically synthesise programs given some sort of specification of their behaviour.   For example, suppose we want to synthesise the function \lstinline!replicate! that takes a number $n$ and an element $x$ of any type and returns the list $[x, \dots, x]$ made of $n$ copies of $x$.
 
-When solving programming tasks, human programmers invariably rely on prior knowledge in form of computational patterns.  Well-known patterns are typically reflected by libraries of reusable components (subprograms).  For example, the \lstinline!map! higher-order function expresses the transformation of each element of a list according to a given mapping.  The \lstinline!foldr! combinator captures primitive recursion on lists: \lstinline!foldr f init xs! is equivalent to \lstinline!g xs!, where \lstinline!g! is defined by the recursive scheme\footnote{Here and in the following we use improvised Haskell-like syntax.}
+We could specify the \lstinline!replicate! function is by providing a logical formula that completely describes the relation between inputs and outputs: \[ \forall n, x \ldotp \exists y \ldotp \; \texttt{replicate} \; n \; x = y \land (\mathrm{length}(y) = n \land (\forall z \in y \ldotp z = x)). \]  Then, a logic-based program synthesier would take such a formula and try to deduce an implementation of \lstinline!replicate! that satisfies it.
+
+Providing logical specifications, however, can be quite difficult, and we will be interested in a more natural alternative: specification by example.  Here, the user has some function in mind and provides only a few input-output examples of its behaviour.  From those few examples, the synthesiser has to induce an implementation of the function that the user has in mind.
+
+For our \lstinline!replicate! function, we could give the following specification (in an improvised Haskell-like syntax, which we will use through the thesis):
 \begin{lstlisting}[style=plain]
-g [] = init
-g (x:xs) = f x (g xs)
+replicate 0 'A' = []
+replicate 1 'A' = ['A']
+replicate 2 'A' = ['A', 'A']
+replicate 3 'A' = ['A', 'A', 'A']
+\end{lstlisting}
+The sythesiser then has to ``guess'', or rather, extrapolate the behavour in the examples to unseen inputs.  This guess could for example use recursion:
+\begin{lstlisting}[style=plain]
+replicate 0 x = []
+replicate n x = x:(replicate (n - 1) x)
 \end{lstlisting}
 
-The main goal of the thesis is to investigate whether the computational knowledge encoded by such components can help an automatic synthesiser, analogously to how a human reuses known patterns in order to solve such tasks.  In particular, we investigate whether one can quickly synthesise solutions to basic algorithmic tasks in terms of standard library components.  Our main hypothesis is that standard components capture widely useful patterns that one can use to find short and simple solution programs.
+However, synthesising a recursive definition directly is a rather difficult and unstructured problem: there are too many choices of how to invoke the function recursively.  A human programmer rarely attacks such problems directly, but relies on prior knowledge of restricted computational patterns.  Moreover, well-known patterns are widely implemented as reusable components (subprograms) and grouped into libraries.
 
-Towards this goal, we develop an examples-based synthesis algorithm, not tailored to a specific set of components.  This allows one to easily expand the ``computational knowledge'' of the synthesiser simply by adding new components.  To simplify the matter, we focus on the synthesis of purely functional programs without any lambda expressions, explicit recursion or conditionals (i.e., only function application is allowed).  This restriction is inessential as richer constructs can be easily simulated by applications of suitable higher-order components.  But importantly, it allows for a clean synthesis algorithm that focuses on how to combine components effectively.
+For example, the computational pattern of replacing every element $x$ in a list according to a map $x \mapsto \texttt{f} \; x$ is captured by the \lstinline!map! higher-order function:
+\[ [x_1, \dots, x_n] \xmapsto{\texttt{map f}} [\texttt{f} \; x_1, \dots, \texttt{f} \; x_n]. \]
+Another, more general, pattern is the accumulation of the values of a list along a binary operation \lstinline!f! (\lstinline!`f`! in infix), as captured by \lstinline!foldr!:
+\[ [x_1, \dots, x_n] \xmapsto{\texttt{foldr f} \; x_{n+1}} x_1 \texttt{ `f` } x_2 \texttt{ `f` } \dots \texttt{ } x_n \texttt{ `f` } x_{n+1}. \] 
 
-For example, consider we want to generate \lstinline!replicate!, that is the function that takes an integer \lstinline!n! and an element \lstinline!x! of any type and returns the list consisting of \lstinline!n! copies of \lstinline!x!. We expect our synthesiser to output the program:
+%% as captured by the \lstinline!foldr! function: $\texttt{foldr} \; f \; init \; xs$ is equivalent to $\texttt{g} \; xs$, where \lstinline!g! is defined by primitive recursion:
+%% \begin{lstlisting}[style=plain]
+%% g [] = init
+%% g (x:xs) = f x (g xs)
+%% \end{lstlisting}
+
+To illustrate how computational patterns are reused by humans, consider how to implement the \lstinline!replicate! function without recursion (or \lstinline!foldr!):
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
-In the above program, \lstinline!const! is the function that takes two arguments and always returns the first one; \lstinline!enumTo! is the function that takes an integer \lstinline!m! and returns the list \lstinline![1, 2, $\ldots$, m]!.
-The synthesised solution encodes the insight: in order to generate a list consisting of \lstinline!n! copies of \lstinline!x!, one can first generate a list of length \lstinline!n!, in this case \lstinline![1, 2, $\ldots$, n]!, and then map each element to \lstinline!x!.
+Here, \lstinline!const! takes two arguments and always returns the first one; \lstinline!enumTo! takes an integer $n$ and returns the list $[1, 2, \ldots, n]$.  The solution encodes the insight: to generate a list consisting of $n$ copies of $x$, one can first generate an any list of length $n$, and then map each element to the given $x$.  This leads us to the question: can a synthesiser produce such ``insightful'' programs?
+
+\section{Problem statement}
+
+The main goal of the thesis is to investigate whether the computational knowledge encoded in components can help an automatic synthesiser, in analogy of how a human reuses known patterns in order to solve such tasks.  In particular, we investigate whether one can quickly synthesise solutions to basic algorithmic tasks in terms of standard library components.  Our main hypothesis is that standard components capture widely useful patterns that one can use to find short and simple solution programs.
+
+Towards this goal, we develop an examples-based synthesis algorithm, not tailored to a specific set of components.  This allows one to easily expand the ``computational knowledge'' of the synthesiser simply by adding new components.  To simplify the matter, we focus on the synthesis of purely functional programs without any lambda expressions, explicit recursion or conditionals (i.e., only function application is allowed).  This restriction is inessential as richer constructs can be easily simulated by applications of suitable higher-order components.  But importantly, it allows for a clean synthesis algorithm that focuses on how to combine components effectively.
+
+%% For example, consider we want to generate \lstinline!replicate!, that is the function that takes an integer \lstinline!n! and an element \lstinline!x! of any type and returns the list consisting of \lstinline!n! copies of \lstinline!x!. We expect our synthesiser to output the program:
+%% \begin{lstlisting}[style=plain]
+%% replicate n x = map (const x) (enumTo n)
+%% \end{lstlisting}
+%% In the above program, \lstinline!const! is the function that takes two arguments and always returns the first one; \lstinline!enumTo! is the function that takes an integer \lstinline!m! and returns the list \lstinline![1, 2, $\ldots$, m]!.
+%% The synthesised solution encodes the insight: in order to generate a list consisting of \lstinline!n! copies of \lstinline!x!, one can first generate a list of length \lstinline!n!, in this case \lstinline![1, 2, $\ldots$, n]!, and then map each element to \lstinline!x!.
 
 \section{Existing work}\label{Background}
 The past $50$ years of research approached program synthesis from various points of view.  For example, early methods \cite{Manna:1980:DAP:357084.357090} were based on automatic theorem proving and the relation between proofs and programs (the Curry– Howard correspondence).  They convert a logical specification of a program into a theorem, find a proof of this theorem, and then extract a program from the proof.  Such methods are mainly limited by the performance of the employed theorem prover (which, unfortunately, is not much at present).  A drawback of these approaches is that a high level of mathematical maturity is required to provide the needed logical specification.
