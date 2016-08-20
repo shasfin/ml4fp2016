@@ -3,7 +3,7 @@
 \chapter{Introduction}\label{ch:introduction}
 In this thesis, we investigate a method for automatic program synthesis.  Program synthesis strives to automatically synthesise programs given some sort of specification of their behaviour.   For example, suppose we want to synthesise the function \lstinline!replicate! that takes a number $n$ and an element $x$ of any type and returns the list $[x, \dots, x]$ made of $n$ copies of $x$.
 
-We could specify the \lstinline!replicate! function is by providing a logical formula that completely describes the relation between inputs and outputs: \[ \forall n, x \ldotp \exists y \ldotp \; \texttt{replicate} \; n \; x = y \land (\mathrm{length}(y) = n \land (\forall z \in y \ldotp z = x)). \]  Then, a logic-based program synthesier would take such a formula and try to deduce an implementation of \lstinline!replicate! that satisfies it.
+We could specify the \lstinline!replicate! function by providing a logical formula that completely describes the relation between inputs and outputs: \[ \forall n, x \ldotp \exists y \ldotp \; \texttt{replicate} \; n \; x = y \land (\mathrm{length}(y) = n \land (\forall z \in y \ldotp z = x)). \]  Then, a logic-based program synthesier would take such a formula and try to deduce an implementation of \lstinline!replicate! that satisfies it.
 
 Providing logical specifications, however, can be quite difficult, and we will be interested in a more natural alternative: specification by example.  Here, the user has some function in mind and provides only a few input-output examples of its behaviour.  From those few examples, the synthesiser has to induce an implementation of the function that the user has in mind.
 
