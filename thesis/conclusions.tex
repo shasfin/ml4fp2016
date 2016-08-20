@@ -56,28 +56,18 @@ Empirical evaluation showed that reducing the size of the examples and blacklist
 
 As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis, and this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
 
-Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would leverage this inconvenience. In Section~\ref{Black list generation} we discussed the limitations of an automatically generated black list. In particular, since the automatically generated patterns are closed, they do not generalise. For example, instead of the following patterns expressing that folding over an empty list is an unnecessarily long synonym for the initial value
-\begin{lstlisting}[style=plain]
-foldr append _ nil
-foldr const _ nil
-foldr drop _ nil
-\end{lstlisting}
-we would like to have in our black list the following more general pattern:
-\begin{lstlisting}[style=plain]
-foldr _ _ nil
-\end{lstlisting}
-In general, a good automatically generated black list should contain only the shortest most general patterns corresponding to the identity function, to the constructors and to other simple terms.
-We believe that generalisation of patterns could be, at least partially, addressed by partial evaluation of programs with holes.
+Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would leverage this inconvenience. In Section~\ref{Black list generation} we arrived to the conclusion that patterns with only one wild-card that correspond to the identity function are not the only patterns a good black list should contain.
+In general, a good black list should contain only the shortest most general patterns that rule out redundant programs. It is a question of interest how to generate such a good black list automatically.
 
-A very interesting question that our thesis does not answer is whether fixing the higher-order functions first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
+Another interesting question that our thesis does not answer is whether fixing the higher-order components first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
 \begin{lstlisting}[style=plain]
 ?x (foldr [?X] [?Y])
 ?x (map [?$X_1$] [?$Y_1$]) (foldr [?$X_2$] [?$Y_2$])
 \end{lstlisting}
-Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach on synthesis time. In particular, we believe that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. Reason for it is that undesirable templates tend to have very few successors in the first-order search. As a result, partial programs being explored are typically quickly growing applications of holes.
+Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach. In particular, we believe that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. Reason for it is that undesirable templates tend to have very few successors in the first-order search. As a result, partial programs being explored are typically quickly growing applications of holes.
 
 In the previous section we additionally saw three ways the user can help the synthesiser. Another clue the user could provide, along with the input-output examples, is some intermediate value that can be produced from the given input and is used in the computation of the output.
-For example, consider we want to synthesise \lstinline!enumFromTo m n!. The list of consecutive integers from $m$ to $n$ can be computed from the list of consecutive integers from $1$ to $n-m+1$ by adding $m-1$ to each element. That is, the user could specify the synthesis task providing following \emph{augmented examples}, the rightmost list being the expected output:
+For example, consider we want to synthesise \lstinline!enumFromTo m n!. The list of consecutive integers from $m$ to $n$ can be computed from the list of consecutive integers from $1$ to $n-m+1$ by adding $m-1$ to each element. That is, the user could specify the synthesis task providing the following \emph{augmented examples}, the rightmost list being the expected output:
 \begin{lstlisting}[style=plain]
 enumFromTo 1 2 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [1,2]
 enumFromTo 3 4 $\rightsquigarrow$ [1,2] $\rightsquigarrow$ [3,4]

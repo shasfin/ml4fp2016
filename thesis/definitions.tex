@@ -11,7 +11,13 @@ In this chapter we formally define our type-directed top-down synthesis procedur
 The programs targeted by our synthesiser are based on System F terms restricted to applications of library components and input variables.  As we saw in the previous example, during synthesis an additional syntactic construct is used: the hole.  We denote the language based on application of library components, input variables and holes as the \emph{target language} of our synthesiser.
 However, we also need another language: the language in which the library components are defined and the programs are evaluated on the input-output examples.  In the rest of the chapter we will call this language the \emph{internal language}.  It extends System F with holes, parametric types and recursion.
 
-The syntax of the internal language and the target language is defined in Section~\ref{Term and types}.  For the sake of completeness, we also provide the syntax of System F, as the other two calculi build upon it.  Section~\ref{Evaluation} and Section~\ref{Typing} show the evaluation and, respectively, the typing rules only for the internal language, since the target language is a proper subset thereof.  The notation and the exposition closely follow the excellent book on type systems by Benjamin Pierce \cite{pierce2002types}.  We refer to the book for a thorough introduction to System F and to type systems in general.
+We present therefore in Section~\ref{Term and types} the syntax of the following three calculi:
+\begin{enumerate}[1.]
+\item System F, which we provide for the sake of completeness, since the other two calculi build upon it;
+\item The internal language: an extension of System F with holes, input variables, library components, parametric types and recursive terms and types;
+\item The target language: a subset of the internal language, featuring only application of components, holes and input variables.
+\end{enumerate}
+The notation and the exposition closely follow the excellent book on type systems by Benjamin Pierce \cite{pierce2002types}.  We refer to the book for a thorough introduction to System F and to type systems in general.
 
   \subsection{Terms and Types}\label{Term and types}
 This section presents the syntax of three different calculi: System F, the internal language and the target language.
@@ -409,7 +415,7 @@ $\textit{matches}(t_1\; t_2,t_3\; t_4)$ if $\textit{matches}(t_1,t_3)$ and $\tex
 $\textit{matches}(t_1\; [T_1],t_2\; [T_1])$ if $\textit{matches}(t_1,t_2)$
 \end{lstlisting}
 
-As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.
+As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.  As a reminder of this semantics, in the following chapters we will typeset black list patterns omitting the type applications and replacing all holes and input variables with the wild-card symbol \lstinline!_!.
 
 Pruning based on black lists can be easily integrated in Algorithm~\ref{alg:best-first search}. The result is shown in Algorithm~\ref{alg:blacklist pruning}, where the differences to the original best-first search are highlighted in blue.
 

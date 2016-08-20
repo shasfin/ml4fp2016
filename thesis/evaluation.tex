@@ -63,23 +63,27 @@ List (List Int) -> List (List Int)
 \end{lstlisting}
 we used the synthesis procedure that combines the \textsc{Plain} exploration strategy with the \textit{nof-nodes} cost function to synthesise the first $100$ programs that satisfy the $8$ input-output examples of the corresponding type generated in the previous step. This time we provided the synthesiser with the $37$ components listed in Table~\ref{fig:library-components}.
 
-After removing duplicates and the classical program corresponding to the identity function, that is \lstinline?id x = x?, we got $212$ black list patterns. Section~\ref{Automatic black list} reviews the quality of the generated black list.
+As a third step, we removed duplicates, the classical program corresponding to the identity function, that is \lstinline?id x = x? and all programs that use the same input variable more than once.  This way we got $212$ black list patterns. Section~\ref{Automatic black list} reviews the quality of the generated black list.
 
 
 \subsection{Results}\label{Automatic black list}
-We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s}. 
+We were able to automatically synthesise $300$ programs corresponding to the identity function for three different types using automatically generated input-output examples in under \SI{2}{s} and extract $212$ black list patterns out of them.
 The number of automatically generated examples, $8$, is higher than the number of manual input-output examples we need to generate the same programs. Since programs are generated incrementally, the smaller ones first, the first $7$ automatically generated lists of lists of integers do not contain anything except for \lstinline!nil! and among the first $7$ automatically generated lists of integers there are no lists of length more than one.
 This implies that synthesis using automatically synthesised input-output examples is slower than synthesis using manual ones.
 
 For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
 \begin{enumerate}
-\item All programs in the automatically generated black list correspond to the identity function.
+\item All programs in the automatically generated black list correspond to the identity function, whereas longer synonyms of programs like \lstinline!succ zero! and \lstinline!nil! do not necessarily imply the application of an identity function.
 \item Many automatically generated black list programs are unnecessary. For example, \lstinline?append (append nil nil) _? and \lstinline?concat (append nil _)? are not needed if the black list already contains \lstinline?append nil _?.
-\item The automatically generated programs are all closed programs and as such they are too concrete. For example, instead of \lstinline?foldNatNat max _ zero?, \lstinline?foldNatNat const _ zero? and \lstinline?foldNatNat drop _ zero? we could just have the one program \lstinline?foldNatNat _ _ zero? that generalises all the programs with the idea that folding over the integer $0$ is the same as taking the initial value, no matter which function is used for folding.
+\item The patterns we extract contain only one wild-card symbol, while patterns with two or more wild-cards would prune the useless branches earlier. For example, instead of
+\begin{lstlisting}
+foldNatNat max _ zero
+foldNatNat drop _ zero
+\end{lstlisting}
+we would prefer the one pattern \lstinline?foldNatNat _ _ zero? that encodes the insight: folding over the integer $0$ is the same as taking the initial value, no matter which function is used for folding.
 \end{enumerate}
 
-The first two points can be addressed with small modifications to the experimental set up: generate \lstinline?nil?, \lstinline?zero?, \lstinline?undefined? and other constants as well for the first and prune the black list after or during generation for the second.
-The third point is way more complex. Partial evaluation of programs with holes could help to some extent, but at the end it is about the ability to abstract and generalise over programs.
+We will come back to the interesting question of automatically generating a black list that can compete with a manual one in the conclusions.
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
