@@ -5,7 +5,7 @@ In this thesis, we investigate a method for automatic program synthesis.  Progra
 
 We could specify the \lstinline!replicate! function by providing a logical formula that completely describes the relation between inputs and outputs: \[ \forall n, x \ldotp \exists y \ldotp \; \texttt{replicate} \; n \; x = y \land (\mathrm{length}(y) = n \land (\forall z \in y \ldotp z = x)). \]  Then, a logic-based program synthesier would take such a formula and try to deduce an implementation of \lstinline!replicate! that satisfies it.
 
-Providing logical specifications, however, can be quite difficult, and we will be interested in a more natural alternative: specification by example.  Here, the user has some function in mind and provides only a few input-output examples of its behaviour.  From those few examples, the synthesiser has to induce an implementation of the function that the user has in mind.
+Providing logical specifications, however, can be quite difficult, and we will be interested in a more natural alternative: specification by example.  Here, the user has some function in mind and provides only a few input-output examples of its behaviour.  From those few examples the synthesiser has to induce an implementation of the function that the user has in mind.
 
 For our \lstinline!replicate! function, we could give the following specification (in an improvised Haskell-like syntax, which we will use through the thesis):
 \begin{lstlisting}[style=plain]
@@ -33,7 +33,7 @@ Another, more general, pattern is the accumulation of the values of a list along
 %% g (x:xs) = f x (g xs)
 %% \end{lstlisting}
 
-To illustrate how computational patterns are reused by humans, consider how to implement the \lstinline!replicate! function without recursion (or \lstinline!foldr!):
+To illustrate how computational patterns are reused by humans, consider how to implement the \lstinline!replicate! function without explicit recursion:
 \begin{lstlisting}[style=plain]
 replicate n x = map (const x) (enumTo n)
 \end{lstlisting}
