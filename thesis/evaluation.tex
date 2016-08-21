@@ -73,17 +73,10 @@ This implies that synthesis using automatically synthesised input-output example
 
 For the evaluation of the benchmarks we preferred compiling a manual black list mainly because of three reasons: 
 \begin{enumerate}
-\item All programs in the automatically generated black list correspond to the identity function, whereas longer synonyms of programs like \lstinline!succ zero! and \lstinline!nil! do not necessarily imply the application of an identity function.
-\item Many automatically generated black list programs are unnecessary. For example, \lstinline?append (append nil nil) _? and \lstinline?concat (append nil _)? are not needed if the black list already contains \lstinline?append nil _?.
-\item The patterns we extract contain only one wild-card symbol, while patterns with two or more wild-cards would prune the useless branches earlier. For example, instead of
-\begin{lstlisting}
-foldNatNat max _ zero
-foldNatNat drop _ zero
-\end{lstlisting}
-we would prefer the one pattern \lstinline?foldNatNat _ _ zero? that encodes the insight: folding over the integer $0$ is the same as taking the initial value, no matter which function is used for folding.
+\item All patterns in the automatically generated black list correspond to the identity function, whereas superfluous programs do not necessarily involve application of the identity function. As an example where no identity function is applied, consider \lstinline!sum nil!, a longer synonym for \lstinline!zero!.
+\item Many automatically generated black list patterns are subsumed by shorter patterns. For example, \lstinline?append (append nil nil) _? is not needed if the black list already contains \lstinline?append nil _?.
+\item The patterns we extract contain only one wild-card symbol, while patterns with two or more wild-cards would be useful as well. For example, the pattern \lstinline?foldr _ _ nil? encodes the insight that folding over the empty list is no different than taking the initial value, no matter which function is used for folding.
 \end{enumerate}
-
-We will come back to the interesting question of automatically generating a black list that can compete with a manual one in the conclusions.
 
 
 \section{Factors affecting runtime}\label{Factors affecting runtime}
