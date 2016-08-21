@@ -1,43 +1,12 @@
 \chapter{Implementation} \label{ch:implementation}
-\TODO{Write me \^{} \^{}}
 
-We implemented our prototype in OCaml 4.03.0, closely following the formalisation in Chapter~\ref{definitions}.  Interpreter for the internal language.  We use the \lstinline!menhir! package to generate a parser of our internal language.  For convenience, we use De Bruijn indices \cite{DEBRUIJN1972381} to represent bound variables in term and type abstractions.  In order to speed up the evaluation, we feature built-in integers. This allows us to implement arithmetic operations in terms of the OCaml integer arithmetic.
+We implemented our prototype in OCaml 4.03.0, closely following the formalisation in Chapter~\ref{ch:definitions}.  Evaluation, type checking and type unification are implemented on top of an interpreter for our internal language.  A parser for this language was generated with the \lstinline!menhir! package.  The types and the terms of the language are represented by algebraic data types.  For convenience, we use De Bruijn indices \cite{DEBRUIJN1972381} to represent bound variables in term and type abstractions.  In order to speed up the evaluation, we introduce built-in integers and built-in functions.  This allows us to implement arithmetic operations in terms of the OCaml integer arithmetic.
 
-The interpreter: an interpreter for the internal language. There are a parser (generated with the \lstinline!menhir! package) and methods transforming AST trees into strings. Terms and types are algebraic data types. Evaluation and typing implemented in it. For speed: built-in integers and built-in functions (on integers). Also a library of components in this syntax. There is a lot more to say (Fun and FUN, unification, substitutions, equality on types, maybe something else). Data structures: lists and hashmaps from the \lstinline!core std! package (cite Jane Street Core).
+As already discussed in Section~\ref{Term and types}, the internal language supports recursion by name.  In evaluation and type checking we use maps from library components to their (possibly recursive) definitions to unfold the definitions when needed.  For example, to check type equality during type checking we sometimes have to unfold recursive type definitions.
 
-The synthesiser: follow the successor rules and the algorithms (plain, black list, template). Data structures: heap from \lstinline!core std! (a priority queue), list for black list.
+Unification is implemented along the lines of the unification algorithm presented in Section~\ref{Unification}. Constraint sets are represented by lists of pairs and substitutions by hashmaps mapping holes to types. Since we only run small instances, the negative effect on performance caused by this naive implementation is limited.
 
-The program: encapsulates program comparison (cost functions), what hole to expand next, how to get a fresh hole, which holes are open and which are delayed. Data structures: map (programs are maps that map holes to terms (possibly containing other holes).
-
-The library: two kinds of library. A simple struct of two functions (one for terms, one for types) used for evaluation and a fancy library that can, apart from the usual operations of lookup, iteration, folding and pretty printing, parse a library from a file (written in the syntax of the interpreter), generate a simple evaluation library and return a list of components that unify with a given type, along with the corresponding substitutions. Data structures: a struct with two hashtables, one for terms and one for types, mapping from index to definitions and signatures. It is practical two have two different libraries for synthesis and evaluation (since some library components were synthesised from helper components that we not necessarily want to use for synthesis). It is hard to debug programs written in the internal language, the library file format is not advanced (simple text file with comments, as of now). Type-checking helps a little bit. That's why we generated many components with the synthesiser. Built-in functions are added to every library read from file. They are even harder to define than the ones in the internal language. No type check for them.
-
-
-What could I talk about in this chapter?
-\begin{itemize}
-\item Programming language (OCaml) and compiler version (find it out)
-\item Libraries used. \lstinline!menhir! for the parser and the \lstinline!core! standard library for the standard stuff.
-\item put the type definitions and explain them (What are Fun, FUN and BuiltinFun) (built-in integers for speed), De-Bruijn indices (make sure you spell the name correctly)
-\item Library syntax and the type-checking when added to the library?
-\item eager evaluation, describe evaluator
-\item data structures for substitutions and for unification?
-\item Table of implemented components $\longrightarrow$ no. Such tables are really ugly. And no, you are not going to put them in a list.
-\end{itemize}
-
-
-source files
-\begin{itemize}
-\item b-library.tm: library components defined in the internal language. Built-in components are excluded.
-\item library.tm: same as b-library but with additional Scott's integers.
-\item builtin.ml: built-in library components and a couple of practical functions to simplify the definition of built-in functions that take multiple arguments
-\item lambda.ml: the interpreter. Contains terms and types, evaluation, typing, unification and the generic library lib, which is used for typing and evaluation.
-\item library.ml: the library module. Assumes that a library component stores a term definition and a type signature. Has fold and iter. Can return a list of components that unify with a given type, paired with the corresponding substitutions
-\item parser and lexer to read \lstinline!@ List #0 -> List #0!.
-\item program.ml: a partial program with holes. Encapsulates the notion of fresh hole, hole to be expanded and cost. The cost functions are changed here.
-\item syntaxSugar.ml: convenient notation
-\item synthesiser.ml: successor rules for best-first search and for templates, the satisfies-all predicate, the three enumeration strategies plain, blacklist and template in two variants, with and without timeout. The versions without timeout output more solutions (depending on the last argument).
-\end{itemize}
-
-What is important?
+During synthesis, we represent partial programs as maps from holes to terms (that possibly contain holes as well). Every call to the successor function adds a mapping for the current hole.
 
 
 
