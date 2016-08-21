@@ -54,6 +54,8 @@ Empirical evaluation showed that reducing the size of the examples and blacklist
   
 \section{Future Work}
 
+\TODO{Put more explicit ways to reach a `publishable unit'\\}
+
 As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis, and this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
 
 Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would alleviate this inconvenience. In Section~\ref{Black list generation} we discussed how we used our synthesis procedure to automatically generate a black list. However, we arrived at the conclusion that our method is too primitive to compete with a manually compiled black list. In particular, the generated patterns have only one wild-card and correspond to the identity function. The former restriction leads to the generation of patterns like
