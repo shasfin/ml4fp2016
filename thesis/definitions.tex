@@ -2,7 +2,7 @@
 
 \chapter{A type-driven synthesis procedure} \label{ch:definitions}
 
-In this chapter we formally define our type-directed top-down synthesis procedure. We start with an intuitive description thereof based on an example and move on to the formal definitions, starting with the target programming language and the search space. Finally, we present some enhancements.
+In this chapter we formally define our type-directed top-down synthesis procedure. We start with an intuitive description based on an example and move on to the formal definitions, starting with the target programming language and the search space. Finally, we present our synthesis procedure and some enhancements.
 
 \input{example}
  
@@ -22,7 +22,7 @@ The notation and the exposition closely follow the excellent book on type system
   \subsection{Terms and Types}\label{Term and types}
 This section presents the syntax of three different calculi: System F, the internal language and the target language.
 
-\paragraph{System F} System F, also known as the polymorphic lambda calculus, is a calculus that, additionally to term abstraction and term application, features two new kinds of terms: type abstraction \lstinline!$\Lambda$X. t! and type application \lstinline!t [T]!. This allows to express polymorphic functions. For example, the polymorphic identity function is defined as \lstinline!$\Lambda$X. $\lambda$x:X. x!.
+\paragraph{System F} System F, also known as the polymorphic lambda calculus, is a calculus that, additionally to term abstraction and term application, features two new kinds of terms: type abstraction \lstinline!$\Lambda$X. t! and type application \lstinline!t [T]!. This allows us to express polymorphic functions. For example, the polymorphic identity function is defined as \lstinline!$\Lambda$X. $\lambda$x:X. x!.
 Polymorphic functions, defined as type abstractions, have a special type: the \emph{universal} type \lstinline!$\forall$X. T!. For a more detailed introduction to System F we refer to \cite{pierce2002types}. The syntax is summarized below.
 
  \begin{plstx}
@@ -46,7 +46,7 @@ The syntax of our calculus is summarised below. Evaluation and typing rules for 
 Note that we have three additional contexts.
 The first one, $\Xi$, collects type and term holes. Moreover, it binds term holes to their types.
 The second one, $\Phi$, is the library of input variables. It contains one concrete instantiation of the input variables. It binds a definition and a type signature to each input term variable and a definition to each input type variable.
-The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to ist definition and to the number of parameters it takes.
+The third one, $\Delta$, is the library of components. Each named term is bound to its definition and to its type signature and each named type is bound to its definition and to the number of parameters it takes.
 
 
 \paragraph{Target language} The target language of our synthesiser is a subset of the internal language. We already saw terms of this language in the `replicate' example, but there all type applications were omitted for the sake of clarity.
@@ -58,7 +58,7 @@ Formally, the target language restricts the internal language to term and type a
 (input variable bindings): \Phi ::= \emptyset | \Phi \cup \{i = t : T\} | \Phi \cup \{I = T : K\}\\
 (library components): \Delta ::= \emptyset | \Delta \cup \{c = t : T\} | \Delta \cup \{C = T : K\}\\
 \end{plstx}
-Since this is a proper subset of the internal language, we do not need separate typing and evaluation rules.
+We do not need separate typing rules for this sublanguage of the internal language, since it is closed under the typing rules. We omit evaluation rules for this calculus, as our evaluator is based on the internal language.
 
 \paragraph{Program} A program is defined as the 4-tuple $\{\Xi, \Phi, \Delta \vdash t :: T\}$, where $t$ is a term of the target language. A program is called \emph{closed} if $\Xi$ is empty and $t$ and $T$ do not contain holes.
 
@@ -262,7 +262,7 @@ The search space is structured as a graph, where the vertices correspond to \emp
 
 There is a directed edge between two programs $\{\Xi_1, \Phi, \Delta \vdash t_1 :: T'\}$ and $\{\Xi_2, \Phi, \Delta \vdash t_2 :: T'\}$ if and only if the judgement \emph{derive} (defined below) $\Xi, \Phi, \Delta \vdash t_1 :: T_1 \Mapsto \Xi', \Phi, \Delta \vdash t_2 :: T_2$ holds between the two.
 
-To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ in which we can plug in any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
+To express the rules of the derive judgement in a more compact form, we introduce \emph{evaluation contexts}. An evaluation context is an expression with exactly one syntactic hole $[]$ into which we can plug any term. For example, if we have the context $\mathcal{E}$ we can place the term $t$ into its hole and denote this new term by $\mathcal{E}[t]$.
 
 The derive judgement can be summarised in four rules.
 D-VarLib replaces a hole $?x$ with a type application of a library component $c$ to suitable types, if the type of $c$ unifies with the type of $?x$. D-VarInp replaces a hole $?x$ with an input variable $i$ from the context $\Phi$, if its type unifies with the type of the hole. D-VarApp turns a hole into a term application of two fresh holes. The rule D-App chooses a hole in the program and expands it according to one of the three rules above.
@@ -415,7 +415,7 @@ $\textit{matches}(t_1\; t_2,t_3\; t_4)$ if $\textit{matches}(t_1,t_3)$ and $\tex
 $\textit{matches}(t_1\; [T_1],t_2\; [T_1])$ if $\textit{matches}(t_1,t_2)$
 \end{lstlisting}
 
-As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.  As a reminder of this semantics, in the following chapters we will typeset black list patterns omitting the type applications and replacing all holes and input variables with the wild-card symbol \lstinline!_!.
+As you can see, holes and input variables in the black list match every subterm, a library component matches only itself, a term application matches a term application whose respective left- and right hand sides match and a type application matches a type application if the left hand sides match. Note that the types in a type application are completely ignored.  As a reminder of this semantics, in the following chapters we will typeset black list patterns omitting the type applications and replacing all holes and input variables with the wild-card symbol `\lstinline!_!'.
 
 Pruning based on black lists can be easily integrated in Algorithm~\ref{alg:best-first search}. The result is shown in Algorithm~\ref{alg:blacklist pruning}, where the differences to the original best-first search are highlighted in blue.
 

@@ -2,7 +2,7 @@
 
 \chapter{Related Work} \label{ch:relatedwork}
 
-In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, use type information to restrict the search space and enumerate term during search. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples, as in \cite{LambdaSquarePaper, EscherPaper, MythPaper}, or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} in \cite{SynquidPaper}.
+In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, use type information to restrict the search space and enumerate terms during search. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples, as in \cite{LambdaSquarePaper, EscherPaper, MythPaper}, or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} in \cite{SynquidPaper}.
 
 \section{\mdseries\textsc{Synquid}}
 
@@ -68,17 +68,17 @@ The algorithm alternates between two phases: forward search and conditional infe
 
 This tool is able to synthesise recursive programs, including tail recursive, mutually recursive and divide-and-conquer. It synthesises all benchmarks in under \SI{11}{s} and all but three benchmarks in under \SI{1}{s}. The benchmarks include programs on integers such as \lstinline!fibonacci! and \lstinline!isEven!, programs on lists such as \lstinline!compress! and \lstinline!insert! and programs on trees such as \lstinline!nodes-at-level! and \lstinline!count-leaves!.
 
-Like our work, this tool can handle a flexible set of components. For example, a set of $23$ components was used to evaluate all benchmarks. However, there were no higher-order components among them. In contrast to our tool, \textsc{Escher} requires a closed set of input-output examples. This is not always convenient for the user, as she has to anticipate the recursion in the solution.
+Like our work, this tool can handle a flexible set of components. For example, a set of $23$ components was used to evaluate all benchmarks. However, there were no higher-order components among them. In contrast to our tool, \textsc{Escher} requires a closed set of input-output examples. This is not always convenient for the user, as they have to anticipate the recursion in the solution.
 
 \section{\mdseries\textsc{Myth}}
 
 The tool proposed in \cite{MythPaper} is called \textsc{Myth} and targets a subset of OCaml including pattern matching, recursive functions, higher-order functions and algebraic datatypes. The prototype lacks support for polymorphic and product types, but can be extended to handle them as well.
 
-The user specifies the desired program by providing a type signature and several input-output examples. Like in \textsc{Escher}, in order to generate recursive functions, the set of input-output examples must be \emph{closed}. Unlike \textsc{Escher}, the user can easily extend the set of library components with own higher-order functions and define own algebraic datatypes.
+The user specifies the desired program by providing a type signature and several input-output examples. Like in \textsc{Escher}, in order to generate recursive functions, the set of input-output examples must be \emph{closed}. Unlike \textsc{Escher}, the user can easily extend the set of library components with their own higher-order functions and define their own algebraic datatypes.
 
 The technique is inspired by proof search and searches for a term in the target language that has a valid typing derivation. The typing rules are modified to incorporate input-output examples and to push them towards the leaves of the derivation tree. That is, the information contained in the input-output examples is used to prune the search space even before a program that can be evaluated on the examples is generated. The tool also makes use of well-typed term enumeration to guess a term of the goal type that is consistent with the examples. Since enumeration is used to fill in the branches of a pattern matching or the arguments to a constructor, the size of enumerated term is considerably smaller than the size of the program being generated.
 
-This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. The benchmarks include programs over booleans, natural numbers, lists and trees. The tool is able to synthesise all benchmark programs in less than \SI{2.5}{min}, $70\%$ of them are synthesised in less than \SI{0.4}{s}. The only benchmark that takes more than \SI{1}{min} to synthesise is \lstinline!list-compress!.
+This tool is able to generate structurally recursive programs that use pattern matching. The benchmarks were evaluated in the presence of a relatively large set of library components, however, the precise size of this set is not provided. The benchmarks include programs over booleans, natural numbers, lists and trees. The tool is able to synthesise all benchmark programs in less than \SI{2.5}{min}, $70\%$ of them are synthesised in less than \SI{0.4}{s}. The only benchmark that takes more than \SI{1}{min} to synthesise is \lstinline!list_compress!.
 
 In contrast to our tool, \textsc{Myth} requires a closed set of input-output examples as a specification to a synthesis task. This is an inconvenience, since the user has to anticipate the structure of the program and the recursive calls. Moreover, as opposed to our tool, \textsc{Myth} lacks support for polymorphic types.
 
