@@ -1,6 +1,17 @@
 \chapter{Implementation} \label{ch:implementation}
 \TODO{Write me \^{} \^{}}
 
+We implemented our prototype in OCaml 4.03.0, closely following the formalisation in Chapter~\ref{definitions}.  Interpreter for the internal language.  We use the \lstinline!menhir! package to generate a parser of our internal language.  For convenience, we use De Bruijn indices \cite{DEBRUIJN1972381} to represent bound variables in term and type abstractions.  In order to speed up the evaluation, we feature built-in integers. This allows us to implement arithmetic operations in terms of the OCaml integer arithmetic.
+
+The interpreter: an interpreter for the internal language. There are a parser (generated with the \lstinline!menhir! package) and methods transforming AST trees into strings. Terms and types are algebraic data types. Evaluation and typing implemented in it. For speed: built-in integers and built-in functions (on integers). Also a library of components in this syntax. There is a lot more to say (Fun and FUN, unification, substitutions, equality on types, maybe something else). Data structures: lists and hashmaps from the \lstinline!core std! package (cite Jane Street Core).
+
+The synthesiser: follow the successor rules and the algorithms (plain, black list, template). Data structures: heap from \lstinline!core std! (a priority queue), list for black list.
+
+The program: encapsulates program comparison (cost functions), what hole to expand next, how to get a fresh hole, which holes are open and which are delayed. Data structures: map (programs are maps that map holes to terms (possibly containing other holes).
+
+The library: two kinds of library. A simple struct of two functions (one for terms, one for types) used for evaluation and a fancy library that can, apart from the usual operations of lookup, iteration, folding and pretty printing, parse a library from a file (written in the syntax of the interpreter), generate a simple evaluation library and return a list of components that unify with a given type, along with the corresponding substitutions. Data structures: a struct with two hashtables, one for terms and one for types, mapping from index to definitions and signatures. It is practical two have two different libraries for synthesis and evaluation (since some library components were synthesised from helper components that we not necessarily want to use for synthesis). It is hard to debug programs written in the internal language, the library file format is not advanced (simple text file with comments, as of now). Type-checking helps a little bit. That's why we generated many components with the synthesiser. Built-in functions are added to every library read from file. They are even harder to define than the ones in the internal language. No type check for them.
+
+
 What could I talk about in this chapter?
 \begin{itemize}
 \item Programming language (OCaml) and compiler version (find it out)
