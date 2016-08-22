@@ -54,10 +54,8 @@ foldr drop nil
 that we would like to replace with the one pattern \lstinline!foldr _ _ nil!. The more general pattern not only helps keeping the size of the black list small but also rules out more of the superfluous programs.
 The latter restriction does not allow us to generate longer synonyms for terms like \lstinline!nil! and \lstinline!zero! that do not involve the application of the identity function, as for example \lstinline!enumTo zero! and \lstinline!sum nil!.
 
-In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that a good result could be achieved by exploring patterns with two of more holes and setting other functions (not only the identity) and a synthesis goal. 
+In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that a good result could be achieved by exploring patterns with two of more holes and setting other functions (not only the identity) as a synthesis goal. For example, projection functions like \lstinline!proj $x_1$ $x_2$ \ldots $x_n$ = $x_i$! where the types of the arguments have to be instantiated with concrete types during search could be a good start. However, since black list pruning is expensive and the black list should be short, it might be convenient to concentrate on concrete instantiations of the projection function, as we did with the identity function.
 
-\TODO{Write me}
-Generalise identity function to projections of the form \lstinline!proj(x1, x2, ... xi) = xi!, where the types of the arguments are free in the sense that they can be instantiated with anything. Might be not worth it. Since we need a short list, it could make sense to concentrate on some concrete variants of the projection function.
 
 \subsection{Templates}
 Another interesting question that our thesis does not answer is whether fixing the higher-order components first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
@@ -67,9 +65,26 @@ Another interesting question that our thesis does not answer is whether fixing t
 \end{lstlisting}
 Rewriting the successor rules or pruning templates according to some heuristic could shed light on the practical impact of this approach. In particular, we believe that limiting the size of the programs being synthesised instead of the depth of the first-order search could be a first step towards a more efficient implementation. The reason for that is that undesirable templates tend to have very few successors in the first-order search. As a result, partial programs being explored are typically quickly growing applications of holes.
 
-\subsection{Harder examples}
-\TODO{write me}
-More experimental work has to be done. Harder benchmarks have to be synthesised. We encourage to define trees and experiment with programs over trees and compound data structures.
+\subsection{Harder benchmarks}
+
+Experimental work is very important to understand the search space and raise new questions. We evaluated our synthesiser on simple benchmarks mostly taken from functional programming assignments, where \lstinline!enumFromTo! was the most challenging synthesis goal. However, it would be interesting to see whether our results also generalise to harder problems. We encourage therefore to experiment with harder programs over trees or compound data structures.
+
+For example, we believe that the \lstinline!waterflow! problem could pose a challenge to our synthesiser. The synthesised program should, given a list of ``wall'' heights, return the volume of the ``puddles'' that form when it rains. That is, it should satisfy the specification reported below. An expected Haskell solution is provided for reference.
+\begin{lstlisting}[mathescape=false]
+waterflow :: List Int -> Int
+waterflow [1,2,3] == 0
+waterflow [5,2,5] == 3
+waterflow [2,3,1,6,1] == 2
+waterflow h = sum $ 
+      zipWith (-) 
+        (zipWith min (scanl1 max h) (scanr1 max h))
+        h
+\end{lstlisting}
+As you can see, the reference solution is quite long and uses many higher-order components. One of them \lstinline!zipWith!, is even used twice. This suggests that some of the heuristics that perform well for basic benchmarks could not generalise well to harder problems.
+
+
+
+
 
 
 
