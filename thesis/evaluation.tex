@@ -5,7 +5,7 @@
 The main goal of this chapter is to give some insights about the factors that affect performance and compare different variants of the synthesis procedure described in Chapter~\ref{ch:definitions}. We also compare our synthesis procedure to the related work discussed in Chapter~\ref{ch:relatedwork}.
 
 \section{Implementation}
-We implemented our prototype \textsc{Tamandu} in OCaml 4.03.0, closely following the formalisation in Chapter~\ref{ch:definitions}.  For our internal language, we implemented an interpreter, a type checker and unification.  The types and the terms are represented by algebraic data types.  For the ease of implementation, we use De Bruijn indices \cite{DEBRUIJN1972381} to represent bound variables in term and type abstractions.  For convenience, we implemented a concrete syntax for the internal language and used it to implement most library components.  A parser for this language was generated using the \lstinline!menhir! package.  In order to speed up the evaluation, we extended the interpreter with an interface for implementing functions in OCaml.  This way, we implemented arithmetic via OCaml integers and built-in functions.   
+We implemented our prototype \textsc{Tamandu} in OCaml 4.03.0, closely following the formalisation in Chapter~\ref{ch:definitions}.  For our internal language, we implemented an interpreter, a type checker and unification.  The types and the terms are represented by algebraic data types.  For ease of implementation, we use De Bruijn indices \cite{DEBRUIJN1972381} to represent bound variables in term and type abstractions.  For convenience, we implemented a concrete syntax for the internal language and used it to implement most library components.  A parser for this language was generated using the \lstinline!menhir! package.  In order to speed up the evaluation, we extended the interpreter with an interface for implementing functions in OCaml.  This way, we implemented arithmetic via OCaml integers and built-in functions.   
 
 As already discussed in Section~\ref{Term and types}, the internal language supports recursion by name.  In evaluation and type checking we use maps from library components to their (possibly recursive) definitions to unfold the definitions when needed.  For example, to check type equality during type checking we sometimes have to unfold recursive type definitions.
 
@@ -350,6 +350,24 @@ member n xs
     = isZero (prod (map [Int] [Int] (sub n) xs))
 \end{lstlisting}
 This works in our implementation because our built-in integers can have negative values.
+
+\section{User-synthesiser interaction}
+
+In our experiments we also explored some rudimentary ways of user-synthesiser interaction in order to help the synthesiser to avoid the three classes of undesired programs listed in Section~\ref{observations}.
+
+The simplest way to help the synthesiser is to restrict the library to the components needed for the synthesis task at hand. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to miss some of the components.
+
+Another way to help the synthesiser is to generate helper functions first and add them to the library before the synthesis of the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution.
+
+The last way to help the synthesiser that we tried is to specify a starting template. For example, the user might have the intuition that \lstinline!enumFromTo! can be synthesised by adding some integer to each element of a list of consecutive numbers. They can encode this intuition into the template:
+\begin{lstlisting}[style=plain]
+enumFromTo m n = map [Int] [Int] (add ?i) (enumTo ?j)
+\end{lstlisting}
+and get the desired implementation:
+\begin{lstlisting}[style=plain]
+enumFromTo m n = map [Int] [Int] (add (sub m (succ zero))) (enumTo (succ (sub n m)))
+\end{lstlisting}
+However, user-input is usually not needed to synthesise the benchmarks in less than a minute, \lstinline!enumFromTo! being the only exception.
 
 
 \section{Comparison to related work}

@@ -9,10 +9,21 @@ In this chapter we look at four state-of-the-art tools closely related to our wo
 %   -> type of spec (e.g., examples vs. formulas)
 %   -> target language
 %   -> components: fixed or not, etc.
+\def\myraggedright{\rightskip0mm plus10mm\relax}
 
 \begin{table}
 \caption{Comparison of program synthesis tools closely related to our tool \textsc{Tamandu}}
-\begin{tabular}{l p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth}}
+\begin{flushleft}
+\begin{tabular}{@{}
+				l
+                >{\myraggedright}
+                p{\dimexpr.2\textwidth-\tabcolsep\relax}
+                >{\myraggedright\arraybackslash}
+                p{\dimexpr.2\textwidth-\tabcolsep\relax}
+                >{\myraggedright\arraybackslash}
+                p{\dimexpr.2\textwidth-\tabcolsep\relax}
+                >{\myraggedright\arraybackslash}
+                p{\dimexpr.2\textwidth-\tabcolsep\relax}@{}}
 \toprule
  & Type of search & Specification & Target language & Components\\
  \midrule
@@ -20,13 +31,14 @@ In this chapter we look at four state-of-the-art tools closely related to our wo
 \hline
 $\lambda^2$ & type-directed enumeration with templates combined with manual deduction rules & input-output examples & typed lambda-calculus with algebraic data types and recursion & $7$ fixed higher-order components, user-defined first-order components\\
 \hline
-\textsc{Escher} & enumeration and conditional inference & input-output examples & untyped application of library components, input variables and the function being synthesised & User-defined first-order components\\
+\textsc{Escher} & enumeration and conditional inference & input-output examples & untyped application of library components, input variables and the function being synthesised & user-defined first-order components\\
 \hline
 \textsc{Myth} & type and example-directed enumeration & input-output examples and type signature & typed lambda calculus with algebraic data types and recursion (no polymorphic types) & user-defined components and data types (no polymorphic types)\\
 \hline
 \textsc{Tamandu} & type-directed enumeration & input-output examples and type signature & typed application of library components and input variables & user-defined types and components\\
 \bottomrule
 \end{tabular}
+\end{flushleft}
 \end{table}
 
 
