@@ -353,11 +353,9 @@ This works in our implementation because our built-in integers can have negative
 
 \section{User-synthesiser interaction}
 
-In our experiments we also explored some rudimentary ways of user-synthesiser interaction in order to help the synthesiser to avoid the three classes of undesired programs listed in Section~\ref{observations}.
+In our experiments we also explored three rudimentary ways the user can guide and help synthesis.  The simplest way a user can help the synthesiser is to restrict the library to the components relevant to the synthesis task at hand. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to miss some of the necessary components.
 
-The simplest way to help the synthesiser is to restrict the library to the components needed for the synthesis task at hand. For example, the user might expect that \lstinline!enumFromTo! can be synthesised by putting together \lstinline!enumTo!, \lstinline!map!, \lstinline!add!, \lstinline!sub! and the integer and lists constructors. However, in our experience it is easy to miss some of the components.
-
-Another way to help the synthesiser is to generate helper functions first and add them to the library before the synthesis of the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution.
+Another way the user can speed up the synthesis, to explicitly synthesise helper functions and then add them to the library before synthesising the desired program. For example, to speed up the synthesis of \lstinline!enumFromTo!, we first generated \lstinline!enumTo! from the components we had. This increases the size of the library, but reduces the size of the generated solution and thus usually reduces the synthesis time.
 
 The last way to help the synthesiser that we tried is to specify a starting template. For example, the user might have the intuition that \lstinline!enumFromTo! can be synthesised by adding some integer to each element of a list of consecutive numbers. They can encode this intuition into the template:
 \begin{lstlisting}[style=plain]
@@ -367,7 +365,7 @@ and get the desired implementation:
 \begin{lstlisting}[style=plain]
 enumFromTo m n = map [Int] [Int] (add (sub m (succ zero))) (enumTo (succ (sub n m)))
 \end{lstlisting}
-However, user-input is usually not needed to synthesise the benchmarks in less than a minute, \lstinline!enumFromTo! being the only exception.
+However, user-input is not needed to synthesise the benchmarks in less than one minute, \lstinline!enumFromTo! being the only exception.
 
 
 \section{Comparison to related work}
