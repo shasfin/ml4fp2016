@@ -54,11 +54,12 @@ Empirical evaluation showed that reducing the size of the examples and blacklist
   
 \section{Future Work}
 
-\TODO{Put more explicit ways to reach a `publishable unit'\\}
+As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis. However, in order to reach a publishable unit, this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
 
-As anticipated in the previous section, the information about well-known computational patterns encoded as library components can be successfully reused in program synthesis, and this promising direction needs further exploration. In this section we list some possibilities for future work that follow from the limitations of our system.
+\subsection{Automatic black list generation}
+Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would alleviate this inconvenience.
 
-Pruning based on black lists helps to reduce synthesis time. However, manually compiled black lists are inconvenient when users are allowed to add their own components to the library. Automatically synthesising a black list from the components in the given library would alleviate this inconvenience. In Section~\ref{Black list generation} we discussed how we used our synthesis procedure to automatically generate a black list. However, we arrived at the conclusion that our method is too primitive to compete with a manually compiled black list. In particular, the generated patterns have only one wild-card and correspond to the identity function. The former restriction leads to the generation of patterns like
+In Section~\ref{Black list generation} we discussed how we used our synthesis procedure to automatically generate a black list. However, we arrived at the conclusion that our method is too primitive to compete with a manually compiled black list. In particular, the generated patterns have only one wild-card and correspond to the identity function. The former restriction leads to the generation of patterns like
 \begin{lstlisting}[style=plain]
 foldr append _ nil
 foldr con _ nil
@@ -66,8 +67,10 @@ foldr drop nil
 \end{lstlisting}
 that we would like to replace with the one pattern \lstinline!foldr _ _ nil!. The more general pattern not only helps keeping the size of the black list small but also rules out more of the superfluous programs.
 The latter restriction does not allow us to generate longer synonyms for terms like \lstinline!nil! and \lstinline!zero! that do not involve the application of the identity function, as for example \lstinline!enumTo zero! and \lstinline!sum nil!.
-In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically.
 
+In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. \TODO{some concrete advice} It is a question of interest how to generate such a black list automatically.
+
+\subsection{Templates}
 Another interesting question that our thesis does not answer is whether fixing the higher-order components first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
 \begin{lstlisting}[style=plain]
 ?x (foldr [?X] [?Y])
