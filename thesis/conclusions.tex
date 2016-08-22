@@ -2,20 +2,7 @@
 
 \section{Conclusions}
 
-Type-driven synthesis of functional programs from input-output examples   strives to automatically generate well-typed programs that satisfy the given input-output examples and generalise well to unseen input-output pairs. When solving similar tasks, human programmers rely on well-known computational patterns.
-
-%\TODO{Do we need the example at all?\\}
-%Consider, for example, a human is given the task to write \lstinline!replicate!, the function that takes an integer \lstinline!n! and an element \lstinline!x! and returns the list \lstinline![x, x, $\ldots$, x]! of \lstinline!n! copies of \lstinline!x!. The human would probably resort to recursion over integers. That is, depending on the value of \lstinline!n!, she would either call \lstinline!replicate (n-1) x! and prepend the result with another \lstinline!x! or, if \lstinline!n! is $0$, return the empty list:
-%\begin{lstlisting}[style=plain]
-%replicate 0 x = []
-%replicate n x = x:(replicate (n-1) x)
-%\end{lstlisting}
-%This computational pattern is expressed by \lstinline!foldNat!, the higher-order component that folds an integer using a given function. That is, the above program is equivalent to:
-%\begin{lstlisting}[style=plain]
-%replicate n x = foldNat (x:) [] n
-%\end{lstlisting}
-
-The main goal of this thesis was to study how well first- and higher-order components can guide and speed up the synthesis process.
+The main goal of this thesis was to study how well first- and higher-order components can guide and speed up the synthesis process, in analogy to how human programmers reuse well-known computational patterns in their programs.
 
 In order to achieve this goal, we implemented a prototype of a simple synthesis procedure based on program enumeration in OCaml. Extensive evaluation of the prototype on benchmarks showed that it can compete with related state-of-the-art tools. We believe therefore that synthesis from library components is a promising direction and needs to be explored further.
 
@@ -54,8 +41,12 @@ foldr drop nil
 that we would like to replace with the single pattern \lstinline!foldr _ _ nil!. The more general pattern not only helps keep the size of the black list small but also rules out more of the superfluous programs.
 The latter restriction prevents us from generating longer synonyms for terms like \lstinline!nil! and \lstinline!zero! that do not involve the application of the identity function, as for example \lstinline!enumTo zero! and \lstinline!sum nil!.
 
-In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that good results could be achieved by exploring patterns with two or more holes and setting other functions (not only the identity) as a synthesis goal. For example, projection functions like \lstinline!proj $x_1$ $x_2$ $\ldots$ $x_n$ = $x_i$! where the types of the arguments have to be instantiated with concrete types during search could be a good start. However, since black list pruning is expensive and the black list should be short, it might be convenient to concentrate on concrete instantiations of the projection function, as we did with the identity function.
-
+In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that good results could be achieved by exploring patterns with two or more holes and setting other functions (not only the identity) as a synthesis goal. We believe that it could be beneficial to explore the \lstinline!project! function, that is the function that discards all of its inputs except one, which it always returns unchanged.
+\begin{lstlisting}[style=plain]
+project :: $?X_1$ -> $?X_2$ -> $\ldots$ -> $?X_n$ -> $?X_i$
+project $x_1$ $x_2$ $\ldots$ $x_n$ = $x_i$
+\end{lstlisting}
+By putting type holes in the type signature of \lstinline!project! we want to emphasise the fact that the types of the arguments should be instantiated with concrete types during search, as opposed to the normal universally bound type variables, that are not instantiated during search in order to generate a polymorphic program. It might be convenient to explore concrete instantiations of the projection function, as we did with the identity function.
 
 \subsection{Templates}
 Another interesting question that our thesis does not answer is whether fixing the higher-order components first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
