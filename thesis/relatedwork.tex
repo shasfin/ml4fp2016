@@ -4,6 +4,32 @@
 
 In this chapter we look at four state-of-the-art tools closely related to our work. They all synthesise functional programs, use type information to restrict the search space and enumerate terms during search. Since simple types are too ambiguous to specify a program, the tools we present either choose to complement type information with input-output examples, as in \cite{LambdaSquarePaper, EscherPaper, MythPaper}, or resort to more complex and more expressive types that can actually act as a specification, as for example the \emph{refinement types} in \cite{SynquidPaper}.
 
+
+%   -> type of search (e.g., enumeration, deductive, fixed pruning rules, etc).
+%   -> type of spec (e.g., examples vs. formulas)
+%   -> target language
+%   -> components: fixed or not, etc.
+
+\begin{table}
+\caption{Comparison of program synthesis tools closely related to our tool \textsc{Tamandu}}
+\begin{tabular}{l p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth} p{0.2\textwidth}}
+\toprule
+ & Type of search & Specification & Target language & Components\\
+ \midrule
+\textsc{Synquid} & type-directed enumeration combined with deduction & refinement types & typed lambda-calculus with algebraic data types and recursion & user-defined types and components, only refinement type of components must be provided\\
+\hline
+$\lambda^2$ & type-directed enumeration with templates combined with manual deduction rules & input-output examples & typed lambda-calculus with algebraic data types and recursion & $7$ fixed higher-order components, user-defined first-order components\\
+\hline
+\textsc{Escher} & enumeration and conditional inference & input-output examples & untyped application of library components, input variables and the function being synthesised & User-defined first-order components\\
+\hline
+\textsc{Myth} & type and example-directed enumeration & input-output examples and type signature & typed lambda calculus with algebraic data types and recursion (no polymorphic types) & user-defined components and data types (no polymorphic types)\\
+\hline
+\textsc{Tamandu} & type-directed enumeration & input-output examples and type signature & typed application of library components and input variables & user-defined types and components\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 \section{\mdseries\textsc{Synquid}}
 
 In \cite{SynquidPaper} \textsc{Synquid} is proposed. The code can be found online\footnote{https://bitbucket.org/nadiapolikarpova/synquid} and there is the possibility to try it in the browser.
@@ -82,8 +108,6 @@ This tool is able to generate structurally recursive programs that use pattern m
 
 In contrast to our tool, \textsc{Myth} requires a closed set of input-output examples as a specification to a synthesis task. This is an inconvenience, since the user has to anticipate the structure of the program and the recursive calls. Moreover, as opposed to our tool, \textsc{Myth} lacks support for polymorphic types.
 
-
-\TODO{Comparison table. Specification, new things, do they use types for pruning, do they use components and how many}
 %Leon (can bring it, it's deductive, so it's different than the others. It also targets functional programs. No, I have nothing to compare. The benchmark is too different.) \cite{LeonPaper}
 %\begin{enumerate}
 %\item What is the specification?
