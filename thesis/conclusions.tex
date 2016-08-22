@@ -41,12 +41,12 @@ foldr drop nil
 that we would like to replace with the single pattern \lstinline!foldr _ _ nil!. The more general pattern not only helps keep the size of the black list small but also rules out more of the superfluous programs.
 The latter restriction prevents us from generating longer synonyms for terms like \lstinline!nil! and \lstinline!zero! that do not involve the application of the identity function, as for example \lstinline!enumTo zero! and \lstinline!sum nil!.
 
-In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that good results could be achieved by exploring patterns with two or more holes and setting other functions (not only the identity) as a synthesis goal. We believe that it could be beneficial to explore the \lstinline!project! function, that is the function that discards all of its inputs except one, which it always returns unchanged.
+In general, a good black list contains only the shortest most general patterns that rule out superfluous programs. It is a question of interest how to generate such a black list automatically. We believe that good results could be achieved by exploring patterns with two or more holes and setting other functions (not only the identity) as a synthesis goal. We suppose that it could be beneficial to explore projection functions, that is the functions that discard all of their inputs except one, which they always return unchanged. Along with polymorphic projections like
 \begin{lstlisting}[style=plain]
-project :: $?X_1$ -> $?X_2$ -> $\ldots$ -> $?X_n$ -> $?X_i$
+project :: $\forall X_1$ $X_2$ $\ldots$ $X_n$. $?X_1$ -> $?X_2$ -> $\ldots$ -> $?X_n$ -> $?X_i$
 project $x_1$ $x_2$ $\ldots$ $x_n$ = $x_i$
 \end{lstlisting}
-By putting type holes in the type signature of \lstinline!project! we want to emphasise the fact that the types of the arguments should be instantiated with concrete types during search, as opposed to the normal universally bound type variables, that are not instantiated during search in order to generate a polymorphic program. It might be convenient to explore concrete instantiations of the projection function, as we did with the identity function.
+we also advise to generate ones with fixed input types, since they allow us to discover patterns specific to the concrete choice of types. An interesting challenge is whether patterns with fixed types can be generated without fixing the types a priori, but discovering them during the synthesis process.
 
 \subsection{Templates}
 Another interesting question that our thesis does not answer is whether fixing the higher-order components first in form of templates helps to guide and speed up synthesis. As discussed in Section~\ref{Eval. Templates}, the successor rules currently used in our prototype implementation generate a lot of undesirable templates such as:
